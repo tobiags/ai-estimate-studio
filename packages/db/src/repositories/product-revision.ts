@@ -1,4 +1,4 @@
-import type { Prisma, PrismaClient } from "@prisma/client";
+import { Prisma, type PrismaClient } from "@prisma/client";
 import {
   createCurrencyCode,
   createId,
@@ -328,7 +328,7 @@ export class PrismaProductRevisionAggregateRepository implements ProductRevision
                 name: json(option.name),
                 description: json(option.description),
                 state: option.state,
-                viewerMappingKey: option.viewerMappingKey,
+                viewerMappingKey: option.viewerMappingKey ?? null,
                 sortOrder: option.sortOrder,
               })),
             },
