@@ -61,6 +61,9 @@ function revision(state: "PUBLISHED" | "DRAFT" = "PUBLISHED") {
         sortOrder: 1,
       },
     ],
+    optionGroups: [],
+    dimensions: [],
+    assets: [],
     defaultVariant: {
       id: variantId,
       productRevisionId: revisionId,

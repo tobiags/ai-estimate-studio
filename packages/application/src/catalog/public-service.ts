@@ -1,5 +1,6 @@
 import type {
   Category,
+  LocalizedText,
   Money,
   Page,
   PageRequest,
@@ -10,9 +11,11 @@ import type {
 import {
   projectCategory,
   projectProduct,
+  projectProductDetail,
   projectProductRevision,
   type PublicCategory,
   type PublicProduct,
+  type PublicProductDetail,
   type PublicProductRevision,
 } from "./projections.js";
 
@@ -20,6 +23,46 @@ export type PublicProductAggregate = Readonly<{
   product: Product;
   revision: ProductRevision;
   startingPrice?: Money;
+  detail?: PublicProductDetailSource;
+}>;
+
+export type PublicProductDetailSource = Readonly<{
+  variants: readonly Readonly<{
+    id: string;
+    code: string;
+    name: LocalizedText;
+    description: LocalizedText;
+    basePrice: Money;
+  }>[];
+  optionGroups: readonly Readonly<{
+    id: string;
+    code: string;
+    name: LocalizedText;
+    description: LocalizedText;
+    mode: "SINGLE" | "MULTIPLE";
+    minSelections: number;
+    maxSelections: number | null;
+    options: readonly Readonly<{
+      id: string;
+      code: string;
+      name: LocalizedText;
+      description: LocalizedText;
+      viewerMappingKey?: string;
+    }>[];
+  }>[];
+  dimensions: readonly Readonly<{
+    id: string;
+    code: string;
+    label: LocalizedText;
+    unit: string;
+    min: string;
+    max: string;
+    step: string;
+    defaultValue?: string;
+  }>[];
+  assumptions: readonly LocalizedText[];
+  exclusions: readonly LocalizedText[];
+  viewer?: Readonly<Record<string, unknown>>;
 }>;
 
 export interface CatalogPublicRepository {
@@ -107,21 +150,28 @@ export class CatalogPublicApplicationService {
   async getProduct(
     scope: OrganizationScope,
     input: Readonly<{ slug: string; locale: string }>,
-  ): Promise<PublicProduct | null> {
+  ): Promise<PublicProduct | PublicProductDetail | null> {
     const aggregate = await this.repository.findProductBySlug(
       scope,
       input.slug,
     );
-    return aggregate
-      ? projectProduct(
-          aggregate.product,
-          aggregate.revision.name,
-          aggregate.revision.shortDescription,
-          input.locale,
-          this.fallbackLocale,
-          aggregate.startingPrice,
-        )
-      : null;
+    if (!aggregate) return null;
+    const projected = projectProduct(
+      aggregate.product,
+      aggregate.revision.name,
+      aggregate.revision.shortDescription,
+      input.locale,
+      this.fallbackLocale,
+      aggregate.startingPrice,
+    );
+    if (!projected || !aggregate.detail) return projected;
+    return projectProductDetail(
+      projected,
+      aggregate.revision,
+      aggregate.detail,
+      input.locale,
+      this.fallbackLocale,
+    );
   }
 
   async getProductRevision(

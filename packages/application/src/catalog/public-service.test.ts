@@ -123,4 +123,53 @@ describe("CatalogPublicApplicationService", () => {
       ),
     ).resolves.toBeNull();
   });
+
+  it("projects a complete product detail when the repository supplies the aggregate children", async () => {
+    const repository: CatalogPublicRepository = {
+      async listCategories() {
+        return { items: [] };
+      },
+      async findCategoryBySlug() {
+        return null;
+      },
+      async listProducts() {
+        return { items: [] };
+      },
+      async findProductBySlug() {
+        return {
+          product,
+          revision,
+          detail: {
+            variants: [
+              {
+                id: "variant-a",
+                code: "BASE",
+                name: { en: "Base", fr: "Base FR" },
+                description: { en: "Base variant" },
+                basePrice: { amountMinor: 1200n, currency: "EUR" as never },
+              },
+            ],
+            optionGroups: [],
+            dimensions: [],
+            assumptions: [{ en: "Measured on site" }],
+            exclusions: [{ en: "Electrical work" }],
+            viewer: { schemaVersion: 1 },
+          },
+        };
+      },
+    };
+    await expect(
+      new CatalogPublicApplicationService(repository, "en").getProduct(
+        { organizationId: "org-a" } as never,
+        { slug: "door-a", locale: "fr" },
+      ),
+    ).resolves.toMatchObject({
+      revisionId: "revision-a",
+      description: "A published door",
+      variants: [{ basePrice: { amountMinor: "1200", currency: "EUR" } }],
+      assumptions: ["Measured on site"],
+      exclusions: ["Electrical work"],
+      viewer: { schemaVersion: 1 },
+    });
+  });
 });
