@@ -6,7 +6,7 @@ const codeSchema = z.string().regex(/^[A-Z0-9][A-Z0-9_.-]{0,63}$/);
 const factPathSchema = z
   .string()
   .regex(
-    /^(?:variantId|locale|evaluationTimestamp|dimensions\.[A-Za-z0-9_.-]+|delivery\.(?:countryCode|zoneCode))$/,
+    /^(?:variantId|locale|evaluationTimestamp|option\.[A-Za-z0-9_.-]+|dimensions\.[A-Za-z0-9_.-]+|delivery\.(?:countryCode|zoneCode))$/,
   );
 const scalarSchema = z.union([z.string().max(256), z.boolean(), z.null()]);
 

@@ -146,11 +146,12 @@ flowchart LR
 
 ### PRC-03 — Staged evaluator and trace
 
-- [ ] **Objective:** Evaluate base/options/dimensions/labor/delivery/fees deterministically with stable line ordering/trace.
+- [x] **Objective:** Evaluate base/options/dimensions/labor/delivery/fees deterministically with stable line ordering/trace.
 - **Dependencies:** PRC-02.
 - **Files:** create `packages/pricing-engine/src/evaluator/*`, `packages/pricing-engine/src/trace.ts`.
 - **Expected tests:** golden scenarios, randomized input ordering determinism, applied/skipped trace and checksum equivalence.
 - **Completion:** pure function has no I/O/implicit time; repeated identical explicit inputs are byte-equivalent.
+- **Evidence (2026-08-05):** The pure evaluator sorts rules by priority/code, evaluates allowlisted conditions and emits immutable line items plus applied/skipped trace entries. Integer percentage actions use explicit half-away rounding; totals and a canonical serialization are returned without clock, database or provider access. Golden, ordering-equivalence and trace tests pass (14 pricing tests total).
 
 ### PRC-04 — Discounts and taxes
 

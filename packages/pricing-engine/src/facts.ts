@@ -13,6 +13,7 @@ export type FactPath =
   | "variantId"
   | "locale"
   | "evaluationTimestamp"
+  | `option.${string}`
   | `dimensions.${string}`
   | "delivery.countryCode"
   | "delivery.zoneCode";
@@ -24,6 +25,9 @@ export function readFact(
   if (path === "variantId") return facts.variantId;
   if (path === "locale") return facts.locale;
   if (path === "evaluationTimestamp") return facts.evaluationTimestamp;
+  if (path.startsWith("option.")) {
+    return hasOption(facts, path.slice("option.".length)) ? "true" : undefined;
+  }
   if (path === "delivery.countryCode") return facts.delivery?.countryCode;
   if (path === "delivery.zoneCode") return facts.delivery?.zoneCode;
   if (path.startsWith("dimensions.")) {
