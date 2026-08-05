@@ -232,6 +232,7 @@ flowchart LR
 - **Files:** create `packages/viewer-engine/src/{assets,scene,camera,lifecycle}/**` plus minimal licensed synthetic GLB fixtures.
 - **Expected tests:** load/progress/cancel/replace, bounds framing, context loss, cache eviction, disposal of geometry/material/texture/mixer/listeners/frames.
 - **Completion:** 20-switch memory benchmark meets ≤15% settled growth; no reference code/assets copied.
+- **Evidence (2026-08-05, generic runtime foundation):** `packages/viewer-engine/src/assets/gltf.ts` adds an injectable streamed GLTF transport/decoder with progress, cancellation and byte budgets; `src/assets/loader.ts` keeps bounded LRU disposal and cancellable replacement. `src/scene/runtime.ts` adds generic bounds framing plus renderer/scene/camera mount, replacement and idempotent disposal contracts. Tests cover progress, cancellation, byte limits, framing and disposal; concrete GLTF decoder, renderer integration and 20-switch benchmark remain.
 
 ### VWR-03 — Configuration mapping and hotspots
 

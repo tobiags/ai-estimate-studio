@@ -3,9 +3,18 @@ export interface CancellationSignal {
   readonly aborted: boolean;
 }
 export class CancellationController {
-  readonly signal: CancellationSignal = { aborted: false };
+  private abortedState = false;
+  readonly signal: CancellationSignal;
+
+  constructor() {
+    this.signal = Object.defineProperty({}, "aborted", {
+      enumerable: true,
+      get: () => this.abortedState,
+    }) as CancellationSignal;
+  }
+
   abort(): void {
-    (this.signal as { aborted: boolean }).aborted = true;
+    this.abortedState = true;
   }
 }
 
