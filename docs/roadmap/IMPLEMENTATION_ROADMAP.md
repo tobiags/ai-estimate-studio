@@ -310,11 +310,12 @@ flowchart LR
 
 ### AIG-02 — Allowlisted context builder
 
-- [ ] **Objective:** Build bounded same-revision context and deterministic alternative candidates with server price deltas.
+- [x] **Objective:** Build bounded same-revision context and deterministic alternative candidates with server price deltas.
 - **Dependencies:** AIG-01, PRC-04, CAT-01.
 - **Files:** create `packages/ai/src/context/*`, `packages/application/src/ai/context-service.ts`.
 - **Expected tests:** tenant/revision isolation, token/candidate truncation, locale, no-PII projection, budget ranking and catalog/user injection delimiters.
 - **Completion:** snapshot/checksum proves exactly what approved context was supplied.
+- **Evidence (2026-08-05):** `packages/ai/src/context` provides canonical, bounded same-revision context and budget-ranked alternatives; `packages/application/src/ai/context-service.ts` requires tenant-scoped retrieval and locale/revision inputs before building the snapshot. Tests cover tenant/revision forwarding and isolation, deterministic checksum, truncation, delimiters and contact-data rejection (AI context and application suites pass).
 
 ### AIG-03 — Provider adapter and verification pipeline
 

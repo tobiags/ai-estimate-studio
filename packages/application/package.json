@@ -4,6 +4,7 @@
   "private": true,
   "type": "module",
   "dependencies": {
+    "@ai-estimate-studio/ai": "workspace:*",
     "@ai-estimate-studio/domain": "workspace:*",
     "@ai-estimate-studio/pricing-engine": "workspace:*"
   },

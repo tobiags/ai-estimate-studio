@@ -117,6 +117,9 @@ importers:
 
   packages/application:
     dependencies:
+      '@ai-estimate-studio/ai':
+        specifier: workspace:*
+        version: link:../ai
       '@ai-estimate-studio/domain':
         specifier: workspace:*
         version: link:../domain
