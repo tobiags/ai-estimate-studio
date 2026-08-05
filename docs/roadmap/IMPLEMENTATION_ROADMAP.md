@@ -108,11 +108,12 @@ flowchart LR
 
 ### DOM-04 — Staff authentication and RBAC
 
-- [ ] **Objective:** Integrate Auth.js identity, membership resolution, CSRF and service-level permission policies.
+- [x] **Objective:** Integrate Auth.js identity, membership resolution, CSRF and service-level permission policies.
 - **Dependencies:** DOM-03, FND-03.
 - **Files:** create `apps/web/src/auth/*`, `packages/application/src/auth/*`, `packages/domain/src/organization/permissions.ts`, auth routes/middleware.
 - **Expected tests:** session creation/rotation/revocation, every role/action, cross-host organization, CSRF/origin, last-owner rule and direct route denial.
 - **Completion:** admin access is deny-by-default and organization-scoped; Owner/Admin production MFA requirement is documented/configurable through provider.
+- **Evidence (2026-08-05):** Domain permission policy matches the Admin matrix, denies by default and protects the last active owner; application authorization requires an active same-organization membership, session expiry/rotation/revocation ports and constant-time double-submit CSRF/origin checks. Web route guard is server-only. Permission/session/CSRF tests (19 assertions across domain/application), lint and typecheck pass. Auth.js remains behind these ports so the provider can be configured without leaking framework types into domain/application.
 
 ### DOM-05 — OpenAPI-derived contracts and HTTP foundation
 

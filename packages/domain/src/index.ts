@@ -4,6 +4,7 @@ export * from "./configuration/model.js";
 export * from "./customer/model.js";
 export * from "./jobs/model.js";
 export * from "./organization/model.js";
+export * from "./organization/permissions.js";
 export * from "./quote/model.js";
 export * from "./shared/errors.js";
 export * from "./shared/ids.js";
