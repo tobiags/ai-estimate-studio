@@ -81,11 +81,12 @@ flowchart LR
 
 ### DOM-01 — Pure domain primitives
 
-- [ ] **Objective:** Define branded IDs, money, locale, revision, state machines, errors and repository/provider ports without I/O.
+- [x] **Objective:** Define branded IDs, money, locale, revision, state machines, errors and repository/provider ports without I/O.
 - **Dependencies:** FND-02.
 - **Files:** create focused modules under `packages/domain/src/{shared,organization,catalog,configuration,quote,customer,audit,jobs}/` and `packages/domain/src/index.ts`.
 - **Expected tests:** money bounds, state transitions, version conflicts, ID/value validation and forbidden-import architecture tests.
 - **Completion:** package has no React/Next/Prisma/provider imports; public API is documented and mutation-free where required.
+- **Evidence (2026-08-05):** `packages/domain` exports immutable value objects, lifecycle transitions, organization-scoped repository/provider ports and entity snapshots. Package tests (13 assertions), typecheck, lint and forbidden-import architecture test pass; package README documents the boundary.
 
 ### DOM-02 — Prisma schema and initial migration
 

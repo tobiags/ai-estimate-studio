@@ -47,7 +47,9 @@
     "vitest": "4.1.10"
   },
   "pnpm": {
-    "onlyBuiltDependencies": ["esbuild"],
+    "onlyBuiltDependencies": [
+      "esbuild"
+    ],
     "overrides": {
       "vite": "6.4.3"
     }
