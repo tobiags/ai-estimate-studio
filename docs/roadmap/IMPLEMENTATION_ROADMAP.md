@@ -137,11 +137,12 @@ flowchart LR
 
 ### PRC-02 — Configuration and rule-set validation
 
-- [ ] **Objective:** Validate option cardinality/dependencies, dimensions, tiers, stack groups, references and effective intervals.
+- [x] **Objective:** Validate option cardinality/dependencies, dimensions, tiers, stack groups, references and effective intervals.
 - **Dependencies:** PRC-01, DOM-01.
 - **Files:** create `packages/pricing-engine/src/validation/*` and property-test generators.
 - **Expected tests:** cycles, impossible groups, overlapping tiers, cross-revision IDs, boundary dimensions, randomized graph/formula fuzz cases.
 - **Completion:** every publication-blocking condition in the pricing spec has a stable code and test.
+- **Evidence (2026-08-05):** Pricing validation now returns stable publication-blocking issue codes for impossible selection groups, cross-revision references, dependency cycles/self-links, decimal dimension bounds/steps/defaults, overlapping tiers and exclusive stack conflicts. It is pure, bounded and deterministic; validation tests cover valid input, graph cycles, interval overlap, decimal boundaries and 32 generated small graphs (11 tests pass).
 
 ### PRC-03 — Staged evaluator and trace
 
