@@ -301,11 +301,12 @@ flowchart LR
 
 ### AIG-01 — AI port, policy and prompt registry
 
-- [ ] **Objective:** Implement provider-neutral structured generation contracts and versioned prompt/policy registry.
+- [x] **Objective:** Implement provider-neutral structured generation contracts and versioned prompt/policy registry.
 - **Dependencies:** DOM-05, CFG-01.
 - **Files:** create `packages/ai/src/{ports,policy,prompts,schemas}/**` and provider contract tests.
 - **Expected tests:** prompt snapshot/version, schema limits, adapter error mapping, timeout/abort and no vendor type leakage.
 - **Completion:** fake adapter passes the same contract as production adapter; no customer PII is accepted by the port.
+- **Evidence (2026-08-05):** `packages/ai` defines a vendor-neutral structured provider port, strict recommendation output schema, versioned prompt registry and bounded no-PII policy. Fake-provider tests exercise schema parity, prompt versioning, provider error mapping, prompt size limits and contact-data rejection (3 AI tests pass); no provider SDK types enter the package boundary.
 
 ### AIG-02 — Allowlisted context builder
 
