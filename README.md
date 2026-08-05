@@ -2,7 +2,7 @@
 
 AI Estimate Studio is a configurable quotation platform for home-improvement businesses. A homeowner configures a product in an interactive 3D viewer, receives a deterministic price and bounded AI guidance, exports a quote PDF, and can request contact from the business.
 
-This repository is currently an **Engineering Design Repository**. The `main` branch contains approved product and engineering specifications only. Application implementation must start on `develop` only after the roadmap is approved.
+This repository is an **Engineering Design Repository**. The `main` branch contains approved product and engineering specifications; implementation proceeds on `develop` in the dependency order defined by the approved roadmap.
 
 ## Source of truth
 
@@ -30,7 +30,23 @@ See [docs/README.md](docs/README.md) for ownership, status, approval rules, and 
 - `feature/<issue>-<slug>` and `fix/<issue>-<slug>`: short-lived branches targeting `develop`.
 - No generated application code, database migration, or deployable artifact belongs on `main` during the design phase.
 
+## Local foundation setup
+
+Prerequisites are Node.js 24.11.1, Corepack and a running Docker Desktop/Engine with Compose v2. From a fresh clone of `develop`:
+
+```bash
+corepack pnpm install --frozen-lockfile
+corepack pnpm bootstrap
+copy .env.example .env.local # Windows
+# or: cp .env.example .env.local
+corepack pnpm dev
+```
+
+The bootstrap waits for PostgreSQL on `localhost:55432`, MinIO on ports `9000`/`9001`, and Mailpit on ports `1025`/`8025`; all ports bind to the loopback interface only. It also creates the local object-storage bucket idempotently. All committed fixtures are synthetic. `pnpm infra:down` stops services while preserving named volumes.
+
+Run `corepack pnpm format:check`, `lint`, `typecheck`, `test`, and `build` before opening a pull request. No production secret belongs in local environment files or fixtures.
+
 ## Current phase gate
 
-Implementation is blocked until all documents marked **Normative** in the documentation index are internally consistent and the roadmap receives explicit product-owner approval.
+The roadmap was approved on 2026-08-05. Epic 1 engineering-foundation work is in progress on `develop`; product-domain implementation remains gated by completion of its listed dependencies.
 

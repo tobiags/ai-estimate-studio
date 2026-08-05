@@ -8,10 +8,14 @@
   },
   "packageManager": "pnpm@10.33.2",
   "scripts": {
+    "bootstrap": "node scripts/bootstrap.mjs",
     "build": "turbo run build",
-    "dev": "turbo run dev",
+    "dev": "dotenv -e .env.local -- turbo run dev",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
+    "infra:down": "docker compose down",
+    "infra:logs": "docker compose logs --follow",
+    "infra:up": "docker compose up --detach --wait postgres minio mailpit",
     "lint": "turbo run lint",
     "test": "turbo run test",
     "typecheck": "turbo run typecheck"
@@ -20,6 +24,7 @@
     "@eslint/js": "10.0.1",
     "@types/node": "24.13.3",
     "@vitest/coverage-v8": "4.1.10",
+    "dotenv-cli": "11.0.0",
     "eslint": "10.8.0",
     "globals": "17.9.0",
     "prettier": "3.9.6",
