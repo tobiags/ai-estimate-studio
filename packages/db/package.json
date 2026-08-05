@@ -4,7 +4,9 @@
   "private": true,
   "type": "module",
   "dependencies": {
+    "@ai-estimate-studio/application": "workspace:*",
     "@ai-estimate-studio/domain": "workspace:*",
+    "@ai-estimate-studio/pricing-engine": "workspace:*",
     "@prisma/client": "6.19.3"
   },
   "exports": {

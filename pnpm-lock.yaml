@@ -145,9 +145,15 @@ importers:
 
   packages/db:
     dependencies:
+      '@ai-estimate-studio/application':
+        specifier: workspace:*
+        version: link:../application
       '@ai-estimate-studio/domain':
         specifier: workspace:*
         version: link:../domain
+      '@ai-estimate-studio/pricing-engine':
+        specifier: workspace:*
+        version: link:../pricing-engine
       '@prisma/client':
         specifier: 6.19.3
         version: 6.19.3(prisma@6.19.3(typescript@6.0.3))(typescript@6.0.3)
