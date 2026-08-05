@@ -119,6 +119,10 @@ importers:
       '@ai-estimate-studio/pricing-engine':
         specifier: workspace:*
         version: link:../pricing-engine
+    devDependencies:
+      '@types/node':
+        specifier: 24.13.3
+        version: 24.13.3
 
   packages/config:
     dependencies:
