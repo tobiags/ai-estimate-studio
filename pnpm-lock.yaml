@@ -166,7 +166,11 @@ importers:
         specifier: '>=19 <20'
         version: 19.2.8(react@19.2.8)
 
-  packages/viewer-engine: {}
+  packages/viewer-engine:
+    dependencies:
+      '@ai-estimate-studio/contracts':
+        specifier: workspace:*
+        version: link:../contracts
 
 packages:
 

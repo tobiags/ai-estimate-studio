@@ -216,11 +216,12 @@ flowchart LR
 
 ### VWR-01 — Manifest and capability contracts
 
-- [ ] **Objective:** Implement generic viewer manifest/configuration schemas and publication validator without business terminology.
+- [x] **Objective:** Implement generic viewer manifest/configuration schemas and publication validator without business terminology.
 - **Dependencies:** DOM-05, CAT-03.
 - **Files:** create `packages/viewer-engine/src/contracts/*`, `packages/contracts/src/viewer/*`, asset validation integration.
 - **Expected tests:** schema versions, node/action/hotspot references, conflicts, unsupported capabilities and category-term architecture scan.
 - **Completion:** manifests are serializable/versioned and invalid manifests block publication.
+- **Evidence (2026-08-05):** `packages/contracts/src/viewer/manifest.ts` defines a versioned, strict object-viewer manifest with asset, node, hotspot, action and capability contracts. `viewer-engine` validates duplicate IDs/mappings, node references and capability requirements with stable publication issue codes. Tests cover valid manifests, invalid references, missing capabilities and strict unknown-field rejection (3 viewer tests pass); no domain-specific terminology or models are imported.
 
 ### VWR-02 — Asset manager and scene runtime
 
