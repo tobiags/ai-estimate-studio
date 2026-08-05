@@ -1,4 +1,6 @@
+export { AiPolicyError, AiProviderError } from "@ai-estimate-studio/ai";
 export * from "./ai/context-service.js";
+export * from "./ai/recommendation-service.js";
 export * from "./auth/authorization.js";
 export * from "./auth/csrf.js";
 export * from "./auth/session.js";

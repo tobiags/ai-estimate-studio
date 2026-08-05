@@ -319,11 +319,12 @@ flowchart LR
 
 ### AIG-03 — Provider adapter and verification pipeline
 
-- [ ] **Objective:** Call configured provider, validate output, verify references/selections and recompute price deltas before storage.
+- [x] **Objective:** Call configured provider, validate output, verify references/selections and recompute price deltas before storage.
 - **Dependencies:** AIG-02.
 - **Files:** create `packages/providers/src/ai/*`, `packages/ai/src/verify/*`, `packages/application/src/ai/recommendation-service.ts`, recommendation route.
 - **Expected tests:** malformed JSON, invented/cross-tenant IDs, invalid combination, delta mismatch, prompt leakage, provider outage/rate/cost limits and cache safety.
 - **Completion:** only `VERIFIED` suggestions reach public response; failure leaves quote flow intact.
+- **Evidence (2026-08-05):** `packages/providers/src/ai/json-provider.ts` provides a vendor-neutral JSON transport adapter with prompt/output/cost bounds and mapped provider failures. `packages/ai/src/verify` validates every referenced entity, rejects invalid combinations, recomputes deltas/currency and returns only verified suggestions. `packages/application/src/ai/recommendation-service.ts` enforces tenant/configuration scope and persists only non-empty verified results through a port; `apps/web/src/http/recommendation.ts` maps failures to RFC 7807 and exposes no unverified output. AI, provider, application and HTTP suites cover malformed JSON, unknown IDs, delta mismatch, rate/cost/PII controls and rejection (all pass). Concrete provider transport and Prisma store remain replaceable adapters behind these ports.
 
 ### AIG-04 — Guidance UI and evaluation gate
 

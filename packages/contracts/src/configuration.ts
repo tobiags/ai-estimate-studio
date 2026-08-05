@@ -143,6 +143,7 @@ export type CreateConfigurationRequest = z.infer<
 export type UpdateConfigurationRequest = z.infer<
   typeof updateConfigurationRequestSchema
 >;
+export type RecommendationRequest = z.infer<typeof recommendationRequestSchema>;
 export type Recommendation = z.infer<typeof recommendationSchema>;
 export type ConfigurationPage = {
   data: Configuration[];

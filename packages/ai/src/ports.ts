@@ -1,4 +1,4 @@
-import { AiPolicyError } from "./errors.js";
+import { AiPolicyError, AiProviderError } from "./errors.js";
 import {
   recommendationOutputSchema,
   type RecommendationOutput,
@@ -33,7 +33,8 @@ export async function generateRecommendation(
   try {
     return await provider.generate(request, recommendationOutputSchema);
   } catch (error) {
-    if (error instanceof AiPolicyError) throw error;
+    if (error instanceof AiPolicyError || error instanceof AiProviderError)
+      throw error;
     throw new AiPolicyError(
       "PROVIDER_UNAVAILABLE",
       "AI provider failed to produce a valid structured response",

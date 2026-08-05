@@ -164,7 +164,11 @@ importers:
         specifier: 4.4.3
         version: 4.4.3
 
-  packages/providers: {}
+  packages/providers:
+    dependencies:
+      '@ai-estimate-studio/ai':
+        specifier: workspace:*
+        version: link:../ai
 
   packages/testkit: {}
 

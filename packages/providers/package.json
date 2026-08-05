@@ -6,6 +6,9 @@
   "exports": {
     ".": "./src/index.ts"
   },
+  "dependencies": {
+    "@ai-estimate-studio/ai": "workspace:*"
+  },
   "scripts": {
     "build": "tsc -b",
     "lint": "eslint . --max-warnings 0",
