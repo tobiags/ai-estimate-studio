@@ -10,5 +10,8 @@
     "start": "node dist/main.js",
     "test": "vitest run --passWithNoTests",
     "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@ai-estimate-studio/config": "workspace:*"
   }
 }
