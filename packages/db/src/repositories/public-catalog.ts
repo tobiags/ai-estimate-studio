@@ -14,7 +14,11 @@ import type {
   PublicProductAggregate,
 } from "@ai-estimate-studio/application";
 import { prisma } from "../client.js";
-import { mapCategory, mapProduct, mapProductRevision } from "../mappers/catalog.js";
+import {
+  mapCategory,
+  mapProduct,
+  mapProductRevision,
+} from "../mappers/catalog.js";
 
 type ProductRevisionRow = Prisma.ProductRevisionGetPayload<{
   include: {
@@ -43,15 +47,22 @@ function assertPage(page: PageRequest): void {
 function startingPrice(row: ProductRevisionRow): Money | undefined {
   const variant = row.defaultVariant ?? row.variants.at(0);
   return variant
-    ? createMoney(BigInt(variant.baseAmountMinor), createCurrencyCode(variant.currency))
+    ? createMoney(
+        BigInt(variant.baseAmountMinor),
+        createCurrencyCode(variant.currency),
+      )
     : undefined;
 }
 
-function aggregate(row: ProductRow, revision: ProductRevisionRow): PublicProductAggregate {
+function aggregate(
+  row: ProductRow,
+  revision: ProductRevisionRow,
+): PublicProductAggregate {
+  const price = startingPrice(revision);
   return {
     product: mapProduct(row),
     revision: mapProductRevision(revision),
-    ...(startingPrice(revision) ? { startingPrice: startingPrice(revision) } : {}),
+    ...(price ? { startingPrice: price } : {}),
   };
 }
 

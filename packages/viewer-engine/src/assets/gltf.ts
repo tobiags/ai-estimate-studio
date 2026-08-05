@@ -41,9 +41,14 @@ export class GltfAssetLoader<T> implements AssetLoader<T> {
   }): Promise<AssetResource<T>> {
     const response = await this.transport.get(input.url, input.signal);
     if (response.status < 200 || response.status >= 300) {
-      throw new Error(`GLTF asset request failed with status ${response.status}`);
+      throw new Error(
+        `GLTF asset request failed with status ${response.status}`,
+      );
     }
-    if (response.totalBytes !== undefined && response.totalBytes > this.maxBytes) {
+    if (
+      response.totalBytes !== undefined &&
+      response.totalBytes > this.maxBytes
+    ) {
       throw new Error("GLTF asset exceeds the configured byte budget");
     }
 

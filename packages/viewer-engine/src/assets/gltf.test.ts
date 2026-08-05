@@ -37,7 +37,9 @@ describe("GltfAssetLoader", () => {
   });
 
   it("rejects oversized and cancelled streams before decoding", async () => {
-    const decoder = { decode: async () => ({ value: true, dispose: () => undefined }) };
+    const decoder = {
+      decode: async () => ({ value: true, dispose: () => undefined }),
+    };
     const oversized = new GltfAssetLoader(
       {
         get: async () => ({
@@ -69,7 +71,11 @@ describe("GltfAssetLoader", () => {
       decoder,
     );
     await expect(
-      cancelled.load({ assetId: "asset-1", url: "/asset.glb", signal: controller.signal }),
+      cancelled.load({
+        assetId: "asset-1",
+        url: "/asset.glb",
+        signal: controller.signal,
+      }),
     ).rejects.toMatchObject({ name: "AbortError" });
   });
 });

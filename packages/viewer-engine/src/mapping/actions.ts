@@ -25,8 +25,10 @@ export function detectMappingConflicts(
   const conflicts: MappingConflict[] = [];
   const seen = new Map<string, string>();
   for (const action of actions) {
-    if (action.type !== "SET_VISIBILITY" && action.type !== "SET_MATERIAL") continue;
-    const property = action.type === "SET_VISIBILITY" ? "visibility" : "material";
+    if (action.type !== "SET_VISIBILITY" && action.type !== "SET_MATERIAL")
+      continue;
+    const property =
+      action.type === "SET_VISIBILITY" ? "visibility" : "material";
     const key = `${action.nodeId}:${property}`;
     const signature = JSON.stringify(action);
     const previous = seen.get(key);

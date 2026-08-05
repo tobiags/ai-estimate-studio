@@ -17,7 +17,10 @@ export class HotspotInteraction {
 
   setHotspots(hotspots: readonly ScreenHotspot[]): void {
     this.hotspots = hotspots.filter((hotspot) => hotspot.visible);
-    if (this.activeId && !this.hotspots.some((hotspot) => hotspot.id === this.activeId)) {
+    if (
+      this.activeId &&
+      !this.hotspots.some((hotspot) => hotspot.id === this.activeId)
+    ) {
       this.activeId = undefined;
     }
   }
@@ -26,7 +29,10 @@ export class HotspotInteraction {
     const selected = this.hotspots
       .map((hotspot) => ({
         hotspot,
-        distance: Math.hypot(hotspot.screen.x - point.x, hotspot.screen.y - point.y),
+        distance: Math.hypot(
+          hotspot.screen.x - point.x,
+          hotspot.screen.y - point.y,
+        ),
       }))
       .filter(({ distance }) => distance <= radius)
       .sort((left, right) => left.distance - right.distance)[0]?.hotspot;
@@ -36,11 +42,16 @@ export class HotspotInteraction {
 
   moveFocus(direction: "next" | "previous"): ScreenHotspot | undefined {
     if (this.hotspots.length === 0) return undefined;
-    const current = this.hotspots.findIndex((hotspot) => hotspot.id === this.activeId);
+    const current = this.hotspots.findIndex(
+      (hotspot) => hotspot.id === this.activeId,
+    );
     const offset = direction === "next" ? 1 : -1;
-    const nextIndex = current < 0
-      ? direction === "next" ? 0 : this.hotspots.length - 1
-      : (current + offset + this.hotspots.length) % this.hotspots.length;
+    const nextIndex =
+      current < 0
+        ? direction === "next"
+          ? 0
+          : this.hotspots.length - 1
+        : (current + offset + this.hotspots.length) % this.hotspots.length;
     const selected = this.hotspots[nextIndex];
     this.activeId = selected?.id;
     return selected;

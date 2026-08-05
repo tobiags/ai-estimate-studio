@@ -81,8 +81,12 @@ function fakeClient() {
       findFirst: vi.fn().mockResolvedValue(category()),
     },
     product: {
-      findMany: vi.fn().mockResolvedValue([{ ...product(), revisions: [revision()] }]),
-      findFirst: vi.fn().mockResolvedValue({ ...product(), revisions: [revision()] }),
+      findMany: vi
+        .fn()
+        .mockResolvedValue([{ ...product(), revisions: [revision()] }]),
+      findFirst: vi
+        .fn()
+        .mockResolvedValue({ ...product(), revisions: [revision()] }),
     },
   };
   return client;
