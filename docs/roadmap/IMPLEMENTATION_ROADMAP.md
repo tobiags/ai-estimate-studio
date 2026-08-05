@@ -128,11 +128,12 @@ flowchart LR
 
 ### PRC-01 — Rule schema and money arithmetic
 
-- [ ] **Objective:** Define validated rule AST, typed facts/actions, integer money and explicit rounding.
+- [x] **Objective:** Define validated rule AST, typed facts/actions, integer money and explicit rounding.
 - **Dependencies:** DOM-01.
 - **Files:** create `packages/pricing-engine/src/{money,decimal,rule-schema,facts,errors}.ts` and builders in `packages/testkit/src/pricing/`.
 - **Expected tests:** half-away rounding, overflow/bounds, every AST node, invalid/unknown fields and serialized schema golden files.
 - **Completion:** no floating-point monetary operation; schema rejects executable/unbounded constructs.
+- **Evidence (2026-08-05):** `packages/pricing-engine` provides signed-64-bit integer money, currency-safe arithmetic, rational multiplication and explicit half-away/half-even/floor/ceiling rounding. Its Zod rule AST allowlists fact paths and action types, bounds condition depth/JSON size/rate magnitude, rejects duplicate rule codes and exposes typed facts without I/O. Pricing tests (6 tests), package lint/typecheck and build pass.
 
 ### PRC-02 — Configuration and rule-set validation
 
