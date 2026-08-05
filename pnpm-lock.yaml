@@ -116,6 +116,9 @@ importers:
       '@ai-estimate-studio/domain':
         specifier: workspace:*
         version: link:../domain
+      '@ai-estimate-studio/pricing-engine':
+        specifier: workspace:*
+        version: link:../pricing-engine
 
   packages/config:
     dependencies:

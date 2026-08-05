@@ -4,7 +4,8 @@
   "private": true,
   "type": "module",
   "dependencies": {
-    "@ai-estimate-studio/domain": "workspace:*"
+    "@ai-estimate-studio/domain": "workspace:*",
+    "@ai-estimate-studio/pricing-engine": "workspace:*"
   },
   "exports": {
     ".": "./src/index.ts"
