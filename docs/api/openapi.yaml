@@ -1,0 +1,501 @@
+openapi: 3.1.0
+info:
+  title: AI Estimate Studio API
+  version: 1.0.0-design
+  description: Normative pre-implementation contract. Amount fields are integer minor units encoded as strings.
+servers:
+  - url: https://{host}/api/v1
+    variables:
+      host: { default: example.invalid }
+tags:
+  - { name: PublicCatalog }
+  - { name: Configuration }
+  - { name: Quote }
+  - { name: AdminOrganization }
+  - { name: AdminCatalog }
+  - { name: AdminAssets }
+  - { name: AdminPricing }
+  - { name: AdminOperations }
+paths:
+  /health:
+    servers:
+      - url: https://{host}/api
+        variables:
+          host: { default: example.invalid }
+    get:
+      summary: Check process health
+      operationId: getHealth
+      security: []
+      responses:
+        '200':
+          description: Process is running; no dependency or secret detail is exposed.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Health'
+  /categories:
+    get:
+      operationId: listPublicCategories
+      tags: [PublicCatalog]
+      security: []
+      parameters: [{$ref: '#/components/parameters/Locale'}, {$ref: '#/components/parameters/Cursor'}, {$ref: '#/components/parameters/Limit'}]
+      responses:
+        '200': { description: Published categories, content: { application/json: { schema: { $ref: '#/components/schemas/CategoryPage' } } } }
+        '429': { $ref: '#/components/responses/RateLimited' }
+  /categories/{slug}:
+    get:
+      operationId: getPublicCategory
+      tags: [PublicCatalog]
+      security: []
+      parameters: [{$ref: '#/components/parameters/Slug'}, {$ref: '#/components/parameters/Locale'}]
+      responses:
+        '200': { description: Published category, content: { application/json: { schema: { $ref: '#/components/schemas/CategoryDetail' } } } }
+        '404': { $ref: '#/components/responses/NotFound' }
+  /products:
+    get:
+      operationId: listPublicProducts
+      tags: [PublicCatalog]
+      security: []
+      parameters:
+        - { name: category, in: query, schema: { type: string } }
+        - { $ref: '#/components/parameters/Locale' }
+        - { $ref: '#/components/parameters/Cursor' }
+        - { $ref: '#/components/parameters/Limit' }
+      responses:
+        '200': { description: Published products, content: { application/json: { schema: { $ref: '#/components/schemas/ProductPage' } } } }
+  /products/{slug}:
+    get:
+      operationId: getPublicProduct
+      tags: [PublicCatalog]
+      security: []
+      parameters: [{$ref: '#/components/parameters/Slug'}, {$ref: '#/components/parameters/Locale'}]
+      responses:
+        '200': { description: Current published product revision, content: { application/json: { schema: { $ref: '#/components/schemas/ProductDetail' } } } }
+        '404': { $ref: '#/components/responses/NotFound' }
+  /configurations:
+    post:
+      operationId: createConfiguration
+      tags: [Configuration]
+      security: []
+      requestBody: { required: true, content: { application/json: { schema: { $ref: '#/components/schemas/CreateConfigurationRequest' } } } }
+      responses:
+        '201':
+          description: Configuration created; also sets the configuration session cookie.
+          headers: { Set-Cookie: { schema: { type: string } } }
+          content: { application/json: { schema: { $ref: '#/components/schemas/Configuration' } } }
+        '422': { $ref: '#/components/responses/ValidationError' }
+  /configurations/{id}:
+    parameters: [{$ref: '#/components/parameters/Id'}]
+    get:
+      operationId: getConfiguration
+      tags: [Configuration]
+      security: [{ ConfigurationSession: [] }]
+      responses:
+        '200': { description: Active configuration, content: { application/json: { schema: { $ref: '#/components/schemas/Configuration' } } } }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '410': { $ref: '#/components/responses/Expired' }
+    patch:
+      operationId: updateConfiguration
+      tags: [Configuration]
+      security: [{ ConfigurationSession: [] }]
+      requestBody: { required: true, content: { application/json: { schema: { $ref: '#/components/schemas/UpdateConfigurationRequest' } } } }
+      responses:
+        '200': { description: Normalized configuration and authoritative price, content: { application/json: { schema: { $ref: '#/components/schemas/Configuration' } } } }
+        '409': { $ref: '#/components/responses/Conflict' }
+        '422': { $ref: '#/components/responses/ValidationError' }
+  /configurations/{id}/recommendations:
+    post:
+      operationId: createRecommendation
+      tags: [Configuration]
+      security: [{ ConfigurationSession: [] }]
+      parameters: [{$ref: '#/components/parameters/Id'}]
+      requestBody: { required: true, content: { application/json: { schema: { $ref: '#/components/schemas/RecommendationRequest' } } } }
+      responses:
+        '201': { description: Verified recommendation, content: { application/json: { schema: { $ref: '#/components/schemas/Recommendation' } } } }
+        '422': { $ref: '#/components/responses/ValidationError' }
+        '429': { $ref: '#/components/responses/RateLimited' }
+        '503': { $ref: '#/components/responses/ProviderUnavailable' }
+  /quotes:
+    post:
+      operationId: issueQuote
+      tags: [Quote]
+      security: [{ ConfigurationSession: [] }]
+      parameters: [{$ref: '#/components/parameters/IdempotencyKey'}]
+      requestBody: { required: true, content: { application/json: { schema: { $ref: '#/components/schemas/IssueQuoteRequest' } } } }
+      responses:
+        '202': { description: Quote issued; PDF may still be pending, content: { application/json: { schema: { $ref: '#/components/schemas/QuotePublicView' } } } }
+        '409': { $ref: '#/components/responses/Conflict' }
+        '422': { $ref: '#/components/responses/ValidationError' }
+  /public/quotes/{token}:
+    get:
+      operationId: getPublicQuote
+      tags: [Quote]
+      security: []
+      parameters: [{$ref: '#/components/parameters/PublicToken'}]
+      responses:
+        '200': { description: Public quote snapshot, content: { application/json: { schema: { $ref: '#/components/schemas/QuotePublicView' } } } }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '410': { $ref: '#/components/responses/Expired' }
+  /public/quotes/{token}/pdf:
+    get:
+      operationId: downloadPublicQuotePdf
+      tags: [Quote]
+      security: []
+      parameters: [{$ref: '#/components/parameters/PublicToken'}]
+      responses:
+        '302': { description: Redirect to a short-lived signed object URL, headers: { Location: { required: true, schema: { type: string, format: uri } } } }
+        '202': { description: PDF still generating, content: { application/json: { schema: { $ref: '#/components/schemas/JobStatus' } } } }
+        '410': { $ref: '#/components/responses/Expired' }
+  /admin/organization:
+    get:
+      operationId: getAdminOrganization
+      tags: [AdminOrganization]
+      responses: { '200': { description: Organization settings, content: { application/json: { schema: { $ref: '#/components/schemas/OrganizationSettings' } } } }, '401': { $ref: '#/components/responses/Unauthorized' } }
+    patch:
+      operationId: updateAdminOrganization
+      tags: [AdminOrganization]
+      parameters: [{$ref: '#/components/parameters/CsrfToken'}]
+      requestBody: { required: true, content: { application/json: { schema: { $ref: '#/components/schemas/OrganizationSettingsWrite' } } } }
+      responses: { '200': { description: Updated settings, content: { application/json: { schema: { $ref: '#/components/schemas/OrganizationSettings' } } } }, '403': { $ref: '#/components/responses/Forbidden' }, '409': { $ref: '#/components/responses/Conflict' }, '422': { $ref: '#/components/responses/ValidationError' } }
+  /admin/memberships:
+    get:
+      operationId: listMemberships
+      tags: [AdminOrganization]
+      parameters: [{$ref: '#/components/parameters/Cursor'}, {$ref: '#/components/parameters/Limit'}]
+      responses: { '200': { description: Membership page, content: { application/json: { schema: { $ref: '#/components/schemas/MembershipPage' } } } }, '403': { $ref: '#/components/responses/Forbidden' } }
+    post:
+      operationId: inviteMembership
+      tags: [AdminOrganization]
+      parameters: [{$ref: '#/components/parameters/CsrfToken'}]
+      requestBody: { required: true, content: { application/json: { schema: { $ref: '#/components/schemas/InviteMembershipRequest' } } } }
+      responses: { '201': { description: Invitation created, content: { application/json: { schema: { $ref: '#/components/schemas/Membership' } } } }, '422': { $ref: '#/components/responses/ValidationError' } }
+  /admin/memberships/{id}:
+    parameters: [{$ref: '#/components/parameters/Id'}]
+    patch:
+      operationId: updateMembership
+      tags: [AdminOrganization]
+      parameters: [{$ref: '#/components/parameters/CsrfToken'}]
+      requestBody: { required: true, content: { application/json: { schema: { $ref: '#/components/schemas/MembershipWrite' } } } }
+      responses: { '200': { description: Membership updated, content: { application/json: { schema: { $ref: '#/components/schemas/Membership' } } } }, '403': { $ref: '#/components/responses/Forbidden' }, '409': { $ref: '#/components/responses/Conflict' } }
+    delete:
+      operationId: suspendMembership
+      tags: [AdminOrganization]
+      parameters: [{$ref: '#/components/parameters/CsrfToken'}]
+      responses: { '204': { description: Membership suspended }, '403': { $ref: '#/components/responses/Forbidden' }, '409': { $ref: '#/components/responses/Conflict' } }
+  /admin/categories:
+    get:
+      operationId: listAdminCategories
+      tags: [AdminCatalog]
+      parameters: [{$ref: '#/components/parameters/Cursor'}, {$ref: '#/components/parameters/Limit'}]
+      responses: { '200': { description: Category page, content: { application/json: { schema: { $ref: '#/components/schemas/CategoryAdminPage' } } } } }
+    post:
+      operationId: createAdminCategory
+      tags: [AdminCatalog]
+      parameters: [{$ref: '#/components/parameters/CsrfToken'}]
+      requestBody: { required: true, content: { application/json: { schema: { $ref: '#/components/schemas/CategoryWrite' } } } }
+      responses: { '201': { description: Category created, content: { application/json: { schema: { $ref: '#/components/schemas/CategoryAdmin' } } } }, '422': { $ref: '#/components/responses/ValidationError' } }
+  /admin/categories/{id}:
+    parameters: [{$ref: '#/components/parameters/Id'}]
+    get:
+      operationId: getAdminCategory
+      tags: [AdminCatalog]
+      responses: { '200': { description: Category, content: { application/json: { schema: { $ref: '#/components/schemas/CategoryAdmin' } } } }, '404': { $ref: '#/components/responses/NotFound' } }
+    patch:
+      operationId: updateAdminCategory
+      tags: [AdminCatalog]
+      parameters: [{$ref: '#/components/parameters/CsrfToken'}]
+      requestBody: { required: true, content: { application/json: { schema: { $ref: '#/components/schemas/CategoryWrite' } } } }
+      responses: { '200': { description: Category updated, content: { application/json: { schema: { $ref: '#/components/schemas/CategoryAdmin' } } } }, '409': { $ref: '#/components/responses/Conflict' } }
+    delete:
+      operationId: archiveAdminCategory
+      tags: [AdminCatalog]
+      parameters: [{$ref: '#/components/parameters/CsrfToken'}]
+      responses: { '204': { description: Category archived }, '409': { $ref: '#/components/responses/Conflict' } }
+  /admin/products:
+    get:
+      operationId: listAdminProducts
+      tags: [AdminCatalog]
+      parameters: [{$ref: '#/components/parameters/Cursor'}, {$ref: '#/components/parameters/Limit'}]
+      responses: { '200': { description: Product page, content: { application/json: { schema: { $ref: '#/components/schemas/ProductAdminPage' } } } } }
+    post:
+      operationId: createAdminProduct
+      tags: [AdminCatalog]
+      parameters: [{$ref: '#/components/parameters/CsrfToken'}]
+      requestBody: { required: true, content: { application/json: { schema: { $ref: '#/components/schemas/CreateProductRequest' } } } }
+      responses: { '201': { description: Product and first draft, content: { application/json: { schema: { $ref: '#/components/schemas/ProductAdmin' } } } }, '422': { $ref: '#/components/responses/ValidationError' } }
+  /admin/products/{id}:
+    parameters: [{$ref: '#/components/parameters/Id'}]
+    get:
+      operationId: getAdminProduct
+      tags: [AdminCatalog]
+      responses: { '200': { description: Product, content: { application/json: { schema: { $ref: '#/components/schemas/ProductAdmin' } } } }, '404': { $ref: '#/components/responses/NotFound' } }
+    patch:
+      operationId: updateAdminProduct
+      tags: [AdminCatalog]
+      parameters: [{$ref: '#/components/parameters/CsrfToken'}]
+      requestBody: { required: true, content: { application/json: { schema: { $ref: '#/components/schemas/ProductWrite' } } } }
+      responses: { '200': { description: Product updated, content: { application/json: { schema: { $ref: '#/components/schemas/ProductAdmin' } } } }, '409': { $ref: '#/components/responses/Conflict' } }
+  /admin/products/{id}/revisions:
+    parameters: [{$ref: '#/components/parameters/Id'}]
+    get:
+      operationId: listProductRevisions
+      tags: [AdminCatalog]
+      parameters: [{$ref: '#/components/parameters/Cursor'}, {$ref: '#/components/parameters/Limit'}]
+      responses: { '200': { description: Product revision page, content: { application/json: { schema: { $ref: '#/components/schemas/ProductRevisionPage' } } } } }
+    post:
+      operationId: createProductRevision
+      tags: [AdminCatalog]
+      parameters: [{$ref: '#/components/parameters/CsrfToken'}]
+      requestBody: { required: true, content: { application/json: { schema: { $ref: '#/components/schemas/CreateRevisionRequest' } } } }
+      responses: { '201': { description: Draft revision, content: { application/json: { schema: { $ref: '#/components/schemas/ProductRevisionDraft' } } } }, '409': { $ref: '#/components/responses/Conflict' } }
+  /admin/product-revisions/{id}:
+    parameters: [{$ref: '#/components/parameters/Id'}]
+    get:
+      operationId: getProductRevision
+      tags: [AdminCatalog]
+      responses: { '200': { description: Complete revision aggregate, content: { application/json: { schema: { $ref: '#/components/schemas/ProductRevisionDraft' } } } } }
+    patch:
+      operationId: updateProductRevision
+      tags: [AdminCatalog]
+      parameters: [{$ref: '#/components/parameters/CsrfToken'}]
+      requestBody: { required: true, content: { application/json: { schema: { $ref: '#/components/schemas/ProductRevisionWrite' } } } }
+      responses: { '200': { description: Normalized draft, content: { application/json: { schema: { $ref: '#/components/schemas/ProductRevisionDraft' } } } }, '409': { $ref: '#/components/responses/Conflict' }, '422': { $ref: '#/components/responses/ValidationError' } }
+  /admin/product-revisions/{id}/publication:
+    parameters: [{$ref: '#/components/parameters/Id'}]
+    put:
+      operationId: publishProductRevision
+      tags: [AdminCatalog]
+      parameters: [{$ref: '#/components/parameters/CsrfToken'}]
+      requestBody: { required: true, content: { application/json: { schema: { $ref: '#/components/schemas/PublicationRequest' } } } }
+      responses: { '200': { description: Published immutable revision, content: { application/json: { schema: { $ref: '#/components/schemas/ProductRevisionDraft' } } } }, '409': { $ref: '#/components/responses/Conflict' }, '422': { $ref: '#/components/responses/ValidationError' } }
+    delete:
+      operationId: retireProductRevision
+      tags: [AdminCatalog]
+      parameters: [{$ref: '#/components/parameters/CsrfToken'}]
+      responses: { '204': { description: Revision retired }, '409': { $ref: '#/components/responses/Conflict' } }
+  /admin/assets:
+    get:
+      operationId: listAssets
+      tags: [AdminAssets]
+      parameters: [{$ref: '#/components/parameters/Cursor'}, {$ref: '#/components/parameters/Limit'}]
+      responses: { '200': { description: Asset page, content: { application/json: { schema: { $ref: '#/components/schemas/AssetPage' } } } } }
+  /admin/assets/uploads:
+    post:
+      operationId: createAssetUpload
+      tags: [AdminAssets]
+      parameters: [{$ref: '#/components/parameters/CsrfToken'}]
+      requestBody: { required: true, content: { application/json: { schema: { $ref: '#/components/schemas/AssetUploadRequest' } } } }
+      responses: { '201': { description: Signed upload intent, content: { application/json: { schema: { $ref: '#/components/schemas/UploadIntent' } } } }, '413': { $ref: '#/components/responses/PayloadTooLarge' }, '422': { $ref: '#/components/responses/ValidationError' } }
+  /admin/assets/{id}:
+    parameters: [{$ref: '#/components/parameters/Id'}]
+    get:
+      operationId: getAsset
+      tags: [AdminAssets]
+      responses: { '200': { description: Asset metadata, content: { application/json: { schema: { $ref: '#/components/schemas/Asset' } } } } }
+    delete:
+      operationId: archiveAsset
+      tags: [AdminAssets]
+      parameters: [{$ref: '#/components/parameters/CsrfToken'}]
+      responses: { '204': { description: Asset archived }, '409': { $ref: '#/components/responses/Conflict' } }
+  /admin/assets/{id}/upload-completion:
+    post:
+      operationId: completeAssetUpload
+      tags: [AdminAssets]
+      parameters: [{$ref: '#/components/parameters/Id'}, {$ref: '#/components/parameters/CsrfToken'}, {$ref: '#/components/parameters/IdempotencyKey'}]
+      requestBody: { required: true, content: { application/json: { schema: { $ref: '#/components/schemas/AssetUploadCompletion' } } } }
+      responses: { '202': { description: Asset accepted for processing, content: { application/json: { schema: { $ref: '#/components/schemas/Asset' } } } }, '409': { $ref: '#/components/responses/Conflict' } }
+  /admin/pricing-rule-sets/{id}:
+    parameters: [{$ref: '#/components/parameters/Id'}]
+    get:
+      operationId: getPricingRuleSet
+      tags: [AdminPricing]
+      responses: { '200': { description: Pricing rule set, content: { application/json: { schema: { $ref: '#/components/schemas/PricingRuleSet' } } } } }
+    patch:
+      operationId: updatePricingRuleSet
+      tags: [AdminPricing]
+      parameters: [{$ref: '#/components/parameters/CsrfToken'}]
+      requestBody: { required: true, content: { application/json: { schema: { $ref: '#/components/schemas/PricingRuleSetWrite' } } } }
+      responses: { '200': { description: Updated draft, content: { application/json: { schema: { $ref: '#/components/schemas/PricingRuleSet' } } } }, '409': { $ref: '#/components/responses/Conflict' }, '422': { $ref: '#/components/responses/ValidationError' } }
+  /admin/pricing-rule-sets/{id}/simulations:
+    post:
+      operationId: simulatePricing
+      tags: [AdminPricing]
+      parameters: [{$ref: '#/components/parameters/Id'}, {$ref: '#/components/parameters/CsrfToken'}]
+      requestBody: { required: true, content: { application/json: { schema: { $ref: '#/components/schemas/PricingScenario' } } } }
+      responses: { '200': { description: Price and admin trace, content: { application/json: { schema: { $ref: '#/components/schemas/PricingSimulation' } } } }, '422': { $ref: '#/components/responses/ValidationError' } }
+  /admin/pricing-rule-sets/{id}/publication:
+    parameters: [{$ref: '#/components/parameters/Id'}]
+    put:
+      operationId: publishPricingRuleSet
+      tags: [AdminPricing]
+      parameters: [{$ref: '#/components/parameters/CsrfToken'}]
+      requestBody: { required: true, content: { application/json: { schema: { $ref: '#/components/schemas/PublicationRequest' } } } }
+      responses: { '200': { description: Published rule set, content: { application/json: { schema: { $ref: '#/components/schemas/PricingRuleSet' } } } }, '409': { $ref: '#/components/responses/Conflict' }, '422': { $ref: '#/components/responses/ValidationError' } }
+    delete:
+      operationId: retirePricingRuleSet
+      tags: [AdminPricing]
+      parameters: [{$ref: '#/components/parameters/CsrfToken'}]
+      responses: { '204': { description: Rule set retired }, '409': { $ref: '#/components/responses/Conflict' } }
+  /admin/quotes:
+    get:
+      operationId: listAdminQuotes
+      tags: [AdminOperations]
+      parameters: [{$ref: '#/components/parameters/Cursor'}, {$ref: '#/components/parameters/Limit'}]
+      responses: { '200': { description: Quote page, content: { application/json: { schema: { $ref: '#/components/schemas/QuoteAdminPage' } } } } }
+  /admin/quotes/{id}:
+    parameters: [{$ref: '#/components/parameters/Id'}]
+    get:
+      operationId: getAdminQuote
+      tags: [AdminOperations]
+      responses: { '200': { description: Immutable quote detail, content: { application/json: { schema: { $ref: '#/components/schemas/QuoteAdmin' } } } } }
+    patch:
+      operationId: updateAdminQuoteStatus
+      tags: [AdminOperations]
+      parameters: [{$ref: '#/components/parameters/CsrfToken'}]
+      requestBody: { required: true, content: { application/json: { schema: { $ref: '#/components/schemas/QuoteStatusWrite' } } } }
+      responses: { '200': { description: Quote status updated, content: { application/json: { schema: { $ref: '#/components/schemas/QuoteAdmin' } } } }, '409': { $ref: '#/components/responses/Conflict' } }
+  /admin/customers:
+    get:
+      operationId: listAdminCustomers
+      tags: [AdminOperations]
+      parameters: [{$ref: '#/components/parameters/Cursor'}, {$ref: '#/components/parameters/Limit'}]
+      responses: { '200': { description: Customer page, content: { application/json: { schema: { $ref: '#/components/schemas/CustomerPage' } } } } }
+  /admin/customers/{id}:
+    parameters: [{$ref: '#/components/parameters/Id'}]
+    get:
+      operationId: getAdminCustomer
+      tags: [AdminOperations]
+      responses: { '200': { description: Customer and quote history, content: { application/json: { schema: { $ref: '#/components/schemas/Customer' } } } } }
+    patch:
+      operationId: updateAdminCustomer
+      tags: [AdminOperations]
+      parameters: [{$ref: '#/components/parameters/CsrfToken'}]
+      requestBody: { required: true, content: { application/json: { schema: { $ref: '#/components/schemas/CustomerWrite' } } } }
+      responses: { '200': { description: Customer updated, content: { application/json: { schema: { $ref: '#/components/schemas/Customer' } } } }, '409': { $ref: '#/components/responses/Conflict' } }
+  /admin/customers/{id}/privacy-requests:
+    post:
+      operationId: createPrivacyRequest
+      tags: [AdminOperations]
+      parameters: [{$ref: '#/components/parameters/Id'}, {$ref: '#/components/parameters/CsrfToken'}]
+      requestBody: { required: true, content: { application/json: { schema: { $ref: '#/components/schemas/PrivacyRequest' } } } }
+      responses: { '202': { description: Privacy job accepted, content: { application/json: { schema: { $ref: '#/components/schemas/AsyncJob' } } } }, '403': { $ref: '#/components/responses/Forbidden' } }
+  /admin/audit-events:
+    get:
+      operationId: listAuditEvents
+      tags: [AdminOperations]
+      parameters: [{$ref: '#/components/parameters/Cursor'}, {$ref: '#/components/parameters/Limit'}]
+      responses: { '200': { description: Audit page, content: { application/json: { schema: { $ref: '#/components/schemas/AuditPage' } } } }, '403': { $ref: '#/components/responses/Forbidden' } }
+  /admin/jobs:
+    get:
+      operationId: listJobs
+      tags: [AdminOperations]
+      parameters: [{$ref: '#/components/parameters/Cursor'}, {$ref: '#/components/parameters/Limit'}]
+      responses: { '200': { description: Job page, content: { application/json: { schema: { $ref: '#/components/schemas/JobPage' } } } } }
+  /admin/jobs/{id}/retries:
+    post:
+      operationId: retryJob
+      tags: [AdminOperations]
+      parameters: [{$ref: '#/components/parameters/Id'}, {$ref: '#/components/parameters/CsrfToken'}]
+      requestBody: { required: true, content: { application/json: { schema: { type: object, required: [version], properties: { version: { type: integer, minimum: 1 } } } } } }
+      responses: { '202': { description: Retry accepted, content: { application/json: { schema: { $ref: '#/components/schemas/AsyncJob' } } } }, '409': { $ref: '#/components/responses/Conflict' } }
+components:
+  securitySchemes:
+    AdminSession: { type: apiKey, in: cookie, name: authjs.session-token }
+    ConfigurationSession: { type: apiKey, in: cookie, name: aes.configuration-session }
+  parameters:
+    Id: { name: id, in: path, required: true, schema: { type: string, format: uuid } }
+    Slug: { name: slug, in: path, required: true, schema: { type: string, pattern: '^[a-z0-9]+(?:-[a-z0-9]+)*$' } }
+    PublicToken: { name: token, in: path, required: true, schema: { type: string, minLength: 32, maxLength: 256 } }
+    Locale: { name: locale, in: query, schema: { type: string, default: en } }
+    Cursor: { name: cursor, in: query, schema: { type: string } }
+    Limit: { name: limit, in: query, schema: { type: integer, minimum: 1, maximum: 100, default: 20 } }
+    CsrfToken: { name: X-CSRF-Token, in: header, required: true, schema: { type: string, minLength: 16 } }
+    IdempotencyKey: { name: Idempotency-Key, in: header, required: true, schema: { type: string, minLength: 16, maxLength: 128 } }
+  responses:
+    Unauthorized: { description: Authentication required, content: { application/problem+json: { schema: { $ref: '#/components/schemas/Problem' } } } }
+    Forbidden: { description: Insufficient permission, content: { application/problem+json: { schema: { $ref: '#/components/schemas/Problem' } } } }
+    NotFound: { description: Resource not found, content: { application/problem+json: { schema: { $ref: '#/components/schemas/Problem' } } } }
+    Conflict: { description: Version or domain conflict, content: { application/problem+json: { schema: { $ref: '#/components/schemas/Problem' } } } }
+    Expired: { description: Resource expired or revoked, content: { application/problem+json: { schema: { $ref: '#/components/schemas/Problem' } } } }
+    ValidationError: { description: Validation failed, content: { application/problem+json: { schema: { $ref: '#/components/schemas/Problem' } } } }
+    RateLimited: { description: Rate limit exceeded, headers: { Retry-After: { schema: { type: integer } } }, content: { application/problem+json: { schema: { $ref: '#/components/schemas/Problem' } } } }
+    ProviderUnavailable: { description: Optional provider unavailable, content: { application/problem+json: { schema: { $ref: '#/components/schemas/Problem' } } } }
+    PayloadTooLarge: { description: Payload exceeds policy, content: { application/problem+json: { schema: { $ref: '#/components/schemas/Problem' } } } }
+  schemas:
+    Money:
+      type: object
+      required: [amountMinor, currency]
+      properties: { amountMinor: { type: string, pattern: '^-?[0-9]+$' }, currency: { type: string, pattern: '^[A-Z]{3}$' } }
+    LocalizedText: { type: object, additionalProperties: { type: string, minLength: 1, maxLength: 10000 } }
+    Page: { type: object, required: [hasMore], properties: { nextCursor: { type: [string, 'null'] }, hasMore: { type: boolean } } }
+    ValidationItem: { type: object, required: [path, code, message], properties: { path: { type: string }, code: { type: string }, message: { type: string }, meta: { type: object, additionalProperties: true } } }
+    Problem:
+      type: object
+      required: [type, title, status, correlationId]
+      properties: { type: { type: string, format: uri }, title: { type: string }, status: { type: integer }, detail: { type: string }, instance: { type: string }, correlationId: { type: string }, errors: { type: array, items: { $ref: '#/components/schemas/ValidationItem' } } }
+    CategorySummary: { type: object, required: [id, slug, name], properties: { id: { type: string, format: uuid }, slug: { type: string }, name: { type: string }, description: { type: string } } }
+    CategoryPage: { type: object, required: [data, page], properties: { data: { type: array, items: { $ref: '#/components/schemas/CategorySummary' } }, page: { $ref: '#/components/schemas/Page' } } }
+    CategoryDetail: { allOf: [{$ref: '#/components/schemas/CategorySummary'}, { type: object, required: [products], properties: { products: { type: array, items: { $ref: '#/components/schemas/ProductSummary' } } } }] }
+    ProductSummary: { type: object, required: [id, slug, name, startingPrice], properties: { id: { type: string, format: uuid }, slug: { type: string }, name: { type: string }, summary: { type: string }, posterUrl: { type: [string, 'null'], format: uri }, startingPrice: { $ref: '#/components/schemas/Money' } } }
+    ProductPage: { type: object, required: [data, page], properties: { data: { type: array, items: { $ref: '#/components/schemas/ProductSummary' } }, page: { $ref: '#/components/schemas/Page' } } }
+    Variant: { type: object, required: [id, code, name, basePrice], properties: { id: { type: string, format: uuid }, code: { type: string }, name: { type: string }, description: { type: string }, basePrice: { $ref: '#/components/schemas/Money' } } }
+    ProductOption: { type: object, required: [id, code, name], properties: { id: { type: string, format: uuid }, code: { type: string }, name: { type: string }, description: { type: string }, viewerMappingKey: { type: [string, 'null'] } } }
+    OptionGroup: { type: object, required: [id, code, name, mode, minSelections, options], properties: { id: { type: string, format: uuid }, code: { type: string }, name: { type: string }, mode: { enum: [SINGLE, MULTIPLE] }, minSelections: { type: integer, minimum: 0 }, maxSelections: { type: [integer, 'null'], minimum: 1 }, options: { type: array, items: { $ref: '#/components/schemas/ProductOption' } } } }
+    DimensionDefinition: { type: object, required: [id, code, label, unit, minValue, maxValue, stepValue], properties: { id: { type: string, format: uuid }, code: { type: string }, label: { type: string }, unit: { type: string }, minValue: { type: string }, maxValue: { type: string }, stepValue: { type: string }, defaultValue: { type: [string, 'null'] } } }
+    ProductDetail: { allOf: [{$ref: '#/components/schemas/ProductSummary'}, { type: object, required: [revisionId, variants, optionGroups, dimensions, assumptions, exclusions], properties: { revisionId: { type: string, format: uuid }, description: { type: string }, variants: { type: array, items: { $ref: '#/components/schemas/Variant' } }, optionGroups: { type: array, items: { $ref: '#/components/schemas/OptionGroup' } }, dimensions: { type: array, items: { $ref: '#/components/schemas/DimensionDefinition' } }, viewer: { type: [object, 'null'], additionalProperties: true }, assumptions: { type: array, items: { type: string } }, exclusions: { type: array, items: { type: string } } } }] }
+    DimensionValue: { type: object, required: [definitionId, value, unit], properties: { definitionId: { type: string, format: uuid }, value: { type: string }, unit: { type: string } } }
+    DeliveryInput: { type: object, properties: { countryCode: { type: string, minLength: 2, maxLength: 2 }, postalCode: { type: string, maxLength: 20 }, zoneCode: { type: string, maxLength: 64 } } }
+    PriceLine: { type: object, required: [code, kind, label, netAmountMinor, taxAmountMinor, totalAmountMinor], properties: { code: { type: string }, kind: { enum: [BASE, OPTION, DIMENSION, LABOUR, DELIVERY, DISCOUNT, TAX, FEE] }, label: { type: string }, quantity: { type: string }, unit: { type: [string, 'null'] }, netAmountMinor: { type: string }, taxAmountMinor: { type: string }, totalAmountMinor: { type: string } } }
+    PricePreview: { type: object, required: [currency, subtotalMinor, discountMinor, taxMinor, totalMinor, lines, warnings], properties: { currency: { type: string }, subtotalMinor: { type: string }, discountMinor: { type: string }, taxMinor: { type: string }, totalMinor: { type: string }, lines: { type: array, items: { $ref: '#/components/schemas/PriceLine' } }, warnings: { type: array, items: { $ref: '#/components/schemas/ValidationItem' } } } }
+    CreateConfigurationRequest: { type: object, required: [productSlug, locale], properties: { productSlug: { type: string }, variantId: { type: string, format: uuid }, optionIds: { type: array, uniqueItems: true, items: { type: string, format: uuid } }, dimensions: { type: array, items: { $ref: '#/components/schemas/DimensionValue' } }, delivery: { $ref: '#/components/schemas/DeliveryInput' }, budgetMinor: { type: [string, 'null'] }, locale: { type: string } } }
+    UpdateConfigurationRequest: { type: object, required: [version, variantId, optionIds, dimensions], properties: { version: { type: integer, minimum: 1 }, variantId: { type: string, format: uuid }, optionIds: { type: array, uniqueItems: true, items: { type: string, format: uuid } }, dimensions: { type: array, items: { $ref: '#/components/schemas/DimensionValue' } }, delivery: { $ref: '#/components/schemas/DeliveryInput' }, budgetMinor: { type: [string, 'null'] } } }
+    Configuration: { type: object, required: [id, productRevisionId, pricingRuleSetId, variantId, optionIds, dimensions, locale, version, status, price, expiresAt], properties: { id: { type: string, format: uuid }, productRevisionId: { type: string, format: uuid }, pricingRuleSetId: { type: string, format: uuid }, variantId: { type: string, format: uuid }, optionIds: { type: array, items: { type: string, format: uuid } }, dimensions: { type: array, items: { $ref: '#/components/schemas/DimensionValue' } }, delivery: { $ref: '#/components/schemas/DeliveryInput' }, budgetMinor: { type: [string, 'null'] }, locale: { type: string }, version: { type: integer }, status: { enum: [ACTIVE, QUOTED, ABANDONED] }, price: { $ref: '#/components/schemas/PricePreview' }, expiresAt: { type: string, format: date-time } } }
+    RecommendationRequest: { type: object, properties: { goal: { type: string, maxLength: 1000 }, budgetMinor: { type: [string, 'null'] }, locale: { type: string } } }
+    Suggestion: { type: object, required: [kind, title, rationale, removeOptionIds, addOptionIds, verifiedDeltaMinor, currency, citations], properties: { kind: { enum: [CHEAPER_ALTERNATIVE, PREMIUM_UPGRADE, EXPLANATION] }, title: { type: string, maxLength: 120 }, rationale: { type: string, maxLength: 400 }, removeOptionIds: { type: array, items: { type: string, format: uuid } }, addOptionIds: { type: array, items: { type: string, format: uuid } }, targetVariantId: { type: [string, 'null'], format: uuid }, verifiedDeltaMinor: { type: string }, currency: { type: string }, citations: { type: array, items: { type: object, required: [entityType, entityId], properties: { entityType: { enum: [VARIANT, OPTION, PRICE_LINE] }, entityId: { type: string } } } } } }
+    Recommendation: { type: object, required: [id, status, promptVersion, locale, summary, suggestions, warnings, createdAt], properties: { id: { type: string, format: uuid }, status: { enum: [VERIFIED] }, promptVersion: { type: string }, locale: { type: string }, summary: { type: string, maxLength: 600 }, budgetAssessment: { type: object, additionalProperties: true }, suggestions: { type: array, maxItems: 3, items: { $ref: '#/components/schemas/Suggestion' } }, warnings: { type: array, items: { type: object, additionalProperties: true } }, pdfSummary: { type: string, maxLength: 500 }, createdAt: { type: string, format: date-time } } }
+    CustomerInput: { type: object, required: [name, email, locale], properties: { name: { type: string, minLength: 1, maxLength: 200 }, email: { type: string, format: email, maxLength: 320 }, phone: { type: [string, 'null'], maxLength: 32 }, locale: { type: string } } }
+    ConsentInput: { type: object, required: [purpose, granted, policyVersion], properties: { purpose: { enum: [QUOTE_FOLLOW_UP, MARKETING, PRIVACY_POLICY] }, granted: { type: boolean }, policyVersion: { type: string } } }
+    IssueQuoteRequest: { type: object, required: [configurationId, configurationVersion, customer, consents], properties: { configurationId: { type: string, format: uuid }, configurationVersion: { type: integer, minimum: 1 }, customer: { $ref: '#/components/schemas/CustomerInput' }, consents: { type: array, minItems: 2, items: { $ref: '#/components/schemas/ConsentInput' } } } }
+    QuotePublicView: { type: object, required: [quoteNumber, status, issuedAt, expiresAt, price, selectionSummary, pdfStatus, publicUrl], properties: { quoteNumber: { type: string }, status: { enum: [ISSUED, VIEWED, CONTACTED, ACCEPTED, REJECTED, EXPIRED, VOID] }, issuedAt: { type: string, format: date-time }, expiresAt: { type: string, format: date-time }, price: { $ref: '#/components/schemas/PricePreview' }, selectionSummary: { type: object, additionalProperties: true }, assumptions: { type: array, items: { type: string } }, exclusions: { type: array, items: { type: string } }, aiSummary: { type: [string, 'null'] }, pdfStatus: { enum: [PENDING, READY, FAILED] }, publicUrl: { type: string, format: uri } } }
+    JobStatus: { type: object, required: [status], properties: { status: { enum: [PENDING, RUNNING, SUCCEEDED, FAILED] }, retryAfterSeconds: { type: integer } } }
+    OrganizationSettings: { type: object, required: [id, displayName, defaultLocale, supportedLocales, timezone, currency, quoteValidityDays, version], properties: { id: { type: string, format: uuid }, displayName: { type: string }, defaultLocale: { type: string }, supportedLocales: { type: array, items: { type: string } }, timezone: { type: string }, currency: { type: string }, quoteValidityDays: { type: integer }, taxInclusive: { type: boolean }, brandConfig: { type: object, additionalProperties: true }, legalConfig: { type: object, additionalProperties: true }, version: { type: integer } } }
+    OrganizationSettingsWrite: { type: object, required: [displayName, defaultLocale, supportedLocales, timezone, currency, quoteValidityDays, taxInclusive, brandConfig, legalConfig, version], properties: { displayName: { type: string }, defaultLocale: { type: string }, supportedLocales: { type: array, items: { type: string } }, timezone: { type: string }, currency: { type: string }, quoteValidityDays: { type: integer }, taxInclusive: { type: boolean }, brandConfig: { type: object, additionalProperties: true }, legalConfig: { type: object, additionalProperties: true }, version: { type: integer } } }
+    Membership: { type: object, required: [id, email, role, status, version], properties: { id: { type: string, format: uuid }, email: { type: string, format: email }, name: { type: [string, 'null'] }, role: { enum: [OWNER, ADMIN, CATALOG_EDITOR, SALES, VIEWER] }, status: { enum: [INVITED, ACTIVE, SUSPENDED] }, version: { type: integer } } }
+    MembershipPage: { type: object, required: [data, page], properties: { data: { type: array, items: { $ref: '#/components/schemas/Membership' } }, page: { $ref: '#/components/schemas/Page' } } }
+    InviteMembershipRequest: { type: object, required: [email, role], properties: { email: { type: string, format: email }, role: { enum: [OWNER, ADMIN, CATALOG_EDITOR, SALES, VIEWER] } } }
+    MembershipWrite: { type: object, required: [version, role, status], properties: { version: { type: integer }, role: { enum: [OWNER, ADMIN, CATALOG_EDITOR, SALES, VIEWER] }, status: { enum: [ACTIVE, SUSPENDED] } } }
+    CategoryWrite: { type: object, required: [slug, name, description, sortOrder, version], properties: { slug: { type: string }, name: { $ref: '#/components/schemas/LocalizedText' }, description: { $ref: '#/components/schemas/LocalizedText' }, sortOrder: { type: integer }, state: { enum: [DRAFT, PUBLISHED, RETIRED, ARCHIVED] }, version: { type: integer } } }
+    CategoryAdmin: { allOf: [{$ref: '#/components/schemas/CategoryWrite'}, { type: object, required: [id], properties: { id: { type: string, format: uuid } } }] }
+    CategoryAdminPage: { type: object, required: [data, page], properties: { data: { type: array, items: { $ref: '#/components/schemas/CategoryAdmin' } }, page: { $ref: '#/components/schemas/Page' } } }
+    CreateProductRequest: { type: object, required: [categoryId, slug], properties: { categoryId: { type: string, format: uuid }, slug: { type: string }, cloneProductRevisionId: { type: [string, 'null'], format: uuid } } }
+    ProductWrite: { type: object, required: [categoryId, slug, version], properties: { categoryId: { type: string, format: uuid }, slug: { type: string }, state: { enum: [DRAFT, PUBLISHED, RETIRED, ARCHIVED] }, version: { type: integer } } }
+    ProductAdmin: { allOf: [{$ref: '#/components/schemas/ProductWrite'}, { type: object, required: [id], properties: { id: { type: string, format: uuid }, currentRevision: { $ref: '#/components/schemas/ProductRevisionDraft' } } }] }
+    ProductAdminPage: { type: object, required: [data, page], properties: { data: { type: array, items: { $ref: '#/components/schemas/ProductAdmin' } }, page: { $ref: '#/components/schemas/Page' } } }
+    CreateRevisionRequest: { type: object, properties: { sourceRevisionId: { type: [string, 'null'], format: uuid } } }
+    ProductRevisionWrite: { type: object, required: [version, replaceChildren, name, shortDescription, description, assumptions, exclusions, variants, optionGroups, dimensions, dependencies, assetUsages], properties: { version: { type: integer }, replaceChildren: { type: boolean }, name: { $ref: '#/components/schemas/LocalizedText' }, shortDescription: { $ref: '#/components/schemas/LocalizedText' }, description: { $ref: '#/components/schemas/LocalizedText' }, assumptions: { type: object, additionalProperties: { type: array, items: { type: string } } }, exclusions: { type: object, additionalProperties: { type: array, items: { type: string } } }, defaultVariantId: { type: [string, 'null'], format: uuid }, variants: { type: array, items: { type: object, additionalProperties: true } }, optionGroups: { type: array, items: { type: object, additionalProperties: true } }, dimensions: { type: array, items: { type: object, additionalProperties: true } }, dependencies: { type: array, items: { type: object, additionalProperties: true } }, assetUsages: { type: array, items: { type: object, additionalProperties: true } } } }
+    ProductRevisionDraft: { allOf: [{$ref: '#/components/schemas/ProductRevisionWrite'}, { type: object, required: [id, revision, state, validation], properties: { id: { type: string, format: uuid }, revision: { type: integer }, state: { enum: [DRAFT, PUBLISHED, RETIRED, ARCHIVED] }, validation: { type: array, items: { $ref: '#/components/schemas/ValidationItem' } } } }] }
+    ProductRevisionPage: { type: object, required: [data, page], properties: { data: { type: array, items: { $ref: '#/components/schemas/ProductRevisionDraft' } }, page: { $ref: '#/components/schemas/Page' } } }
+    PublicationRequest: { type: object, required: [version], properties: { version: { type: integer }, effectiveFrom: { type: [string, 'null'], format: date-time }, effectiveUntil: { type: [string, 'null'], format: date-time } } }
+    AssetUploadRequest: { type: object, required: [fileName, mimeType, bytes, sha256, kind], properties: { fileName: { type: string, maxLength: 255 }, mimeType: { type: string }, bytes: { type: string, pattern: '^[0-9]+$' }, sha256: { type: string, pattern: '^[a-f0-9]{64}$' }, kind: { enum: [MODEL_3D, IMAGE, PDF, OTHER] } } }
+    UploadIntent: { type: object, required: [assetId, uploadUrl, expiresAt, headers], properties: { assetId: { type: string, format: uuid }, uploadUrl: { type: string, format: uri }, expiresAt: { type: string, format: date-time }, headers: { type: object, additionalProperties: { type: string } } } }
+    AssetUploadCompletion: { type: object, required: [bytes, sha256], properties: { bytes: { type: string }, sha256: { type: string } } }
+    Asset: { type: object, required: [id, kind, status, fileName, mimeType, bytes, sha256, metadata], properties: { id: { type: string, format: uuid }, kind: { enum: [MODEL_3D, IMAGE, PDF, OTHER] }, status: { enum: [UPLOADING, PROCESSING, READY, REJECTED, ARCHIVED] }, fileName: { type: string }, mimeType: { type: string }, bytes: { type: string }, sha256: { type: string }, metadata: { type: object, additionalProperties: true }, errorCode: { type: [string, 'null'] } } }
+    AssetPage: { type: object, required: [data, page], properties: { data: { type: array, items: { $ref: '#/components/schemas/Asset' } }, page: { $ref: '#/components/schemas/Page' } } }
+    PricingRuleSetWrite: { type: object, required: [version, currency, schemaVersion, rules, scenarios], properties: { version: { type: integer }, currency: { type: string }, schemaVersion: { type: integer }, rules: { type: array, items: { type: object, required: [id, code, kind, priority, label, condition, action], properties: { id: { type: string, format: uuid }, code: { type: string }, kind: { enum: [BASE, OPTION, DIMENSION, LABOUR, DELIVERY, DISCOUNT, TAX, FEE] }, priority: { type: integer }, label: { $ref: '#/components/schemas/LocalizedText' }, condition: { type: object, additionalProperties: true }, action: { type: object, additionalProperties: true }, stackGroup: { type: [string, 'null'] }, exclusiveInGroup: { type: boolean }, taxClass: { type: [string, 'null'] } } } }, scenarios: { type: array, items: { $ref: '#/components/schemas/PricingScenario' } } } }
+    PricingRuleSet: { allOf: [{$ref: '#/components/schemas/PricingRuleSetWrite'}, { type: object, required: [id, revision, state, checksum], properties: { id: { type: string, format: uuid }, revision: { type: integer }, state: { enum: [DRAFT, PUBLISHED, RETIRED, ARCHIVED] }, checksum: { type: string } } }] }
+    PricingScenario: { type: object, required: [variantId, optionIds, dimensions, evaluationTimestamp], properties: { name: { type: string }, variantId: { type: string, format: uuid }, optionIds: { type: array, items: { type: string, format: uuid } }, dimensions: { type: array, items: { $ref: '#/components/schemas/DimensionValue' } }, delivery: { $ref: '#/components/schemas/DeliveryInput' }, taxFacts: { type: object, additionalProperties: true }, promotionCode: { type: [string, 'null'] }, evaluationTimestamp: { type: string, format: date-time } } }
+    PricingSimulation: { type: object, required: [price, trace, violations], properties: { price: { $ref: '#/components/schemas/PricePreview' }, trace: { type: array, items: { type: object, additionalProperties: true } }, violations: { type: array, items: { $ref: '#/components/schemas/ValidationItem' } } } }
+    QuoteStatusWrite: { type: object, required: [version, status], properties: { version: { type: integer }, status: { enum: [VIEWED, CONTACTED, ACCEPTED, REJECTED, EXPIRED, VOID] }, note: { type: string, maxLength: 2000 } } }
+    QuoteAdmin: { allOf: [{$ref: '#/components/schemas/QuotePublicView'}, { type: object, required: [id, version, customer], properties: { id: { type: string, format: uuid }, version: { type: integer }, customer: { $ref: '#/components/schemas/Customer' }, internalSnapshot: { type: object, additionalProperties: true } } }] }
+    QuoteAdminPage: { type: object, required: [data, page], properties: { data: { type: array, items: { $ref: '#/components/schemas/QuoteAdmin' } }, page: { $ref: '#/components/schemas/Page' } } }
+    Customer: { type: object, required: [id, name, email, locale, version], properties: { id: { type: string, format: uuid }, name: { type: string }, email: { type: string, format: email }, phone: { type: [string, 'null'] }, locale: { type: string }, version: { type: integer }, quotes: { type: array, items: { type: object, additionalProperties: true } }, consents: { type: array, items: { type: object, additionalProperties: true } } } }
+    CustomerWrite: { type: object, required: [version, name, email, locale], properties: { version: { type: integer }, name: { type: string }, email: { type: string, format: email }, phone: { type: [string, 'null'] }, locale: { type: string } } }
+    CustomerPage: { type: object, required: [data, page], properties: { data: { type: array, items: { $ref: '#/components/schemas/Customer' } }, page: { $ref: '#/components/schemas/Page' } } }
+    PrivacyRequest: { type: object, required: [type], properties: { type: { enum: [EXPORT, DELETE] }, reason: { type: string, maxLength: 1000 } } }
+    AsyncJob: { type: object, required: [id, type, status, attempts, maxAttempts, version], properties: { id: { type: string, format: uuid }, type: { type: string }, status: { enum: [PENDING, RUNNING, SUCCEEDED, FAILED, DEAD] }, attempts: { type: integer }, maxAttempts: { type: integer }, errorCode: { type: [string, 'null'] }, version: { type: integer } } }
+    JobPage: { type: object, required: [data, page], properties: { data: { type: array, items: { $ref: '#/components/schemas/AsyncJob' } }, page: { $ref: '#/components/schemas/Page' } } }
+    AuditEvent: { type: object, required: [id, action, resourceType, resourceId, correlationId, occurredAt], properties: { id: { type: string, format: uuid }, actor: { type: [object, 'null'], additionalProperties: true }, action: { type: string }, resourceType: { type: string }, resourceId: { type: string }, correlationId: { type: string }, changeSummary: { type: object, additionalProperties: true }, occurredAt: { type: string, format: date-time } } }
+    AuditPage: { type: object, required: [data, page], properties: { data: { type: array, items: { $ref: '#/components/schemas/AuditEvent' } }, page: { $ref: '#/components/schemas/Page' } } }
+    Health: { type: object, required: [status, release], properties: { status: { const: ok }, release: { type: string } } }
+security:
+  - AdminSession: []

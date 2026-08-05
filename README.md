@@ -1,0 +1,36 @@
+# AI Estimate Studio
+
+AI Estimate Studio is a configurable quotation platform for home-improvement businesses. A homeowner configures a product in an interactive 3D viewer, receives a deterministic price and bounded AI guidance, exports a quote PDF, and can request contact from the business.
+
+This repository is currently an **Engineering Design Repository**. The `main` branch contains approved product and engineering specifications only. Application implementation must start on `develop` only after the roadmap is approved.
+
+## Source of truth
+
+1. [Product specification](docs/product/PRODUCT_SPEC.md)
+2. [UX specification](docs/ux/UX_SPEC.md)
+3. [System architecture](docs/architecture/SYSTEM_ARCHITECTURE.md)
+4. [Domain and data model](docs/data/DATA_MODEL.md)
+5. [API contract](docs/api/API.md)
+6. [Implementation roadmap](docs/roadmap/IMPLEMENTATION_ROADMAP.md)
+
+The original `AI-Estimate-Studio-Master-Kit.zip` is retained for provenance. Its contents are superseded by the documents under `docs/`.
+
+## Product scope
+
+The first release supports pools, pergolas, garden sheds, and roofing through shared category, product, option, pricing, asset, and viewer abstractions. Category-specific behavior is expressed as data and rules, not hard-coded components.
+
+## Documentation map
+
+See [docs/README.md](docs/README.md) for ownership, status, approval rules, and the complete document index.
+
+## Branch policy
+
+- `main`: approved specifications and release documentation.
+- `develop`: integration branch for implementation after roadmap approval.
+- `feature/<issue>-<slug>` and `fix/<issue>-<slug>`: short-lived branches targeting `develop`.
+- No generated application code, database migration, or deployable artifact belongs on `main` during the design phase.
+
+## Current phase gate
+
+Implementation is blocked until all documents marked **Normative** in the documentation index are internally consistent and the roadmap receives explicit product-owner approval.
+
