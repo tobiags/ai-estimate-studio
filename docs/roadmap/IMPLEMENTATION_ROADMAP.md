@@ -169,7 +169,7 @@ flowchart LR
 - **Files:** create `packages/application/src/pricing/*`, pricing repository adapter, API routes under `apps/web/app/api/v1/admin/pricing-rule-sets/`.
 - **Expected tests:** draft update/version conflict, simulation trace, failed scenario blocks publication, one active revision, audit/cache event after commit.
 - **Completion:** OpenAPI pricing endpoints pass contract tests; publication evidence is retained.
-- **Evidence (2026-08-05, persistence adapter):** `packages/db/src/repositories/pricing.ts` now maps bounded rule documents, enforces organization scope, replaces draft rules transactionally with optimistic versions, and retires prior published revisions before publishing the selected set. Repository tests cover scoped reads and transactional draft replacement; HTTP route contract wiring and audit/cache integration remain in the next PRC-05 slice.
+- **Evidence (2026-08-05, persistence and HTTP adapters):** `packages/db/src/repositories/pricing.ts` maps bounded rule documents, enforces organization scope, replaces draft rules transactionally with optimistic versions, and retires prior published revisions before publishing the selected set. `apps/web/src/http/pricing.ts` provides scoped get/update/simulate/publish handlers with CSRF hooks and RFC 7807 conflict/validation mapping; contracts and OpenAPI now require the validation document and mandatory publication scenarios. Repository and HTTP tests cover scoped reads, transactional draft replacement, conflicts and publication requests; audit/cache post-commit integration remains.
 
 ## Epic 4 — Catalog, Asset and Publication Administration (original Epic 7 part 1)
 

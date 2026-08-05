@@ -86,6 +86,12 @@ importers:
       '@ai-estimate-studio/contracts':
         specifier: workspace:*
         version: link:../../packages/contracts
+      '@ai-estimate-studio/domain':
+        specifier: workspace:*
+        version: link:../../packages/domain
+      '@ai-estimate-studio/pricing-engine':
+        specifier: workspace:*
+        version: link:../../packages/pricing-engine
       next:
         specifier: 16.3.0
         version: 16.3.0(@types/node@24.13.3)(react-dom@19.2.8(react@19.2.8))(react@19.2.8)
