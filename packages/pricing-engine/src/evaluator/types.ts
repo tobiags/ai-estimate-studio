@@ -14,6 +14,7 @@ export type PriceLine = Readonly<{
   label: string;
   quantity: string;
   unit: string | null;
+  taxClass?: string | null;
   netAmountMinor: string;
   taxAmountMinor: string;
   totalAmountMinor: string;

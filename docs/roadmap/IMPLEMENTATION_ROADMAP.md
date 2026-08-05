@@ -155,11 +155,12 @@ flowchart LR
 
 ### PRC-04 — Discounts and taxes
 
-- [ ] **Objective:** Implement stack policies, caps, tax classes and inclusive/exclusive rounding/allocation.
+- [x] **Objective:** Implement stack policies, caps, tax classes and inclusive/exclusive rounding/allocation.
 - **Dependencies:** PRC-03.
 - **Files:** create `packages/pricing-engine/src/stages/{discounts,taxes}.ts` and jurisdiction-neutral fixtures.
 - **Expected tests:** discount eligibility/stacking/caps, zero floor, inclusive/exclusive taxes, per-class/per-line policy and all rounding boundaries.
 - **Completion:** line sums equal stored totals for all property tests; no negative final total.
+- **Evidence (2026-08-05):** Discount and tax stages are pure, integer-only functions. Discounts support deterministic priority/order, stack groups, best-only/exclusive selection and subtotal/cap floors. Taxes support class rates, inclusive/exclusive calculation, per-line rounding and total exclusive allocation while preserving line sums. Stage tests cover caps, stacking, inclusive tax and allocation (19 pricing tests total).
 
 ### PRC-05 — Pricing application services and simulations
 

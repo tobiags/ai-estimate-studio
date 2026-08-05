@@ -33,6 +33,7 @@ function lineFrom(
     label: rule.label,
     quantity: "1",
     unit: null,
+    taxClass: rule.taxClass ?? null,
     netAmountMinor: amountMinor.toString(),
     taxAmountMinor: "0",
     totalAmountMinor: amountMinor.toString(),
