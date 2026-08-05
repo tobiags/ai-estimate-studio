@@ -99,11 +99,12 @@ flowchart LR
 
 ### DOM-03 — Tenant-scoped repositories and transactions
 
-- [ ] **Objective:** Implement domain ports with mandatory trusted organization scope and transaction support.
+- [x] **Objective:** Implement domain ports with mandatory trusted organization scope and transaction support.
 - **Dependencies:** DOM-02.
 - **Files:** create `packages/db/src/repositories/*`, `packages/db/src/transaction.ts`, `packages/db/src/mappers/*`.
 - **Expected tests:** two-tenant CRUD/list matrix, transaction rollback, pagination, immutable published/quote records and optimistic version conflict.
 - **Completion:** no adapter method can query organization-owned data without scope; Prisma types never leave `db`.
+- **Evidence (2026-08-05):** `PrismaCatalogRepository` scopes category/product/revision reads and writes by organization, maps Prisma records to domain snapshots, validates pagination and performs atomic optimistic-version updates. `PrismaTransactionPort` uses serializable transactions. Integration tests cover tenant isolation, duplicate tenant-local slugs, rollback and stale-version rejection (3 tests pass with local PostgreSQL); DB lint/typecheck pass and Prisma types remain inside `packages/db`.
 
 ### DOM-04 — Staff authentication and RBAC
 

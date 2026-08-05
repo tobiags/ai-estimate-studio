@@ -1,5 +1,6 @@
 export type DomainErrorCode =
   | "DOMAIN_VALIDATION"
+  | "NOT_FOUND"
   | "INVALID_STATE_TRANSITION"
   | "VERSION_CONFLICT"
   | "DOMAIN_INVARIANT";
@@ -24,6 +25,13 @@ export class DomainValidationError extends DomainError {
   constructor(message: string, details: Record<string, unknown> = {}) {
     super("DOMAIN_VALIDATION", message, details);
     this.name = "DomainValidationError";
+  }
+}
+
+export class NotFoundError extends DomainError {
+  constructor(resource: string, id: string) {
+    super("NOT_FOUND", `${resource} ${id} was not found`, { resource, id });
+    this.name = "NotFoundError";
   }
 }
 

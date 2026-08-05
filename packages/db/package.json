@@ -4,6 +4,7 @@
   "private": true,
   "type": "module",
   "dependencies": {
+    "@ai-estimate-studio/domain": "workspace:*",
     "@prisma/client": "6.19.3"
   },
   "exports": {
@@ -15,6 +16,7 @@
     "db:generate": "prisma generate --schema prisma/schema.prisma",
     "db:validate": "prisma validate --schema prisma/schema.prisma",
     "db:migrate:dev": "prisma migrate dev --schema prisma/schema.prisma",
+    "test:integration": "vitest run src/repositories/catalog.integration.test.ts",
     "lint": "eslint . --max-warnings 0",
     "test": "vitest run --passWithNoTests",
     "typecheck": "tsc --noEmit"

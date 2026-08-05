@@ -30,6 +30,20 @@ export interface OrganizationRepository {
   ): Promise<Organization>;
 }
 
+export type NewCategory = Readonly<{
+  slug: string;
+  name: Readonly<Record<string, string>>;
+  description: Readonly<Record<string, string>>;
+  sortOrder?: number;
+}>;
+
+export type CategoryUpdate = Readonly<{
+  slug?: string;
+  name?: Readonly<Record<string, string>>;
+  description?: Readonly<Record<string, string>>;
+  sortOrder?: number;
+}>;
+
 export interface CatalogRepository {
   findCategory(
     scope: OrganizationScope,
@@ -39,6 +53,16 @@ export interface CatalogRepository {
     scope: OrganizationScope,
     page: PageRequest,
   ): Promise<Page<Category>>;
+  createCategory(
+    scope: OrganizationScope,
+    input: NewCategory,
+  ): Promise<Category>;
+  updateCategory(
+    scope: OrganizationScope,
+    id: CategoryId,
+    expectedVersion: Version,
+    input: CategoryUpdate,
+  ): Promise<Category>;
   findProduct(scope: OrganizationScope, id: ProductId): Promise<Product | null>;
   findRevision(
     scope: OrganizationScope,
@@ -85,8 +109,8 @@ export interface AuditEventWriter {
   append(scope: OrganizationScope, event: AuditEvent): Promise<void>;
 }
 
-export interface TransactionPort {
-  run<T>(work: () => Promise<T>): Promise<T>;
+export interface TransactionPort<TransactionContext = unknown> {
+  run<T>(work: (transaction: TransactionContext) => Promise<T>): Promise<T>;
 }
 
 export interface ClockPort {

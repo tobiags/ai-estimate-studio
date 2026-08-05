@@ -13,6 +13,7 @@
     "db:generate": "pnpm --filter @ai-estimate-studio/db db:generate",
     "db:migrate:deploy": "pnpm --filter @ai-estimate-studio/db exec prisma migrate deploy --schema prisma/schema.prisma",
     "db:validate": "pnpm --filter @ai-estimate-studio/db db:validate",
+    "db:test:integration": "pnpm exec dotenv -e .env.example -- pnpm --filter @ai-estimate-studio/db test:integration",
     "dev": "dotenv -e .env.local -- turbo run dev",
     "docs:build": "vitepress build docs",
     "docs:artifact": "node scripts/check-pages-artifact.mjs",
