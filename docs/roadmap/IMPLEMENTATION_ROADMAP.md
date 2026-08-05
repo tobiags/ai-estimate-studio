@@ -117,11 +117,12 @@ flowchart LR
 
 ### DOM-05 — OpenAPI-derived contracts and HTTP foundation
 
-- [ ] **Objective:** Establish runtime Zod DTOs, RFC 7807 mapping, pagination, idempotency and route harness matching OpenAPI.
+- [x] **Objective:** Establish runtime Zod DTOs, RFC 7807 mapping, pagination, idempotency and route harness matching OpenAPI.
 - **Dependencies:** DOM-01, FND-03.
 - **Files:** create `packages/contracts/src/*`, `apps/web/src/http/{problems,pagination,idempotency,route}.ts`, contract generation/validation scripts.
 - **Expected tests:** OpenAPI lint/diff, examples validate, RFC 7807 content type, unsafe JSON/content limits, idempotency replay and Prism mock smoke.
 - **Completion:** contracts contain no Prisma types; all documented status/error patterns are reusable and tested.
+- **Evidence (2026-08-05):** `packages/contracts` exports runtime-validated primitives plus public catalog, configuration and quote DTOs, with strict request objects, bounded identifiers, integer minor amounts and RFC 3339 dates. Web HTTP helpers provide RFC 7807 responses, correlation IDs, bounded JSON parsing, cursor/limit envelopes and scoped idempotency replay/conflict behavior. Contract and HTTP tests pass (10 assertions), OpenAPI lint passes, and no contract module imports Prisma or provider types.
 
 ## Epic 3 — Deterministic Pricing Engine (original Epic 4)
 
