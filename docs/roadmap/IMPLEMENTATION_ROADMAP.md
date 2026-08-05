@@ -90,11 +90,12 @@ flowchart LR
 
 ### DOM-02 — Prisma schema and initial migration
 
-- [ ] **Objective:** Translate the approved Prisma design and database-only constraints exactly.
+- [x] **Objective:** Translate the approved Prisma design and database-only constraints exactly.
 - **Dependencies:** DOM-01, FND-04.
 - **Files:** create `packages/db/prisma/schema.prisma`, `packages/db/prisma/migrations/*`, `packages/db/src/client.ts`, migration test fixtures.
 - **Expected tests:** Prisma validate/format, migrate empty/current DB, constraint failures, schema drift and rollback rehearsal on synthetic snapshot.
 - **Completion:** PostgreSQL schema matches the ER/model document; migrations are reviewed, forward-only and repeatable.
+- **Evidence (2026-08-05):** Prisma 6.19.3 schema validates and formats; generated `0001_init` plus hardened `0002_constraints` apply cleanly to an empty local PostgreSQL database and replay with no pending migrations. Schema artifact tests cover all normative aggregates/enums and database-only checks; Prisma Client generation, package typecheck/lint and migration deploy pass.
 
 ### DOM-03 — Tenant-scoped repositories and transactions
 

@@ -10,6 +10,9 @@
   "scripts": {
     "bootstrap": "node scripts/bootstrap.mjs",
     "build": "turbo run build",
+    "db:generate": "pnpm --filter @ai-estimate-studio/db db:generate",
+    "db:migrate:deploy": "pnpm --filter @ai-estimate-studio/db exec prisma migrate deploy --schema prisma/schema.prisma",
+    "db:validate": "pnpm --filter @ai-estimate-studio/db db:validate",
     "dev": "dotenv -e .env.local -- turbo run dev",
     "docs:build": "vitepress build docs",
     "docs:artifact": "node scripts/check-pages-artifact.mjs",
