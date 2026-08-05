@@ -2,5 +2,7 @@ export * from "./auth/authorization.js";
 export * from "./auth/csrf.js";
 export * from "./auth/session.js";
 export * from "./catalog/projections.js";
+export * from "./configuration/service.js";
+export * from "./configuration/types.js";
 export * from "./pricing/service.js";
 export * from "./pricing/types.js";
