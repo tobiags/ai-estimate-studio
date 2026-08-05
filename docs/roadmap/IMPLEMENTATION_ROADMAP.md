@@ -241,6 +241,7 @@ flowchart LR
 - **Files:** create `packages/viewer-engine/src/{mapping,hotspots,interaction}/**`.
 - **Expected tests:** condition diffs, conflicts, missing optional mapping, screen-space picking, anchor/callout sync, keyboard and occlusion behavior.
 - **Completion:** viewer state derives only from generic configuration; price/domain packages are not dependencies.
+- **Evidence (2026-08-05, generic mapping and interaction foundation):** `packages/viewer-engine/src/mapping/actions.ts` applies manifest actions idempotently to injected scene targets and exposes deterministic mapping state; `src/hotspots/interaction.ts` supports nearest-point picking, visibility filtering and keyboard traversal for accessible callouts. Tests cover idempotence, state projection, picking and focus order; conditional manifest diffs, world-to-screen projection and occlusion handling remain.
 
 ### VWR-04 — React adapter and fallback
 
