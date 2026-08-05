@@ -1,0 +1,8 @@
+{
+  "name": "@ai-estimate-studio/config",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": { ".": "./src/index.ts" },
+  "scripts": { "build": "tsc -b", "lint": "eslint .", "test": "vitest run", "typecheck": "tsc --noEmit" }
+}

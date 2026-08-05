@@ -1,0 +1,9 @@
+{
+  "name": "@ai-estimate-studio/ui",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": { ".": "./src/index.ts" },
+  "scripts": { "build": "tsc -b", "lint": "eslint .", "test": "vitest run", "typecheck": "tsc --noEmit" },
+  "peerDependencies": { "react": ">=19 <20", "react-dom": ">=19 <20" }
+}
