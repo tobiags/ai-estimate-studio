@@ -189,6 +189,7 @@ flowchart LR
 - **Files:** create `packages/application/src/catalog/product-revision-service.ts`, validators/mappers and product-revision routes.
 - **Expected tests:** child add/update/remove, cross-revision rejection, stable IDs, stale aggregate conflict, published revision immutability.
 - **Completion:** one transaction creates a normalized aggregate and actionable validation list.
+- **Evidence (2026-08-05, application aggregate boundary):** `packages/application/src/catalog/product-revision-service.ts` defines a versioned revision aggregate port, validates child revision references, stable IDs/codes, option dependencies, selection bounds, dimensions and hotspot ownership, and blocks edits to published revisions before persistence. Tests cover valid saves, cross-revision rejection, optimistic conflicts and published immutability; Prisma aggregate transaction wiring and admin routes remain.
 
 ### CAT-03 — Asset upload and processing pipeline
 
