@@ -22,4 +22,3 @@ npx @redocly/cli lint --config docs/api/redocly.yaml docs/api/openapi.yaml
 ```
 
 Implementation-phase commands and gates are defined in the approved roadmap and quality strategy. A behavioral change is incomplete until its normative documentation and verification evidence are updated.
-

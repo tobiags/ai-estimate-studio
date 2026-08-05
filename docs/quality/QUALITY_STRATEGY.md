@@ -85,4 +85,3 @@ Factories create synthetic tenant-isolated deterministic data. Tests freeze time
 ## 10. Definition of done
 
 Requirement/AC linked; tests written and passing; docs/OpenAPI/schema updated; accessibility/performance/security impacts assessed; telemetry added without PII; migrations/provider failures/rollback verified where relevant; reviewer evidence attached; no new unresolved warning or flaky test.
-

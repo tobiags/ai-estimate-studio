@@ -10,4 +10,3 @@
 | [0006](0006-docs-first-branching.md) | Documentation-first `main`, implementation on `develop` | Accepted by project mandate |
 
 ADRs are immutable after acceptance. A changed decision creates a superseding ADR and updates this index.
-

@@ -1,0 +1,8 @@
+* @tobiags
+
+/docs/ @tobiags
+/docs/api/ @tobiags
+/.github/ @tobiags
+/packages/domain/ @tobiags
+/packages/pricing-engine/ @tobiags
+/packages/viewer-engine/ @tobiags

@@ -63,4 +63,3 @@ OpenAPI is the external contract. Zod schemas are the runtime contract used by r
 ## Repository governance files
 
 Implementation foundation creates `CODEOWNERS`, pull request template, issue templates, Dependabot/Renovate configuration, CI workflows, changeset configuration, editor settings and environment examples. Secrets and generated artifacts are ignored; `.env.example` contains names and descriptions only.
-

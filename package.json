@@ -11,27 +11,45 @@
     "bootstrap": "node scripts/bootstrap.mjs",
     "build": "turbo run build",
     "dev": "dotenv -e .env.local -- turbo run dev",
+    "docs:build": "vitepress build docs",
+    "docs:artifact": "node scripts/check-pages-artifact.mjs",
+    "docs:check": "pnpm docs:lint && pnpm docs:links && pnpm docs:openapi && pnpm docs:build && pnpm docs:artifact",
+    "docs:dev": "vitepress dev docs",
+    "docs:links": "node scripts/check-doc-links.mjs",
+    "docs:lint": "markdownlint-cli2 README.md CONTRIBUTING.md SECURITY.md CHANGELOG.md docs/**/*.md",
+    "docs:openapi": "cross-env NPM_CONFIG_LOGLEVEL=error redocly lint --config docs/api/redocly.yaml docs/api/openapi.yaml",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "infra:down": "docker compose down",
     "infra:logs": "docker compose logs --follow",
     "infra:up": "docker compose up --detach --wait postgres minio mailpit",
-    "lint": "turbo run lint",
+    "lint": "eslint eslint.config.mjs prettier.config.mjs scripts docs/.vitepress/config.mts --max-warnings 0 && turbo run lint",
     "test": "turbo run test",
     "typecheck": "turbo run typecheck"
   },
   "devDependencies": {
     "@eslint/js": "10.0.1",
+    "@redocly/cli": "2.44.2",
     "@types/node": "24.13.3",
     "@vitest/coverage-v8": "4.1.10",
+    "cross-env": "10.1.0",
     "dotenv-cli": "11.0.0",
     "eslint": "10.8.0",
     "globals": "17.9.0",
+    "markdownlint-cli2": "0.23.2",
     "prettier": "3.9.6",
     "tsx": "4.23.8",
     "turbo": "2.10.8",
     "typescript": "catalog:",
     "typescript-eslint": "8.66.0",
+    "vitepress": "1.6.4",
+    "vitepress-plugin-mermaid": "2.0.17",
     "vitest": "4.1.10"
+  },
+  "pnpm": {
+    "onlyBuiltDependencies": ["esbuild"],
+    "overrides": {
+      "vite": "6.4.3"
+    }
   }
 }

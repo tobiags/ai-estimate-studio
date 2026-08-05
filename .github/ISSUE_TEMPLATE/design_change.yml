@@ -1,0 +1,34 @@
+name: Design change proposal
+description: Propose a change to approved product, UX, architecture, API or quality contracts.
+title: "[Design]: "
+labels: ["design-change"]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem and evidence
+    validations:
+      required: true
+  - type: textarea
+    id: affected
+    attributes:
+      label: Affected requirements and documents
+      description: List requirement, acceptance, API and ADR identifiers.
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed decision
+      description: Include alternatives, tradeoffs and migration/rollback implications.
+    validations:
+      required: true
+  - type: checkboxes
+    id: reviews
+    attributes:
+      label: Required review areas
+      options:
+        - label: Product and UX
+        - label: Architecture and data
+        - label: Security and privacy
+        - label: Accessibility and performance

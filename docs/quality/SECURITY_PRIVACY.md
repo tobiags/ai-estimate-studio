@@ -75,4 +75,3 @@ Runbook phases: detect, contain, preserve evidence, rotate/revoke, eradicate, re
 - Malformed, oversized and externally referencing models are rejected before publication.
 - AI injection/evasion suite cannot create actionable unverified suggestions or leak prompt/context.
 - Restore, credential rotation and invalid pricing rollback drills complete before launch.
-

@@ -2,7 +2,7 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use `superpowers:subagent-driven-development` (recommended) or `superpowers:executing-plans` to implement this roadmap task-by-task. Steps use checkbox syntax for tracking.
 
-**Status:** Proposed for product-owner approval; implementation is forbidden before approval.  
+**Status:** Approved by the product owner on 2026-08-05; execution is tracked task by task on `develop`.  
 **Goal:** Deliver a production-grade multi-organization visual quotation platform whose pricing is deterministic and whose AI/viewer capabilities degrade safely.  
 **Architecture:** TypeScript modular monolith in a pnpm/Turborepo workspace, Next.js web app, Node job runner, PostgreSQL/Prisma, S3-compatible assets, provider-neutral AI and contract-first REST API.  
 **Tech stack:** Node active LTS, pnpm, Turborepo, Next.js, React, Tailwind, shadcn/ui, Three.js/React Three Fiber adapter, Prisma/PostgreSQL, Zod, Vercel AI SDK, Vitest, Playwright, Testcontainers, OpenAPI 3.1.
@@ -38,7 +38,7 @@ flowchart LR
 
 ### FND-01 — Workspace scaffold
 
-- [ ] **Objective:** Create the pnpm/Turborepo workspace and empty bounded package/app entry points without feature logic.
+- [x] **Objective:** Create the pnpm/Turborepo workspace and empty bounded package/app entry points without feature logic.
 - **Dependencies:** Documentation/roadmap approval.
 - **Files:** create `package.json`, `pnpm-workspace.yaml`, `turbo.json`, `.nvmrc`, `.editorconfig`, `.gitignore`, `apps/web/package.json`, `apps/jobs/package.json`, and package manifests under `packages/{domain,application,contracts,db,pricing-engine,viewer-engine,ai,ui,providers,config,testkit}/package.json`.
 - **Expected tests:** frozen install, workspace graph, `turbo run build --dry`, dependency-boundary smoke.
@@ -46,7 +46,7 @@ flowchart LR
 
 ### FND-02 — Shared static configuration
 
-- [ ] **Objective:** Enforce strict TypeScript, ESLint, Prettier, Vitest and environment conventions.
+- [x] **Objective:** Enforce strict TypeScript, ESLint, Prettier, Vitest and environment conventions.
 - **Dependencies:** FND-01.
 - **Files:** create `packages/config/{typescript,eslint,vitest}/*`, root `eslint.config.*`, `prettier.config.*`, `apps/web/tsconfig.json`, `apps/jobs/tsconfig.json`, package `tsconfig.json` files, `.env.example`.
 - **Expected tests:** deliberately invalid fixture fails each boundary/strictness rule; formatting check; environment-schema unit tests.
@@ -54,7 +54,7 @@ flowchart LR
 
 ### FND-03 — Next.js and job-runner shells
 
-- [ ] **Objective:** Provide buildable health-only web/job processes and server/client boundary protection.
+- [x] **Objective:** Provide buildable health-only web/job processes and server/client boundary protection.
 - **Dependencies:** FND-02.
 - **Files:** create `apps/web/{next.config.ts,app/layout.tsx,app/page.tsx,app/api/health/route.ts}`, `apps/jobs/src/main.ts`, shared runtime config in `packages/config/src/env.ts`.
 - **Expected tests:** health route contract, missing-env startup failure, web/jobs production builds, client bundle secret-import rejection.
@@ -62,7 +62,7 @@ flowchart LR
 
 ### FND-04 — Local infrastructure and synthetic seed
 
-- [ ] **Objective:** Make PostgreSQL, MinIO and Mailpit available consistently for local/CI.
+- [x] **Objective:** Make PostgreSQL, MinIO and Mailpit available consistently for local/CI.
 - **Dependencies:** FND-03.
 - **Files:** create `docker-compose.yml`, `docker/`, `scripts/bootstrap.*`, `packages/testkit/src/seed/`, update `.env.example` and root README.
 - **Expected tests:** bootstrap from empty Docker volumes, service health, seed idempotency, teardown/restart persistence.
@@ -75,6 +75,7 @@ flowchart LR
 - **Files:** create `.github/workflows/{ci,docs,security}.yml`, `CODEOWNERS`, PR/issue templates, dependency update config, `docs` site configuration.
 - **Expected tests:** workflow lint, Markdown links/Mermaid/OpenAPI validation, least-permission check, Pages artifact inspection.
 - **Completion:** required PR checks are deterministic; Pages contains docs only; actions are SHA-pinned.
+- **Current evidence:** workflow/action lint, least-permission review, dependency audit and Pages artifact checks pass locally; remote activation and branch-protection verification require an explicit push/configuration step.
 
 ## Epic 2 — Domain, Database, Tenancy and Contracts
 

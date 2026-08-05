@@ -155,4 +155,3 @@ Prompt/model changes run the frozen evaluation suite and compare against the app
 ## 11. Known limitations
 
 Guidance quality is limited to catalog content. It cannot understand site conditions, images, permits or engineering constraints in MVP. Very large catalogs are truncated to deterministic compatible candidates. Provider replacement requires evaluation even when schemas match.
-

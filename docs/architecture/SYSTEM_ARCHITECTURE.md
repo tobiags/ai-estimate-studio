@@ -116,4 +116,3 @@ MVP remains a modular monolith. Stateless web instances scale horizontally; Post
 - Every pricing result includes rule revision and trace.
 - Every provider adapter passes a shared contract test suite.
 - No category name appears in viewer-engine or pricing-engine source.
-

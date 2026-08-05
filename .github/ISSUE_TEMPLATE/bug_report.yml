@@ -1,0 +1,42 @@
+name: Bug report
+description: Report a reproducible product or engineering defect.
+title: "[Bug]: "
+labels: ["bug", "triage"]
+body:
+  - type: markdown
+    attributes:
+      value: Do not include credentials, customer data, quote tokens or private provider payloads.
+  - type: textarea
+    id: observed
+    attributes:
+      label: Observed behavior
+      description: What happened, including the safe error code and release SHA when available?
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior
+    validations:
+      required: true
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Minimal reproduction
+      description: Use synthetic data only.
+    validations:
+      required: true
+  - type: dropdown
+    id: environment
+    attributes:
+      label: Environment
+      options: [Local, CI, Preview, Staging, Production]
+    validations:
+      required: true
+  - type: checkboxes
+    id: safety
+    attributes:
+      label: Safety confirmation
+      options:
+        - label: I removed secrets, personal data and public quote tokens.
+          required: true

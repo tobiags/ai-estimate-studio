@@ -95,4 +95,3 @@ PostgreSQL-backed jobs are sufficient for MVP. Workers claim rows using transact
 ## 11. Production release checklist
 
 All CI gates pass; roadmap acceptance evidence is linked; migrations and rollback reviewed; backups/restores healthy; environment schema valid; preview/staging smoke passed; security/accessibility approvals complete; no P0/P1 issue; dashboards/alerts active; release notes and docs updated. Post-deploy smoke verifies public catalog, configuration/reprice, quote issue/PDF, admin authentication and tenant isolation without using real customer data.
-

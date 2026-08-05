@@ -1,0 +1,57 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main, develop]
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  quality:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      NODE_ENV: production
+      APP_ENV: test
+      RELEASE_SHA: ${{ github.sha }}
+      NEXT_PUBLIC_APP_URL: http://localhost:3000
+      DATABASE_URL: postgresql://postgres:postgres@localhost:55432/ai_estimate_studio
+      DIRECT_DATABASE_URL: postgresql://postgres:postgres@localhost:55432/ai_estimate_studio
+      OBJECT_STORAGE_ENDPOINT: http://localhost:9000
+      OBJECT_STORAGE_REGION: us-east-1
+      OBJECT_STORAGE_BUCKET: ai-estimate-studio
+      OBJECT_STORAGE_ACCESS_KEY: ci-placeholder
+      OBJECT_STORAGE_SECRET_KEY: ci-placeholder
+      AI_PROVIDER: fake
+      EMAIL_PROVIDER: fake
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - name: Install pnpm
+        uses: pnpm/action-setup@f40ffcd9367d9f12939873eb1018b921a783ffaa # v4
+        with:
+          version: 10.33.2
+          run_install: false
+      - name: Set up Node.js
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+      - name: Check formatting
+        run: pnpm format:check
+      - name: Lint
+        run: pnpm lint
+      - name: Typecheck
+        run: pnpm typecheck
+      - name: Test
+        run: pnpm test
+      - name: Build
+        run: pnpm build

@@ -11,4 +11,3 @@ Do not open a public issue. Use GitHub’s private vulnerability reporting for t
 The project will acknowledge a valid report through the private advisory, triage severity, coordinate remediation/disclosure and credit the reporter when requested and appropriate. Response targets become operational before the first production release.
 
 The normative security, privacy, threat and incident requirements are in [docs/quality/SECURITY_PRIVACY.md](docs/quality/SECURITY_PRIVACY.md).
-

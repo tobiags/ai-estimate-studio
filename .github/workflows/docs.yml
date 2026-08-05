@@ -1,0 +1,73 @@
+name: Documentation
+
+on:
+  pull_request:
+    paths:
+      - "docs/**"
+      - "*.md"
+      - "scripts/check-doc-links.mjs"
+      - "package.json"
+      - "pnpm-lock.yaml"
+      - ".github/workflows/docs.yml"
+  push:
+    branches: [main]
+    paths:
+      - "docs/**"
+      - "*.md"
+      - "scripts/check-doc-links.mjs"
+      - "package.json"
+      - "pnpm-lock.yaml"
+      - ".github/workflows/docs.yml"
+
+concurrency:
+  group: pages-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - name: Install pnpm
+        uses: pnpm/action-setup@f40ffcd9367d9f12939873eb1018b921a783ffaa # v4
+        with:
+          version: 10.33.2
+          run_install: false
+      - name: Set up Node.js
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+      - name: Validate and build documentation
+        run: pnpm docs:check
+      - name: Configure GitHub Pages
+        if: github.event_name == 'push'
+        uses: actions/configure-pages@983d7736d9b0ae728b81ab479565c72886d7745b # v5
+      - name: Upload documentation artifact
+        if: github.event_name == 'push'
+        uses: actions/upload-pages-artifact@7b1f4a764d45c48632c6b24a0339c27f5614fb0b # v4
+        with:
+          path: docs/.vitepress/dist
+
+  deploy:
+    if: github.event_name == 'push'
+    needs: build
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    permissions:
+      pages: write
+      id-token: write
+    steps:
+      - name: Deploy documentation to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@d6db90164ac5ed86f2b6aed7e0febac5b3c0c03e # v4

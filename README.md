@@ -49,4 +49,3 @@ Run `corepack pnpm format:check`, `lint`, `typecheck`, `test`, and `build` befor
 ## Current phase gate
 
 The roadmap was approved on 2026-08-05. Epic 1 engineering-foundation work is in progress on `develop`; product-domain implementation remains gated by completion of its listed dependencies.
-
