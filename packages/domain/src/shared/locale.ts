@@ -39,7 +39,7 @@ export function createLocalizedText(
 }
 
 function language(locale: Locale): string {
-  return locale.split("-")[0].toLowerCase();
+  return (locale.split("-")[0] ?? locale).toLowerCase();
 }
 
 export function resolveLocalizedText(
