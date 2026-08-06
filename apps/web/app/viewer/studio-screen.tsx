@@ -2,7 +2,6 @@
 
 import { useEffect, useMemo, useRef, useState, type DragEvent } from "react";
 import { gsap } from "gsap";
-import { ScrollTrigger } from "gsap/ScrollTrigger";
 import * as THREE from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 import {
@@ -13,8 +12,6 @@ import {
   type StudioProduct,
   type StudioSceneOptions,
 } from "./scene-factory";
-
-gsap.registerPlugin(ScrollTrigger);
 
 const publicAssetPath = (path: string) =>
   `${process.env.NEXT_PUBLIC_BASE_PATH ?? ""}${path}`;
@@ -786,24 +783,7 @@ export function StudioScreen() {
         "-=0.45",
       );
 
-    const scroller = document.querySelector<HTMLElement>(".studio-inspector");
-    const trigger = scroller
-      ? ScrollTrigger.create({
-          scroller,
-          trigger: ".studio-option-shelf",
-          start: "top 85%",
-          end: "bottom 35%",
-          scrub: true,
-          onUpdate: (self) => {
-            gsap.set(".studio-marquee-track", {
-              xPercent: -self.progress * 7,
-            });
-          },
-        })
-      : null;
-
     return () => {
-      trigger?.kill();
       intro.kill();
     };
   }, [ready]);
@@ -930,27 +910,6 @@ export function StudioScreen() {
           </a>
         </div>
       </header>
-
-      <div className="studio-marquee" aria-hidden="true">
-        <div className="studio-marquee-track">
-          <span>PERGOLA</span>
-          <i />
-          <span>POOL</span>
-          <i />
-          <span>LANDSCAPE</span>
-          <i />
-          <span>LIVE QUOTE</span>
-          <i />
-          <span>PERGOLA</span>
-          <i />
-          <span>POOL</span>
-          <i />
-          <span>LANDSCAPE</span>
-          <i />
-          <span>LIVE QUOTE</span>
-          <i />
-        </div>
-      </div>
 
       <section className="studio-layout">
         <div

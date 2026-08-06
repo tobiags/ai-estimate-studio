@@ -1989,49 +1989,13 @@ button {
   background: #e7a354;
 }
 
-.studio-marquee {
-  height: 25px;
-  overflow: hidden;
-  color: rgba(245, 240, 232, 0.63);
-  border-bottom: 1px solid rgba(245, 240, 232, 0.1);
-  background: #163526;
-  font-size: 9px;
-  letter-spacing: 0.22em;
-  text-transform: uppercase;
-}
-
-.studio-marquee-track {
-  display: flex;
-  align-items: center;
-  justify-content: space-around;
-  min-width: 860px;
-  height: 100%;
-  animation: studio-marquee 28s linear infinite;
-}
-
-.studio-marquee-track i {
-  width: 4px;
-  height: 4px;
-  border-radius: 50%;
-  background: #e7a354;
-}
-
-@keyframes studio-marquee {
-  from {
-    transform: translateX(0);
-  }
-  to {
-    transform: translateX(-15%);
-  }
-}
-
 .studio-layout {
   grid-template-columns: minmax(0, 1fr) 420px;
-  height: calc(100dvh - 101px);
+  height: calc(100dvh - 76px);
 }
 
 .studio-stage {
-  min-height: calc(100dvh - 101px);
+  min-height: calc(100dvh - 76px);
   background: #173426;
   box-shadow: inset -1px 0 rgba(245, 240, 232, 0.1);
 }
@@ -2125,7 +2089,7 @@ button {
 }
 
 .studio-inspector {
-  min-height: calc(100dvh - 101px);
+  min-height: calc(100dvh - 76px);
   padding: 34px 31px 24px;
   color: #19271f;
   border-left-color: rgba(16, 41, 31, 0.15);
@@ -2426,10 +2390,6 @@ button {
 }
 
 @media (max-width: 520px) {
-  .studio-marquee-track {
-    min-width: 720px;
-  }
-
   .studio-inspector h1 {
     max-width: 18rem;
     font-size: 41px;
