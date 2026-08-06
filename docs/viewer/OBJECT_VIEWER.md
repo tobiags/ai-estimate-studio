@@ -156,7 +156,8 @@ The first production-oriented slice is exposed directly at `/` rather than behin
 
 - local reference assets for pergola, pool and garden scenes;
 - a named procedural factory with `root.userData.sculptRuntime` metadata inspired by the staged `img2threejs` output contract;
-- transparent Three.js canvas over the selected reference image;
+- neutral studio canvas with a procedural Three.js scene; reference photographs are limited to product-selector thumbnails;
+- English/French copy toggle (English is the default for Fiverr-facing traffic);
 - orbit, zoom, reset, auto-orbit and measurement controls;
 - inline dimensions, finishes, roof and add-on selections;
 - live estimate lines for base product, footprint, options, labour, delivery, volume discount and VAT;

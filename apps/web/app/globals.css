@@ -1323,6 +1323,38 @@ button {
   justify-self: end;
   font-weight: 700;
 }
+.studio-header-actions {
+  justify-self: end;
+  display: inline-flex;
+  align-items: center;
+  gap: 18px;
+}
+.studio-language {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  padding: 2px;
+  border: 1px solid rgba(22, 26, 27, 0.16);
+  border-radius: 999px;
+  background: #f5f2ec;
+}
+.studio-language button {
+  min-width: 27px;
+  min-height: 23px;
+  padding: 0 5px;
+  border: 0;
+  border-radius: 999px;
+  color: #747b75;
+  background: transparent;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+}
+.studio-language button:hover,
+.studio-language button.is-active {
+  color: #161a1b;
+  background: #e9dfd4;
+}
 .studio-header-link:hover,
 .studio-stage-controls button:hover,
 .studio-quote:hover {
@@ -1340,29 +1372,11 @@ button {
   min-height: calc(100dvh - 70px);
   overflow: hidden;
   isolation: isolate;
-  background: #c8c7bc;
+  background: #e7e3da;
 }
-.studio-reference-photo,
-.studio-stage-shade,
 .studio-canvas {
   position: absolute;
   inset: 0;
-}
-.studio-reference-photo {
-  z-index: -3;
-  background-image: var(--stage-image);
-  background-position: center;
-  background-size: cover;
-  filter: saturate(0.82) contrast(0.94);
-}
-.studio-stage-shade {
-  z-index: -2;
-  background: linear-gradient(
-    180deg,
-    rgba(11, 16, 14, 0.04),
-    rgba(11, 16, 14, 0.16)
-  );
-  pointer-events: none;
 }
 .studio-canvas {
   z-index: 0;
@@ -1381,7 +1395,7 @@ button {
   inset: 0;
   display: grid;
   place-items: center;
-  color: #f9f6ef;
+  color: #68706b;
   font-size: 12px;
   letter-spacing: 0.08em;
   text-transform: uppercase;
@@ -1392,12 +1406,11 @@ button {
   left: 36px;
   display: grid;
   gap: 5px;
-  color: #f8f5ed;
-  text-shadow: 0 1px 14px rgba(0, 0, 0, 0.22);
+  z-index: 2;
+  color: #161a1b;
   pointer-events: none;
 }
-.studio-stage-title span,
-.studio-stage-credit {
+.studio-stage-title span {
   font-size: 10px;
   letter-spacing: 0.13em;
   text-transform: uppercase;
@@ -1405,14 +1418,6 @@ button {
 .studio-stage-title strong {
   font-size: 12px;
   letter-spacing: 0.08em;
-}
-.studio-stage-credit {
-  position: absolute;
-  right: 26px;
-  bottom: 24px;
-  color: rgba(249, 246, 239, 0.76);
-  font-size: 9px;
-  text-shadow: 0 1px 8px rgba(0, 0, 0, 0.28);
 }
 .studio-tool-rail {
   position: absolute;
@@ -1451,8 +1456,7 @@ button {
   z-index: 2;
   display: flex;
   gap: 18px;
-  color: #f9f6ef;
-  text-shadow: 0 1px 10px rgba(0, 0, 0, 0.28);
+  color: #4e5751;
 }
 .studio-measurements span {
   display: grid;
@@ -1463,7 +1467,7 @@ button {
   font-weight: 600;
 }
 .studio-measurements small {
-  color: rgba(249, 246, 239, 0.78);
+  color: #7a807a;
   font-size: 9px;
   letter-spacing: 0.1em;
   text-transform: uppercase;
@@ -1476,14 +1480,13 @@ button {
   display: flex;
   align-items: center;
   gap: 14px;
-  color: rgba(249, 246, 239, 0.78);
+  color: #7a807a;
   font-size: 10px;
-  text-shadow: 0 1px 8px rgba(0, 0, 0, 0.28);
 }
 .studio-stage-controls button {
   padding: 0;
   border: 0;
-  color: #f9f6ef;
+  color: #4e5751;
   background: transparent;
   font-size: 10px;
   font-weight: 700;
@@ -1529,14 +1532,14 @@ button {
   font-size: clamp(34px, 4vw, 48px);
   font-weight: 500;
   letter-spacing: -0.07em;
-  line-height: 0.98;
+  line-height: 1.02;
 }
 .studio-inspector h1 em {
   color: #c96142;
   font-style: normal;
 }
 .studio-intro {
-  max-width: 290px;
+  max-width: 300px;
   margin: 0;
   color: #717771;
   font-size: 13px;
@@ -1863,5 +1866,64 @@ button {
   }
   .studio-total strong {
     font-size: 34px;
+  }
+}
+
+/* Compact header controls and readable mobile copy for the direct viewer. */
+.studio-header-actions {
+  min-width: 0;
+}
+.studio-page {
+  height: 100dvh;
+  overflow: hidden;
+}
+.studio-layout {
+  height: calc(100dvh - 70px);
+}
+.studio-inspector {
+  min-height: 0;
+  height: 100%;
+}
+.studio-stage-title {
+  max-width: calc(100% - 120px);
+}
+.studio-footnote,
+.studio-quote-note {
+  max-width: 34ch;
+}
+
+@media (max-width: 820px) {
+  .studio-page {
+    height: auto;
+    overflow: visible;
+  }
+  .studio-layout {
+    height: auto;
+  }
+  .studio-inspector {
+    height: auto;
+  }
+  .studio-header-actions {
+    gap: 10px;
+  }
+  .studio-header-link {
+    white-space: nowrap;
+  }
+}
+
+@media (max-width: 520px) {
+  .studio-header-actions {
+    gap: 7px;
+  }
+  .studio-language button {
+    min-width: 24px;
+    padding: 0 4px;
+  }
+  .studio-stage-title {
+    max-width: calc(100% - 105px);
+  }
+  .studio-inspector h1 {
+    margin-top: 34px;
+    font-size: 36px;
   }
 }

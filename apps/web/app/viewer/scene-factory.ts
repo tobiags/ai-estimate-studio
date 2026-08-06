@@ -17,7 +17,7 @@ export type StudioSceneOptions = Readonly<{
 }>;
 
 const frameColors: Record<FrameFinish, string> = {
-  anthracite: "#2b3030",
+  anthracite: "#454a47",
   sand: "#c8b79f",
   olive: "#65715f",
 };
@@ -278,28 +278,35 @@ function addPergola(parent: THREE.Object3D, options: StudioSceneOptions) {
 
 function addGardenContext(parent: THREE.Object3D, options: StudioSceneOptions) {
   const paving = material("#cfc5b4", { roughness: 0.82 });
-  box(parent, "garden.patio", [9, 0.08, 7], [0, -0.02, 0], paving);
-  addPool(
-    parent,
-    Math.max(options.width * 0.9, 3.6),
-    Math.max(options.depth * 0.76, 2.4),
-  );
-  for (const [x, z, scale] of [
-    [-4.0, -2.1, 1.3],
-    [3.9, -1.6, 1.1],
-    [-4.2, 2.5, 0.9],
-    [4.1, 2.8, 1.2],
-  ] as const)
-    addTree(parent, x, z, scale);
-  for (const [x, z, scale] of [
-    [-3.0, -2.8, 1.2],
-    [-2.55, -2.9, 0.9],
-    [3.05, -2.7, 1.05],
-    [3.6, -2.5, 0.8],
-    [-3.4, 2.65, 0.9],
-    [3.3, 2.8, 0.85],
-  ] as const)
-    addPlant(parent, x, z, scale);
+  box(parent, "garden.patio", [10, 0.08, 8], [0, -0.02, 0], paving);
+
+  if (options.product === "pool") {
+    addPool(parent, options.width, options.depth);
+    for (const [x, z, scale] of [
+      [-4.0, -2.1, 1.1],
+      [3.8, -1.8, 0.95],
+      [-4.1, 2.6, 0.8],
+      [4.0, 2.7, 1.0],
+    ] as const)
+      addTree(parent, x, z, scale);
+  } else if (options.product === "garden") {
+    for (const [x, z, scale] of [
+      [-3.8, -2.2, 1.1],
+      [3.8, -1.7, 1.0],
+      [-4.0, 2.6, 0.8],
+      [4.0, 2.8, 1.0],
+    ] as const)
+      addTree(parent, x, z, scale);
+    for (const [x, z, scale] of [
+      [-3.0, -2.7, 1.1],
+      [-2.5, -2.8, 0.85],
+      [3.0, -2.6, 0.95],
+      [3.5, -2.45, 0.75],
+      [-3.2, 2.65, 0.85],
+      [3.2, 2.75, 0.8],
+    ] as const)
+      addPlant(parent, x, z, scale);
+  }
 }
 
 export function createStudioModel(options: StudioSceneOptions) {
@@ -317,13 +324,12 @@ export function createStudioModel(options: StudioSceneOptions) {
   if (options.product === "pergola") {
     addPergola(root, options);
   } else if (options.product === "pool") {
-    addPool(root, options.width, options.depth);
     box(
       root,
       "pool.shelter",
       [options.width * 0.72, 0.08, 0.1],
       [0, 0.3, options.depth * 0.2],
-      material("#2b3030", { metalness: 0.55, roughness: 0.32 }),
+      material("#454a47", { metalness: 0.55, roughness: 0.32 }),
     );
   } else {
     box(

@@ -14,35 +14,50 @@ import {
 type ProductDefinition = Readonly<{
   key: StudioProduct;
   name: string;
+  nameFr: string;
   label: string;
+  labelFr: string;
   image: string;
   description: string;
+  descriptionFr: string;
   preset: Pick<StudioSceneOptions, "width" | "depth" | "height">;
 }>;
+
+type Language = "en" | "fr";
 
 const products: readonly ProductDefinition[] = [
   {
     key: "pergola",
     name: "Pergola",
+    nameFr: "Pergola",
     label: "Outdoor room",
+    labelFr: "Pièce extérieure",
     image: "/assets/references/pergola.jpg",
     description: "A configurable aluminium structure for living outside.",
+    descriptionFr: "Une structure aluminium configurable pour vivre dehors.",
     preset: { width: 4.8, depth: 3.5, height: 2.4 },
   },
   {
     key: "pool",
     name: "Pool",
+    nameFr: "Piscine",
     label: "Water garden",
+    labelFr: "Jardin d'eau",
     image: "/assets/references/pool.jpg",
     description: "A clean-lined pool scene with terrace and planting.",
+    descriptionFr:
+      "Une piscine aux lignes nettes, avec terrasse et plantations.",
     preset: { width: 6.4, depth: 3.2, height: 1.45 },
   },
   {
     key: "garden",
     name: "Garden",
+    nameFr: "Jardin",
     label: "Landscape",
+    labelFr: "Paysage",
     image: "/assets/references/garden.jpg",
     description: "A planted garden layout ready for a spatial estimate.",
+    descriptionFr: "Un aménagement végétal prêt pour une estimation spatiale.",
     preset: { width: 7.2, depth: 5.4, height: 2.2 },
   },
 ];
@@ -53,10 +68,126 @@ const frameNames: Record<FrameFinish, string> = {
   olive: "Olive grey",
 };
 
+const frameNamesFr: Record<FrameFinish, string> = {
+  anthracite: "Anthracite",
+  sand: "Sable",
+  olive: "Gris olive",
+};
+
 const roofNames: Record<RoofType, string> = {
   louvers: "Adjustable louvers",
   glass: "Fixed glass roof",
 };
+
+const roofNamesFr: Record<RoofType, string> = {
+  louvers: "Lames orientables",
+  glass: "Toiture vitrée fixe",
+};
+
+const localized = {
+  en: {
+    directEstimate: "Direct 3D estimate",
+    talkToStudio: "Talk to the studio",
+    scene: "Scene",
+    preparing: "Preparing the model…",
+    viewerTools: "Viewer tools",
+    inspect: "Inspect object",
+    measurements: "Toggle measurements",
+    autoOrbit: "Toggle auto orbit",
+    width: "width",
+    depth: "depth",
+    height: "height",
+    decrease: "Decrease",
+    increase: "Increase",
+    drag: "Drag to orbit",
+    scroll: "Scroll to zoom",
+    reset: "Reset view",
+    estimator: "Garden room estimator",
+    ready: "Ready",
+    intro:
+      "Shape the object in context. The estimate updates as the model changes.",
+    chooseProduct: "Choose a product",
+    estimatedTotal: "Estimated total",
+    vatIncluded: "VAT included · indicative quote",
+    dimensions: "Dimensions",
+    footprint: "footprint",
+    frameColour: "Frame colour",
+    roof: "Roof",
+    addons: "Add-ons",
+    optional: "Optional",
+    led: "Integrated LED lighting",
+    glass: "Glass side screen",
+    heater: "Infrared heater",
+    priceBreakdown: "Price breakdown",
+    live: "Live",
+    vat: "VAT 20%",
+    generateQuote: "Generate quote",
+    quoteReady: "Quote ready",
+    quoteNote:
+      "Your estimate is ready. The next step will attach customer details and a PDF quote.",
+    footnote:
+      "Final pricing is confirmed after site dimensions and delivery zone validation.",
+    language: "Language",
+    reference: "3D scene",
+    baseProduct: "Base product",
+    dimensionArea: "Footprint",
+    roofOption: "Roof option",
+    labour: "Installation labour",
+    delivery: "Delivery and site logistics",
+    discount: "Large footprint discount",
+  },
+  fr: {
+    directEstimate: "Estimation 3D directe",
+    talkToStudio: "Parler au studio",
+    scene: "Scène",
+    preparing: "Préparation du modèle…",
+    viewerTools: "Outils de visualisation",
+    inspect: "Inspecter l'objet",
+    measurements: "Afficher les mesures",
+    autoOrbit: "Activer l'orbite automatique",
+    width: "largeur",
+    depth: "profondeur",
+    height: "hauteur",
+    decrease: "Diminuer",
+    increase: "Augmenter",
+    drag: "Glisser pour pivoter",
+    scroll: "Défiler pour zoomer",
+    reset: "Réinitialiser la vue",
+    estimator: "Estimateur d'aménagement",
+    ready: "Prêt",
+    intro:
+      "Modifiez l'objet dans son contexte. Le prix se met à jour avec le modèle.",
+    chooseProduct: "Choisir un projet",
+    estimatedTotal: "Total estimé",
+    vatIncluded: "TVA incluse · devis indicatif",
+    dimensions: "Dimensions",
+    footprint: "emprise",
+    frameColour: "Couleur de structure",
+    roof: "Toiture",
+    addons: "Options",
+    optional: "Facultatif",
+    led: "Éclairage LED intégré",
+    glass: "Paroi vitrée latérale",
+    heater: "Chauffage infrarouge",
+    priceBreakdown: "Détail du prix",
+    live: "En direct",
+    vat: "TVA 20 %",
+    generateQuote: "Générer le devis",
+    quoteReady: "Devis prêt",
+    quoteNote:
+      "Votre estimation est prête. L'étape suivante ajoutera les coordonnées client et un devis PDF.",
+    footnote:
+      "Le prix final est confirmé après validation des dimensions et de la zone de livraison.",
+    language: "Langue",
+    reference: "Scène 3D",
+    baseProduct: "Produit de base",
+    dimensionArea: "Emprise",
+    roofOption: "Option de toiture",
+    labour: "Main-d'œuvre de pose",
+    delivery: "Livraison et logistique de chantier",
+    discount: "Remise grande emprise",
+  },
+} as const;
 
 const uuid = (suffix: string) => `00000000-0000-4000-8000-0000000000${suffix}`;
 
@@ -300,8 +431,12 @@ function evaluateLocalRules(
   };
 }
 
-function formatMoney(minor: string, currency: string) {
-  return new Intl.NumberFormat("en-GB", {
+function formatMoney(
+  minor: string,
+  currency: string,
+  language: Language = "en",
+) {
+  return new Intl.NumberFormat(language === "fr" ? "fr-FR" : "en-GB", {
     style: "currency",
     currency,
     maximumFractionDigits: 0,
@@ -317,6 +452,11 @@ function disposeObject(root: THREE.Object3D) {
       : [object.material];
     materials.forEach((item) => item.dispose());
   });
+}
+
+function defaultCameraPosition(mount: HTMLDivElement | null) {
+  const scale = (mount?.clientWidth ?? 1000) < 600 ? 1.35 : 1;
+  return new THREE.Vector3(8.4 * scale, 5.6 * scale, 9.3 * scale);
 }
 
 export function StudioScreen() {
@@ -339,9 +479,29 @@ export function StudioScreen() {
   const [autoRotate, setAutoRotate] = useState(false);
   const [showMeasurements, setShowMeasurements] = useState(true);
   const [quoteRequested, setQuoteRequested] = useState(false);
+  const [language, setLanguage] = useState<Language>("en");
+
+  const copy = localized[language];
 
   const product =
     products.find((item) => item.key === productKey) ?? products[0]!;
+  const productName = language === "fr" ? product.nameFr : product.name;
+  const productLabel = language === "fr" ? product.labelFr : product.label;
+
+  const lineLabel = (line: EstimateLine) => {
+    if (line.code === "BASE_PRODUCT") return productName;
+    if (line.code === "DIMENSION_AREA") {
+      return `${(width * depth).toFixed(1)} m² ${copy.footprint}`;
+    }
+    if (line.code === "OPT_ROOF") return copy.roofOption;
+    if (line.code === "OPT_GLASS") return copy.glass;
+    if (line.code === "OPT_LED") return copy.led;
+    if (line.code === "OPT_HEATER") return copy.heater;
+    if (line.code === "LABOUR_INSTALL") return copy.labour;
+    if (line.code === "DELIVERY") return copy.delivery;
+    if (line.code === "VOLUME_DISCOUNT") return copy.discount;
+    return line.label;
+  };
 
   const pricing = useMemo(() => {
     return evaluateLocalRules(
@@ -359,15 +519,20 @@ export function StudioScreen() {
   }, [depth, glass, heater, height, led, product, roof, width]);
 
   useEffect(() => {
+    document.documentElement.lang = language;
+  }, [language]);
+
+  useEffect(() => {
     const mount = mountRef.current;
     if (!mount) return;
     const scene = new THREE.Scene();
+    scene.background = new THREE.Color("#e7e3da");
     const camera = new THREE.PerspectiveCamera(37, 1, 0.1, 100);
-    camera.position.set(8.4, 5.6, 9.3);
+    camera.position.copy(defaultCameraPosition(mount));
     camera.lookAt(0, 1.1, 0);
     const renderer = new THREE.WebGLRenderer({
       antialias: true,
-      alpha: true,
+      alpha: false,
       powerPreference: "high-performance",
     });
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
@@ -376,7 +541,7 @@ export function StudioScreen() {
     renderer.toneMappingExposure = 1.12;
     renderer.shadowMap.enabled = true;
     renderer.shadowMap.type = THREE.PCFShadowMap;
-    renderer.setClearColor(0x000000, 0);
+    renderer.setClearColor(0xe7e3da, 1);
     mount.appendChild(renderer.domElement);
 
     const ambient = new THREE.HemisphereLight("#fffdf7", "#6c756a", 2.5);
@@ -480,7 +645,7 @@ export function StudioScreen() {
     const controls = controlsRef.current;
     const camera = cameraRef.current;
     if (!controls || !camera) return;
-    camera.position.set(8.4, 5.6, 9.3);
+    camera.position.copy(defaultCameraPosition(mountRef.current));
     controls.target.set(0, 1.1, 0);
     controls.reset();
   };
@@ -513,42 +678,52 @@ export function StudioScreen() {
           <span>AI Estimate Studio</span>
         </div>
         <div className="studio-header-state">
-          <span className="studio-live-dot" /> Direct 3D estimate
+          <span className="studio-live-dot" /> {copy.directEstimate}
         </div>
-        <a
-          href="mailto:hello@ai-estimate.studio"
-          className="studio-header-link"
-        >
-          Talk to the studio <span aria-hidden="true">↗</span>
-        </a>
+        <div className="studio-header-actions">
+          <div className="studio-language" aria-label={copy.language}>
+            <button
+              type="button"
+              className={language === "en" ? "is-active" : ""}
+              onClick={() => setLanguage("en")}
+              aria-pressed={language === "en"}
+            >
+              EN
+            </button>
+            <button
+              type="button"
+              className={language === "fr" ? "is-active" : ""}
+              onClick={() => setLanguage("fr")}
+              aria-pressed={language === "fr"}
+            >
+              FR
+            </button>
+          </div>
+          <a
+            href="mailto:hello@ai-estimate.studio"
+            className="studio-header-link"
+          >
+            {copy.talkToStudio} <span aria-hidden="true">↗</span>
+          </a>
+        </div>
       </header>
 
       <section className="studio-layout">
-        <div
-          className="studio-stage"
-          style={
-            { "--stage-image": `url(${product.image})` } as React.CSSProperties
-          }
-        >
-          <div className="studio-reference-photo" aria-hidden="true" />
-          <div className="studio-stage-shade" aria-hidden="true" />
+        <div className="studio-stage">
           <div className="studio-canvas" ref={mountRef}>
-            {!ready && (
-              <div className="studio-loading">Preparing the model…</div>
-            )}
+            {!ready && <div className="studio-loading">{copy.preparing}</div>}
           </div>
           <div className="studio-stage-title">
-            <span>Reference / {product.name}</span>
-            <strong>{product.label}</strong>
+            <span>
+              {copy.reference} / {productName}
+            </span>
+            <strong>{productLabel}</strong>
           </div>
-          <div className="studio-stage-credit">
-            Reference image · Unsplash / licensed for use
-          </div>
-          <div className="studio-tool-rail" aria-label="Viewer tools">
+          <div className="studio-tool-rail" aria-label={copy.viewerTools}>
             <button
               className="studio-tool is-active"
               type="button"
-              aria-label="Inspect object"
+              aria-label={copy.inspect}
             >
               ◇
             </button>
@@ -558,7 +733,7 @@ export function StudioScreen() {
               }
               type="button"
               onClick={() => setShowMeasurements((value) => !value)}
-              aria-label="Toggle measurements"
+              aria-label={copy.measurements}
             >
               ↔
             </button>
@@ -566,7 +741,7 @@ export function StudioScreen() {
               className={autoRotate ? "studio-tool is-active" : "studio-tool"}
               type="button"
               onClick={() => setAutoRotate((value) => !value)}
-              aria-label="Toggle auto orbit"
+              aria-label={copy.autoOrbit}
             >
               ◌
             </button>
@@ -578,47 +753,44 @@ export function StudioScreen() {
             >
               <span>
                 <b>{width.toFixed(1)} m</b>
-                <small>width</small>
+                <small>{copy.width}</small>
               </span>
               <span>
                 <b>{depth.toFixed(1)} m</b>
-                <small>depth</small>
+                <small>{copy.depth}</small>
               </span>
               <span>
                 <b>{height.toFixed(1)} m</b>
-                <small>height</small>
+                <small>{copy.height}</small>
               </span>
             </div>
           )}
           <div className="studio-stage-controls">
-            <span>Drag to orbit</span>
-            <span>Scroll to zoom</span>
+            <span>{copy.drag}</span>
+            <span>{copy.scroll}</span>
             <button type="button" onClick={resetView}>
-              Reset view <span aria-hidden="true">↺</span>
+              {copy.reset} <span aria-hidden="true">↺</span>
             </button>
           </div>
         </div>
 
         <aside className="studio-inspector">
           <div className="studio-inspector-head">
-            <span className="studio-kicker">Garden room estimator</span>
+            <span className="studio-kicker">{copy.estimator}</span>
             <span className="studio-ready">
-              <i /> Ready
+              <i /> {copy.ready}
             </span>
           </div>
           <h1>
-            {product.name}
+            {productName}
             <br />
-            <em>{product.label}</em>
+            <em>{productLabel}</em>
           </h1>
-          <p className="studio-intro">
-            Shape the object in context. The estimate updates as the model
-            changes.
-          </p>
+          <p className="studio-intro">{copy.intro}</p>
 
           <div
             className="studio-product-switcher"
-            aria-label="Choose a product"
+            aria-label={copy.chooseProduct}
           >
             {products.map((item) => (
               <button
@@ -633,29 +805,51 @@ export function StudioScreen() {
               >
                 <img src={item.image} alt="" />
                 <span>
-                  <strong>{item.name}</strong>
-                  <small>{item.label}</small>
+                  <strong>{language === "fr" ? item.nameFr : item.name}</strong>
+                  <small>{language === "fr" ? item.labelFr : item.label}</small>
                 </span>
               </button>
             ))}
           </div>
 
           <div className="studio-total">
-            <span>Estimated total</span>
-            <strong>{formatMoney(pricing.totalMinor, pricing.currency)}</strong>
-            <small>VAT included · indicative quote</small>
+            <span>{copy.estimatedTotal}</span>
+            <strong>
+              {formatMoney(pricing.totalMinor, pricing.currency, language)}
+            </strong>
+            <small>{copy.vatIncluded}</small>
           </div>
 
           <section className="studio-section">
             <div className="studio-section-title">
-              <strong>Dimensions</strong>
-              <span>{(width * depth).toFixed(1)} m² footprint</span>
+              <strong>{copy.dimensions}</strong>
+              <span>
+                {(width * depth).toFixed(1)} m² {copy.footprint}
+              </span>
             </div>
             {(
               [
-                ["Width (m)", width, setWidth, 2.4, 10],
-                ["Depth (m)", depth, setDepth, 2.0, 8],
-                ["Height (m)", height, setHeight, 1.4, 4],
+                [
+                  language === "fr" ? "Largeur (m)" : "Width (m)",
+                  width,
+                  setWidth,
+                  2.4,
+                  10,
+                ],
+                [
+                  language === "fr" ? "Profondeur (m)" : "Depth (m)",
+                  depth,
+                  setDepth,
+                  2.0,
+                  8,
+                ],
+                [
+                  language === "fr" ? "Hauteur (m)" : "Height (m)",
+                  height,
+                  setHeight,
+                  1.4,
+                  4,
+                ],
               ] as const
             ).map(([label, value, setter, min, max]) => (
               <div className="studio-stepper" key={label}>
@@ -664,7 +858,7 @@ export function StudioScreen() {
                   <button
                     type="button"
                     onClick={() => adjust(setter, value, -0.2, min, max)}
-                    aria-label={`Decrease ${label}`}
+                    aria-label={`${copy.decrease} ${label}`}
                   >
                     −
                   </button>
@@ -672,7 +866,7 @@ export function StudioScreen() {
                   <button
                     type="button"
                     onClick={() => adjust(setter, value, 0.2, min, max)}
-                    aria-label={`Increase ${label}`}
+                    aria-label={`${copy.increase} ${label}`}
                   >
                     +
                   </button>
@@ -682,7 +876,7 @@ export function StudioScreen() {
           </section>
 
           <section className="studio-section studio-select-section">
-            <label htmlFor="frame-finish">Frame colour</label>
+            <label htmlFor="frame-finish">{copy.frameColour}</label>
             <select
               id="frame-finish"
               value={frame}
@@ -691,13 +885,22 @@ export function StudioScreen() {
                 setQuoteRequested(false);
               }}
             >
-              <option value="anthracite">● {frameNames.anthracite}</option>
-              <option value="sand">● {frameNames.sand}</option>
-              <option value="olive">● {frameNames.olive}</option>
+              <option value="anthracite">
+                ●{" "}
+                {language === "fr"
+                  ? frameNamesFr.anthracite
+                  : frameNames.anthracite}
+              </option>
+              <option value="sand">
+                ● {language === "fr" ? frameNamesFr.sand : frameNames.sand}
+              </option>
+              <option value="olive">
+                ● {language === "fr" ? frameNamesFr.olive : frameNames.olive}
+              </option>
             </select>
             {productKey === "pergola" && (
               <>
-                <label htmlFor="roof-type">Roof</label>
+                <label htmlFor="roof-type">{copy.roof}</label>
                 <select
                   id="roof-type"
                   value={roof}
@@ -706,8 +909,15 @@ export function StudioScreen() {
                     setQuoteRequested(false);
                   }}
                 >
-                  <option value="louvers">◌ {roofNames.louvers}</option>
-                  <option value="glass">□ {roofNames.glass}</option>
+                  <option value="louvers">
+                    ◌{" "}
+                    {language === "fr"
+                      ? roofNamesFr.louvers
+                      : roofNames.louvers}
+                  </option>
+                  <option value="glass">
+                    □ {language === "fr" ? roofNamesFr.glass : roofNames.glass}
+                  </option>
                 </select>
               </>
             )}
@@ -715,8 +925,8 @@ export function StudioScreen() {
 
           <section className="studio-section studio-addons">
             <div className="studio-section-title">
-              <strong>Add-ons</strong>
-              <span>Optional</span>
+              <strong>{copy.addons}</strong>
+              <span>{copy.optional}</span>
             </div>
             <label className="studio-check">
               <input
@@ -727,8 +937,8 @@ export function StudioScreen() {
                   setQuoteRequested(false);
                 }}
               />
-              <span>Integrated LED lighting</span>
-              <b>{formatMoney("78000", "EUR")}</b>
+              <span>{copy.led}</span>
+              <b>{formatMoney("78000", "EUR", language)}</b>
             </label>
             <label className="studio-check">
               <input
@@ -739,8 +949,8 @@ export function StudioScreen() {
                   setQuoteRequested(false);
                 }}
               />
-              <span>Glass side screen</span>
-              <b>{formatMoney("145000", "EUR")}</b>
+              <span>{copy.glass}</span>
+              <b>{formatMoney("145000", "EUR", language)}</b>
             </label>
             <label className="studio-check">
               <input
@@ -751,27 +961,33 @@ export function StudioScreen() {
                   setQuoteRequested(false);
                 }}
               />
-              <span>Infrared heater</span>
-              <b>{formatMoney("62000", "EUR")}</b>
+              <span>{copy.heater}</span>
+              <b>{formatMoney("62000", "EUR", language)}</b>
             </label>
           </section>
 
           <section className="studio-breakdown">
             <div className="studio-section-title">
-              <strong>Price breakdown</strong>
-              <span>Live</span>
+              <strong>{copy.priceBreakdown}</strong>
+              <span>{copy.live}</span>
             </div>
             {pricing.lines
               .filter((line) => line.kind !== "TAX")
               .map((line) => (
                 <div className="studio-breakdown-row" key={line.code}>
-                  <span>{line.label}</span>
-                  <b>{formatMoney(line.totalAmountMinor, pricing.currency)}</b>
+                  <span>{lineLabel(line)}</span>
+                  <b>
+                    {formatMoney(
+                      line.totalAmountMinor,
+                      pricing.currency,
+                      language,
+                    )}
+                  </b>
                 </div>
               ))}
             <div className="studio-breakdown-row studio-tax">
-              <span>VAT 20%</span>
-              <b>{formatMoney(pricing.taxMinor, pricing.currency)}</b>
+              <span>{copy.vat}</span>
+              <b>{formatMoney(pricing.taxMinor, pricing.currency, language)}</b>
             </div>
           </section>
 
@@ -782,20 +998,15 @@ export function StudioScreen() {
             type="button"
             onClick={() => setQuoteRequested(true)}
           >
-            {quoteRequested ? "Quote ready" : "Generate quote"}
+            {quoteRequested ? copy.quoteReady : copy.generateQuote}
             <span aria-hidden="true">↗</span>
           </button>
           {quoteRequested && (
             <p className="studio-quote-note" role="status">
-              Your estimate is ready. The next step will attach customer details
-              and a PDF quote.
+              {copy.quoteNote}
             </p>
           )}
-          <p className="studio-footnote">
-            Reference assets are used to ground the generated scene. Final
-            pricing is confirmed after site dimensions and delivery zone
-            validation.
-          </p>
+          <p className="studio-footnote">{copy.footnote}</p>
         </aside>
       </section>
     </main>
