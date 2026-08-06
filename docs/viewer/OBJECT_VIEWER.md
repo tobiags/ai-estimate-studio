@@ -149,3 +149,17 @@ Telemetry captures asset/revision, timing buckets, transfer size, device capabil
 - Browser: orbit/zoom/reset, keyboard, reduced motion, poster fallback, responsive sizing and disposal.
 - Performance: bundle budget, compliant asset ready time, sustained frame pacing and repeated-switch memory.
 - Publication: reject unsupported extension, oversized asset, missing node, duplicate hotspot, invalid anchor, capability mismatch and mapping cycle/conflict.
+
+## 11. Current direct-estimator slice
+
+The first production-oriented slice is exposed directly at `/` rather than behind a catalogue workflow:
+
+- local reference assets for pergola, pool and garden scenes;
+- a named procedural factory with `root.userData.sculptRuntime` metadata inspired by the staged `img2threejs` output contract;
+- transparent Three.js canvas over the selected reference image;
+- orbit, zoom, reset, auto-orbit and measurement controls;
+- inline dimensions, finishes, roof and add-on selections;
+- live estimate lines for base product, footprint, options, labour, delivery, volume discount and VAT;
+- a quote-ready state that is intentionally local until customer, delivery-zone and PDF endpoints are wired.
+
+The browser surface is an estimate preview, not a claim of photogrammetric accuracy. A production image-to-GLB provider remains behind the provider-neutral asset pipeline, while `img2threejs` is reserved for deterministic procedural reconstruction when the reference is suitable.
