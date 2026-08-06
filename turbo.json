@@ -1,5 +1,13 @@
 {
   "$schema": "https://turbo.build/schema.json",
+  "globalEnv": [
+    "APP_ENV",
+    "DOCS_BASE_PATH",
+    "NEXT_PUBLIC_BASE_PATH",
+    "NODE_ENV",
+    "RELEASE_SHA",
+    "STATIC_EXPORT"
+  ],
   "tasks": {
     "build": {
       "dependsOn": ["^build"],

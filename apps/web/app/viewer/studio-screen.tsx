@@ -11,6 +11,9 @@ import {
   type StudioSceneOptions,
 } from "./scene-factory";
 
+const publicAssetPath = (path: string) =>
+  `${process.env.NEXT_PUBLIC_BASE_PATH ?? ""}${path}`;
+
 type ProductDefinition = Readonly<{
   key: StudioProduct;
   name: string;
@@ -803,7 +806,7 @@ export function StudioScreen() {
                 }
                 onClick={() => changeProduct(item.key)}
               >
-                <img src={item.image} alt="" />
+                <img src={publicAssetPath(item.image)} alt="" />
                 <span>
                   <strong>{language === "fr" ? item.nameFr : item.name}</strong>
                   <small>{language === "fr" ? item.labelFr : item.label}</small>

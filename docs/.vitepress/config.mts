@@ -3,7 +3,7 @@ import { withMermaid } from "vitepress-plugin-mermaid";
 
 export default withMermaid(
   defineConfig({
-    base: "/ai-estimate-studio/",
+    base: process.env.DOCS_BASE_PATH ?? "/ai-estimate-studio/",
     cleanUrls: true,
     description: "Product and engineering source of truth for AI Estimate Studio.",
     lastUpdated: true,
