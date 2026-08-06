@@ -1,9 +1,11 @@
 import type { Metadata } from "next";
 import type { ReactNode } from "react";
 
+import "./globals.css";
+
 export const metadata: Metadata = {
   title: "AI Estimate Studio",
-  description: "Visual quotation platform engineering shell.",
+  description: "Inspect configurable objects in an interactive 3D viewer.",
 };
 
 export default function RootLayout({
