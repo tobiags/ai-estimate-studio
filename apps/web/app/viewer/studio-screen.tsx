@@ -1,15 +1,20 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState, type DragEvent } from "react";
+import { gsap } from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
 import * as THREE from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 import {
   createStudioModel,
   type FrameFinish,
   type RoofType,
+  type SceneAssetKey,
   type StudioProduct,
   type StudioSceneOptions,
 } from "./scene-factory";
+
+gsap.registerPlugin(ScrollTrigger);
 
 const publicAssetPath = (path: string) =>
   `${process.env.NEXT_PUBLIC_BASE_PATH ?? ""}${path}`;
@@ -24,6 +29,16 @@ type ProductDefinition = Readonly<{
   description: string;
   descriptionFr: string;
   preset: Pick<StudioSceneOptions, "width" | "depth" | "height">;
+}>;
+
+type SceneAssetDefinition = Readonly<{
+  key: SceneAssetKey;
+  name: string;
+  nameFr: string;
+  category: string;
+  categoryFr: string;
+  priceMinor: number;
+  tone: string;
 }>;
 
 type Language = "en" | "fr";
@@ -64,6 +79,71 @@ const products: readonly ProductDefinition[] = [
     preset: { width: 7.2, depth: 5.4, height: 2.2 },
   },
 ];
+
+const sceneAssetLibrary: readonly SceneAssetDefinition[] = [
+  {
+    key: "planting",
+    name: "Planting bed",
+    nameFr: "Massif planté",
+    category: "Softscape",
+    categoryFr: "Végétal",
+    priceMinor: 49000,
+    tone: "#6f865d",
+  },
+  {
+    key: "paving",
+    name: "Paving slab",
+    nameFr: "Dalle de terrasse",
+    category: "Hardscape",
+    categoryFr: "Minéral",
+    priceMinor: 74000,
+    tone: "#c9bda9",
+  },
+  {
+    key: "lighting",
+    name: "Path lighting",
+    nameFr: "Éclairage de chemin",
+    category: "Atmosphere",
+    categoryFr: "Ambiance",
+    priceMinor: 68000,
+    tone: "#e3a55e",
+  },
+  {
+    key: "privacy",
+    name: "Privacy screen",
+    nameFr: "Brise-vue",
+    category: "Structure",
+    categoryFr: "Structure",
+    priceMinor: 118000,
+    tone: "#3f5b4a",
+  },
+  {
+    key: "irrigation",
+    name: "Irrigation line",
+    nameFr: "Ligne d'irrigation",
+    category: "Utility",
+    categoryFr: "Technique",
+    priceMinor: 42000,
+    tone: "#5f8d7c",
+  },
+  {
+    key: "firepit",
+    name: "Fire pit",
+    nameFr: "Brasero",
+    category: "Living",
+    categoryFr: "Usage",
+    priceMinor: 95000,
+    tone: "#c86c42",
+  },
+];
+
+const sceneAssetKeys: readonly SceneAssetKey[] = sceneAssetLibrary.map(
+  (item) => item.key,
+);
+
+function isSceneAssetKey(value: string): value is SceneAssetKey {
+  return sceneAssetKeys.includes(value as SceneAssetKey);
+}
 
 const frameNames: Record<FrameFinish, string> = {
   anthracite: "Anthracite",
@@ -110,6 +190,13 @@ const localized = {
     intro:
       "Shape the object in context. The estimate updates as the model changes.",
     chooseProduct: "Choose a product",
+    sceneLibrary: "Build the scene",
+    openLibrary: "Open library",
+    closeLibrary: "Close library",
+    dragHint: "Drag a detail onto the scene or tap to add it.",
+    dropHint: "Drop to place",
+    selectedAssets: "Placed details",
+    removeAsset: "Remove",
     estimatedTotal: "Estimated total",
     vatIncluded: "VAT included · indicative quote",
     dimensions: "Dimensions",
@@ -161,6 +248,13 @@ const localized = {
     intro:
       "Modifiez l'objet dans son contexte. Le prix se met à jour avec le modèle.",
     chooseProduct: "Choisir un projet",
+    sceneLibrary: "Composer la scène",
+    openLibrary: "Ouvrir la bibliothèque",
+    closeLibrary: "Fermer la bibliothèque",
+    dragHint: "Glissez un détail dans la scène ou touchez-le pour l'ajouter.",
+    dropHint: "Déposer ici",
+    selectedAssets: "Détails placés",
+    removeAsset: "Retirer",
     estimatedTotal: "Total estimé",
     vatIncluded: "TVA incluse · devis indicatif",
     dimensions: "Dimensions",
@@ -208,6 +302,7 @@ function makePriceRules(
     led: boolean;
     heater: boolean;
     roof: RoofType;
+    sceneAssets: readonly SceneAssetKey[];
   }>,
 ) {
   const area = state.width * state.depth;
@@ -236,6 +331,25 @@ function makePriceRules(
     (item): item is { code: string; label: string; amount: number } =>
       item !== null,
   );
+  const sceneAssetLines = state.sceneAssets.map((key) => {
+    const asset = sceneAssetLibrary.find((item) => item.key === key)!;
+    return {
+      id: uuid(String(20 + sceneAssetKeys.indexOf(key)).padStart(2, "0")),
+      code: `ASSET_${key.toUpperCase()}`,
+      kind: "OPTION" as const,
+      priority: 50 + sceneAssetKeys.indexOf(key),
+      label: asset.name,
+      condition: condition(),
+      exclusiveInGroup: false,
+      action: {
+        type: "ADD_LINE" as const,
+        code: `ASSET_${key.toUpperCase()}`,
+        kind: "OPTION" as const,
+        label: asset.name,
+        amountMinor: String(asset.priceMinor),
+      },
+    };
+  });
 
   return [
     {
@@ -308,6 +422,7 @@ function makePriceRules(
         amountMinor: String(option.amount),
       },
     })),
+    ...sceneAssetLines,
     {
       id: uuid("08"),
       code: "LABOUR_INSTALL",
@@ -483,6 +598,12 @@ export function StudioScreen() {
   const [showMeasurements, setShowMeasurements] = useState(true);
   const [quoteRequested, setQuoteRequested] = useState(false);
   const [language, setLanguage] = useState<Language>("en");
+  const [sceneAssets, setSceneAssets] = useState<SceneAssetKey[]>([]);
+  const [libraryOpen, setLibraryOpen] = useState(true);
+  const [draggingAsset, setDraggingAsset] = useState<SceneAssetKey | null>(
+    null,
+  );
+  const [dropActive, setDropActive] = useState(false);
 
   const copy = localized[language];
 
@@ -503,6 +624,11 @@ export function StudioScreen() {
     if (line.code === "LABOUR_INSTALL") return copy.labour;
     if (line.code === "DELIVERY") return copy.delivery;
     if (line.code === "VOLUME_DISCOUNT") return copy.discount;
+    if (line.code.startsWith("ASSET_")) {
+      const key = line.code.slice(6).toLowerCase() as SceneAssetKey;
+      const asset = sceneAssetLibrary.find((item) => item.key === key);
+      if (asset) return language === "fr" ? asset.nameFr : asset.name;
+    }
     return line.label;
   };
 
@@ -517,9 +643,10 @@ export function StudioScreen() {
         led,
         heater,
         roof,
+        sceneAssets,
       }),
     );
-  }, [depth, glass, heater, height, led, product, roof, width]);
+  }, [depth, glass, heater, height, led, product, roof, sceneAssets, width]);
 
   useEffect(() => {
     document.documentElement.lang = language;
@@ -529,7 +656,7 @@ export function StudioScreen() {
     const mount = mountRef.current;
     if (!mount) return;
     const scene = new THREE.Scene();
-    scene.background = new THREE.Color("#e7e3da");
+    scene.background = new THREE.Color("#173426");
     const camera = new THREE.PerspectiveCamera(37, 1, 0.1, 100);
     camera.position.copy(defaultCameraPosition(mount));
     camera.lookAt(0, 1.1, 0);
@@ -544,7 +671,7 @@ export function StudioScreen() {
     renderer.toneMappingExposure = 1.12;
     renderer.shadowMap.enabled = true;
     renderer.shadowMap.type = THREE.PCFShadowMap;
-    renderer.setClearColor(0xe7e3da, 1);
+    renderer.setClearColor(0x173426, 1);
     mount.appendChild(renderer.domElement);
 
     const ambient = new THREE.HemisphereLight("#fffdf7", "#6c756a", 2.5);
@@ -623,6 +750,7 @@ export function StudioScreen() {
       glass,
       led,
       heater,
+      sceneAssets,
     };
     const model = createStudioModel(options);
     scene.add(model);
@@ -637,8 +765,64 @@ export function StudioScreen() {
     productKey,
     ready,
     roof,
+    sceneAssets,
     width,
   ]);
+
+  useEffect(() => {
+    if (!ready) return;
+
+    const intro = gsap.timeline({ defaults: { ease: "power3.out" } });
+    intro
+      .fromTo(
+        ".studio-stage-title",
+        { opacity: 0, y: 16 },
+        { opacity: 1, y: 0, duration: 0.7 },
+      )
+      .fromTo(
+        ".studio-inspector > *",
+        { opacity: 0, y: 14 },
+        { opacity: 1, y: 0, duration: 0.45, stagger: 0.045 },
+        "-=0.45",
+      );
+
+    const scroller = document.querySelector<HTMLElement>(".studio-inspector");
+    const trigger = scroller
+      ? ScrollTrigger.create({
+          scroller,
+          trigger: ".studio-option-shelf",
+          start: "top 85%",
+          end: "bottom 35%",
+          scrub: true,
+          onUpdate: (self) => {
+            gsap.set(".studio-marquee-track", {
+              xPercent: -self.progress * 7,
+            });
+          },
+        })
+      : null;
+
+    return () => {
+      trigger?.kill();
+      intro.kill();
+    };
+  }, [ready]);
+
+  useEffect(() => {
+    if (!ready || sceneAssets.length === 0) return;
+    gsap.fromTo(
+      ".studio-asset-chip",
+      { opacity: 0, y: 14, scale: 0.92 },
+      {
+        opacity: 1,
+        y: 0,
+        scale: 1,
+        duration: 0.48,
+        stagger: 0.06,
+        ease: "back.out(1.7)",
+      },
+    );
+  }, [ready, sceneAssets.length]);
 
   useEffect(() => {
     if (controlsRef.current) controlsRef.current.autoRotate = autoRotate;
@@ -673,8 +857,44 @@ export function StudioScreen() {
     setQuoteRequested(false);
   };
 
+  const addSceneAsset = (key: SceneAssetKey) => {
+    setSceneAssets((current) =>
+      current.includes(key) ? current : [...current, key],
+    );
+    setQuoteRequested(false);
+  };
+
+  const removeSceneAsset = (key: SceneAssetKey) => {
+    setSceneAssets((current) => current.filter((item) => item !== key));
+    setQuoteRequested(false);
+  };
+
+  const handleAssetDragStart = (
+    event: DragEvent<HTMLButtonElement>,
+    key: SceneAssetKey,
+  ) => {
+    event.dataTransfer.effectAllowed = "copy";
+    event.dataTransfer.setData("text/plain", key);
+    setDraggingAsset(key);
+  };
+
+  const handleAssetDrop = (event: DragEvent<HTMLElement>) => {
+    event.preventDefault();
+    const key = event.dataTransfer.getData("text/plain");
+    if (isSceneAssetKey(key)) addSceneAsset(key);
+    setDraggingAsset(null);
+    setDropActive(false);
+  };
+
   return (
-    <main className="studio-page">
+    <main
+      className="studio-page"
+      onDragOver={(event) => {
+        event.preventDefault();
+        if (draggingAsset) setDropActive(true);
+      }}
+      onDrop={handleAssetDrop}
+    >
       <header className="studio-header">
         <div className="studio-brand">
           <span className="studio-brand-mark">A</span>
@@ -711,11 +931,48 @@ export function StudioScreen() {
         </div>
       </header>
 
+      <div className="studio-marquee" aria-hidden="true">
+        <div className="studio-marquee-track">
+          <span>PERGOLA</span>
+          <i />
+          <span>POOL</span>
+          <i />
+          <span>LANDSCAPE</span>
+          <i />
+          <span>LIVE QUOTE</span>
+          <i />
+          <span>PERGOLA</span>
+          <i />
+          <span>POOL</span>
+          <i />
+          <span>LANDSCAPE</span>
+          <i />
+          <span>LIVE QUOTE</span>
+          <i />
+        </div>
+      </div>
+
       <section className="studio-layout">
-        <div className="studio-stage">
+        <div
+          className={
+            dropActive ? "studio-stage is-drop-active" : "studio-stage"
+          }
+        >
           <div className="studio-canvas" ref={mountRef}>
             {!ready && <div className="studio-loading">{copy.preparing}</div>}
           </div>
+          {draggingAsset && (
+            <div className="studio-drop-overlay" aria-live="polite">
+              <strong>{copy.dropHint}</strong>
+              <span>
+                {language === "fr"
+                  ? sceneAssetLibrary.find((item) => item.key === draggingAsset)
+                      ?.nameFr
+                  : sceneAssetLibrary.find((item) => item.key === draggingAsset)
+                      ?.name}
+              </span>
+            </div>
+          )}
           <div className="studio-stage-title">
             <span>
               {copy.reference} / {productName}
@@ -814,6 +1071,109 @@ export function StudioScreen() {
               </button>
             ))}
           </div>
+
+          <section
+            className={
+              libraryOpen
+                ? "studio-option-shelf is-open"
+                : "studio-option-shelf"
+            }
+          >
+            <div className="studio-option-heading">
+              <div>
+                <strong>{copy.sceneLibrary}</strong>
+                <span>{copy.dragHint}</span>
+              </div>
+              <button
+                type="button"
+                className="studio-option-toggle"
+                aria-expanded={libraryOpen}
+                onClick={() => setLibraryOpen((value) => !value)}
+              >
+                {libraryOpen ? copy.closeLibrary : copy.openLibrary}
+              </button>
+            </div>
+            {libraryOpen && (
+              <>
+                <div className="studio-option-rail">
+                  {sceneAssetLibrary.map((item) => {
+                    const isAdded = sceneAssets.includes(item.key);
+                    return (
+                      <button
+                        type="button"
+                        key={item.key}
+                        draggable={!isAdded}
+                        className={
+                          isAdded
+                            ? "studio-option-card is-added"
+                            : "studio-option-card"
+                        }
+                        onClick={() => addSceneAsset(item.key)}
+                        onDragStart={(event) =>
+                          handleAssetDragStart(event, item.key)
+                        }
+                        onDragEnd={() => {
+                          setDraggingAsset(null);
+                          setDropActive(false);
+                        }}
+                        aria-label={`${
+                          language === "fr" ? item.nameFr : item.name
+                        }${isAdded ? `, ${copy.selectedAssets}` : ""}`}
+                      >
+                        <span
+                          className="studio-option-swatch"
+                          style={{ backgroundColor: item.tone }}
+                          aria-hidden="true"
+                        />
+                        <span>
+                          <strong>
+                            {language === "fr" ? item.nameFr : item.name}
+                          </strong>
+                          <small>
+                            {language === "fr"
+                              ? item.categoryFr
+                              : item.category}
+                          </small>
+                        </span>
+                      </button>
+                    );
+                  })}
+                </div>
+                {sceneAssets.length > 0 && (
+                  <div className="studio-placed-assets">
+                    <span className="studio-placed-label">
+                      {copy.selectedAssets}
+                    </span>
+                    <div className="studio-placed-list">
+                      {sceneAssets.map((key) => {
+                        const item = sceneAssetLibrary.find(
+                          (asset) => asset.key === key,
+                        )!;
+                        return (
+                          <span className="studio-asset-chip" key={key}>
+                            <i
+                              style={{ backgroundColor: item.tone }}
+                              aria-hidden="true"
+                            />
+                            {language === "fr" ? item.nameFr : item.name}
+                            <button
+                              type="button"
+                              onClick={() => removeSceneAsset(key)}
+                              aria-label={`${copy.removeAsset} ${
+                                language === "fr" ? item.nameFr : item.name
+                              }`}
+                            >
+                              ×
+                            </button>
+                          </span>
+                        );
+                      })}
+                    </div>
+                  </div>
+                )}
+              </>
+            )}
+          </section>
 
           <div className="studio-total">
             <span>{copy.estimatedTotal}</span>

@@ -1927,3 +1927,515 @@ button {
     font-size: 36px;
   }
 }
+
+/* Cabinet Grotesk editorial pass inspired by the Elementra reference. */
+.studio-page {
+  color: #f5f0e8;
+  background: #10291f;
+  font-family: "Cabinet Grotesk", "Outfit", "Avenir Next", sans-serif;
+}
+
+.studio-header {
+  min-height: 76px;
+  padding: 0 36px;
+  color: #f5f0e8;
+  border-bottom-color: rgba(245, 240, 232, 0.16);
+  background: #10291f;
+  letter-spacing: 0.08em;
+}
+
+.studio-brand {
+  font-size: 15px;
+  letter-spacing: -0.02em;
+}
+
+.studio-brand-mark {
+  color: #10291f;
+  border-color: #f5f0e8;
+  background: #e7a354;
+}
+
+.studio-header-state {
+  color: rgba(245, 240, 232, 0.72);
+}
+
+.studio-live-dot,
+.studio-ready i {
+  background: #e7a354;
+}
+
+.studio-header-link {
+  color: #f5f0e8;
+}
+
+.studio-header-link:hover,
+.studio-stage-controls button:hover,
+.studio-quote:hover {
+  color: #e7a354;
+}
+
+.studio-language {
+  border-color: rgba(245, 240, 232, 0.22);
+  background: rgba(245, 240, 232, 0.08);
+}
+
+.studio-language button {
+  color: rgba(245, 240, 232, 0.62);
+}
+
+.studio-language button:hover,
+.studio-language button.is-active {
+  color: #10291f;
+  background: #e7a354;
+}
+
+.studio-marquee {
+  height: 25px;
+  overflow: hidden;
+  color: rgba(245, 240, 232, 0.63);
+  border-bottom: 1px solid rgba(245, 240, 232, 0.1);
+  background: #163526;
+  font-size: 9px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+}
+
+.studio-marquee-track {
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  min-width: 860px;
+  height: 100%;
+  animation: studio-marquee 28s linear infinite;
+}
+
+.studio-marquee-track i {
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: #e7a354;
+}
+
+@keyframes studio-marquee {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-15%);
+  }
+}
+
+.studio-layout {
+  grid-template-columns: minmax(0, 1fr) 420px;
+  height: calc(100dvh - 101px);
+}
+
+.studio-stage {
+  min-height: calc(100dvh - 101px);
+  background: #173426;
+  box-shadow: inset -1px 0 rgba(245, 240, 232, 0.1);
+}
+
+.studio-stage.is-drop-active {
+  outline: 2px solid #e7a354;
+  outline-offset: -10px;
+}
+
+.studio-stage.is-drop-active .studio-canvas canvas {
+  filter: saturate(1.08) brightness(1.04);
+}
+
+.studio-canvas {
+  background: #173426;
+}
+
+.studio-loading {
+  color: rgba(245, 240, 232, 0.72);
+}
+
+.studio-stage-title {
+  top: 35px;
+  left: 38px;
+  color: #f5f0e8;
+}
+
+.studio-stage-title span {
+  color: rgba(245, 240, 232, 0.66);
+  letter-spacing: 0.17em;
+}
+
+.studio-stage-title strong {
+  color: #e7a354;
+}
+
+.studio-tool-rail {
+  border-color: rgba(245, 240, 232, 0.16);
+  background: rgba(16, 41, 31, 0.84);
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.24);
+}
+
+.studio-tool {
+  color: rgba(245, 240, 232, 0.72);
+}
+
+.studio-tool:hover,
+.studio-tool.is-active {
+  color: #10291f;
+  background: #e7a354;
+}
+
+.studio-measurements {
+  color: #f5f0e8;
+}
+
+.studio-measurements small,
+.studio-stage-controls {
+  color: rgba(245, 240, 232, 0.64);
+}
+
+.studio-stage-controls button {
+  color: #f5f0e8;
+}
+
+.studio-drop-overlay {
+  position: absolute;
+  inset: 50% auto auto 50%;
+  z-index: 4;
+  display: grid;
+  min-width: 210px;
+  gap: 6px;
+  padding: 18px 22px;
+  color: #10291f;
+  border: 1px solid #e7a354;
+  background: rgba(231, 163, 84, 0.94);
+  box-shadow: 0 18px 46px rgba(0, 0, 0, 0.26);
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+}
+
+.studio-drop-overlay strong {
+  font-size: 16px;
+  letter-spacing: -0.03em;
+}
+
+.studio-drop-overlay span {
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.studio-inspector {
+  min-height: calc(100dvh - 101px);
+  padding: 34px 31px 24px;
+  color: #19271f;
+  border-left-color: rgba(16, 41, 31, 0.15);
+  background: #f3efe7;
+}
+
+.studio-kicker,
+.studio-ready,
+.studio-section-title span,
+.studio-total span,
+.studio-total small,
+.studio-footnote,
+.studio-quote-note {
+  color: #758078;
+}
+
+.studio-inspector h1 {
+  max-width: 28rem;
+  margin-top: 37px;
+  color: #19271f;
+  font-family: "Cabinet Grotesk", "Outfit", "Avenir Next", sans-serif;
+  font-size: clamp(38px, 4vw, 57px);
+  letter-spacing: -0.075em;
+}
+
+.studio-inspector h1 em {
+  color: #ca7446;
+}
+
+.studio-intro {
+  max-width: 31ch;
+  color: #758078;
+}
+
+.studio-product-switcher {
+  gap: 6px;
+  margin-top: 23px;
+}
+
+.studio-product {
+  min-height: 59px;
+  border-color: rgba(25, 39, 31, 0.15);
+  border-radius: 2px;
+  color: #526258;
+  background: rgba(255, 255, 255, 0.28);
+  transition:
+    flex-basis 0.35s ease,
+    border-color 0.22s ease,
+    background 0.22s ease,
+    transform 0.35s ease;
+}
+
+.studio-product:hover,
+.studio-product.is-active {
+  border-color: #ca7446;
+  color: #19271f;
+  background: #e9ded1;
+  transform: translateX(4px);
+}
+
+.studio-product img {
+  filter: saturate(0.82) contrast(1.03);
+}
+
+.studio-option-shelf {
+  display: grid;
+  gap: 12px;
+  padding: 17px 0 15px;
+  border-bottom: 1px solid rgba(25, 39, 31, 0.15);
+}
+
+.studio-option-heading {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.studio-option-heading > div {
+  display: grid;
+  gap: 4px;
+}
+
+.studio-option-heading strong {
+  font-size: 13px;
+  letter-spacing: -0.02em;
+}
+
+.studio-option-heading span {
+  color: #7b867e;
+  font-size: 10px;
+  line-height: 1.35;
+}
+
+.studio-option-toggle {
+  flex: 0 0 auto;
+  padding: 0;
+  color: #ca7446;
+  border: 0;
+  background: transparent;
+  font-size: 10px;
+  font-weight: 700;
+}
+
+.studio-option-rail {
+  display: flex;
+  gap: 7px;
+  overflow-x: auto;
+  padding: 2px 0 7px;
+  scrollbar-width: thin;
+}
+
+.studio-option-card {
+  display: grid;
+  flex: 0 0 126px;
+  gap: 7px;
+  min-height: 93px;
+  padding: 7px;
+  overflow: hidden;
+  text-align: left;
+  border: 1px solid rgba(25, 39, 31, 0.14);
+  border-radius: 2px;
+  color: #526258;
+  background: #ebe7de;
+  transition:
+    flex-basis 0.35s ease,
+    transform 0.28s ease,
+    border-color 0.22s ease,
+    background 0.22s ease;
+}
+
+.studio-option-card:hover,
+.studio-option-card:focus-visible {
+  flex-basis: 168px;
+  border-color: #ca7446;
+  color: #19271f;
+  background: #f6f1e9;
+  transform: translateY(-3px);
+}
+
+.studio-option-card.is-added {
+  border-color: #7a9277;
+  background: #e4ecdf;
+}
+
+.studio-option-swatch {
+  display: block;
+  width: 100%;
+  height: 31px;
+  border-radius: 1px;
+  box-shadow: inset 0 -11px 18px rgba(16, 41, 31, 0.16);
+}
+
+.studio-option-card > span:last-child {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+}
+
+.studio-option-card strong {
+  overflow: hidden;
+  font-size: 11px;
+  font-weight: 700;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.studio-option-card small {
+  color: #7c877f;
+  font-size: 9px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.studio-placed-assets {
+  display: grid;
+  gap: 8px;
+}
+
+.studio-placed-label {
+  color: #7b867e;
+  font-size: 9px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.studio-placed-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+}
+
+.studio-asset-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 26px;
+  padding: 0 7px;
+  color: #425448;
+  border: 1px solid rgba(25, 39, 31, 0.16);
+  background: #f7f3eb;
+  font-size: 10px;
+}
+
+.studio-asset-chip > i {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+}
+
+.studio-asset-chip button {
+  display: grid;
+  width: 18px;
+  height: 18px;
+  place-items: center;
+  padding: 0;
+  color: #748178;
+  border: 0;
+  background: transparent;
+  font-size: 14px;
+}
+
+.studio-asset-chip button:hover {
+  color: #ca7446;
+}
+
+.studio-total {
+  margin-top: 17px;
+  border-top-color: rgba(25, 39, 31, 0.17);
+  border-bottom-color: rgba(25, 39, 31, 0.17);
+}
+
+.studio-total strong {
+  color: #ca7446;
+  font-family: "Cabinet Grotesk", "Outfit", sans-serif;
+  font-size: 42px;
+  letter-spacing: -0.075em;
+}
+
+.studio-section {
+  border-bottom-color: rgba(25, 39, 31, 0.14);
+}
+
+.studio-stepper > div,
+.studio-select-section select {
+  border-color: rgba(25, 39, 31, 0.18);
+  background: #faf7f0;
+}
+
+.studio-stepper button:hover {
+  color: #ca7446;
+  background: #e9ded1;
+}
+
+.studio-check input {
+  accent-color: #ca7446;
+}
+
+.studio-quote {
+  min-height: 55px;
+  border-radius: 1px;
+  color: #fff9ef;
+  background: #ca7446;
+}
+
+.studio-quote:hover {
+  color: #fff9ef;
+  background: #ad5c36;
+  transform: translateY(-2px);
+}
+
+.studio-quote.is-ready {
+  background: #59735b;
+}
+
+.studio-inspector :is(button, select, input):focus-visible {
+  outline: 2px solid #ca7446;
+  outline-offset: 3px;
+}
+
+@media (max-width: 820px) {
+  .studio-header {
+    min-height: 66px;
+    padding: 0 18px;
+  }
+
+  .studio-layout {
+    height: auto;
+  }
+
+  .studio-stage {
+    min-height: 64dvh;
+  }
+
+  .studio-inspector {
+    min-height: 0;
+  }
+}
+
+@media (max-width: 520px) {
+  .studio-marquee-track {
+    min-width: 720px;
+  }
+
+  .studio-inspector h1 {
+    max-width: 18rem;
+    font-size: 41px;
+  }
+
+  .studio-option-card {
+    flex-basis: 116px;
+  }
+}

@@ -3,6 +3,8 @@ import * as THREE from "three";
 export type StudioProduct = "pergola" | "pool" | "garden";
 export type FrameFinish = "anthracite" | "sand" | "olive";
 export type RoofType = "louvers" | "glass";
+export type SceneAssetKey =
+  "planting" | "paving" | "lighting" | "privacy" | "irrigation" | "firepit";
 
 export type StudioSceneOptions = Readonly<{
   product: StudioProduct;
@@ -14,6 +16,7 @@ export type StudioSceneOptions = Readonly<{
   glass: boolean;
   led: boolean;
   heater: boolean;
+  sceneAssets: readonly SceneAssetKey[];
 }>;
 
 const frameColors: Record<FrameFinish, string> = {
@@ -155,6 +158,122 @@ function addPool(parent: THREE.Object3D, width: number, depth: number) {
     [0, 0.1, 1.25],
     material("#2b777f", { roughness: 0.22 }),
   );
+}
+
+function addSceneAsset(
+  parent: THREE.Object3D,
+  key: SceneAssetKey,
+  index: number,
+  options: StudioSceneOptions,
+) {
+  const x = ((index % 3) - 1) * Math.min(options.width * 0.34, 2.2);
+  const z = (Math.floor(index / 3) - 0.5) * Math.min(options.depth * 0.44, 2.1);
+
+  if (key === "planting") {
+    const bed = material("#7b6655", { roughness: 0.95 });
+    box(parent, "asset.planting.bed", [1.55, 0.16, 0.92], [x, 0.08, z], bed);
+    for (let plantIndex = 0; plantIndex < 5; plantIndex += 1) {
+      addPlant(
+        parent,
+        x - 0.55 + (plantIndex % 3) * 0.52,
+        z - 0.22 + Math.floor(plantIndex / 3) * 0.42,
+        0.65 + (plantIndex % 2) * 0.12,
+      );
+    }
+    return;
+  }
+
+  if (key === "paving") {
+    const slab = material("#d5c8b4", { roughness: 0.86 });
+    box(parent, "asset.paving.slab", [1.72, 0.09, 0.9], [x, 0.045, z], slab);
+    return;
+  }
+
+  if (key === "lighting") {
+    const body = material("#323b35", { metalness: 0.35, roughness: 0.34 });
+    const glow = material("#f4bc70", {
+      emissive: "#f3a34f",
+      emissiveIntensity: 2.8,
+      roughness: 0.24,
+    });
+    for (const offset of [-0.48, 0.48]) {
+      box(
+        parent,
+        "asset.lighting.bollard",
+        [0.1, 0.52, 0.1],
+        [x + offset, 0.26, z],
+        body,
+      );
+      box(
+        parent,
+        "asset.lighting.glow",
+        [0.13, 0.12, 0.13],
+        [x + offset, 0.55, z],
+        glow,
+      );
+    }
+    return;
+  }
+
+  if (key === "privacy") {
+    const frame = material(frameColors[options.frame], {
+      metalness: 0.58,
+      roughness: 0.3,
+    });
+    const screen = material("#384a3e", {
+      roughness: 0.74,
+      transparent: true,
+      opacity: 0.86,
+    });
+    box(parent, "asset.privacy.panel", [1.8, 1.46, 0.06], [x, 0.73, z], screen);
+    box(
+      parent,
+      "asset.privacy.left-post",
+      [0.08, 1.6, 0.08],
+      [x - 0.9, 0.8, z],
+      frame,
+    );
+    box(
+      parent,
+      "asset.privacy.right-post",
+      [0.08, 1.6, 0.08],
+      [x + 0.9, 0.8, z],
+      frame,
+    );
+    return;
+  }
+
+  if (key === "irrigation") {
+    const pipe = material("#4b765e", { roughness: 0.72 });
+    const nozzle = material("#d1d8cc", { metalness: 0.2, roughness: 0.42 });
+    box(
+      parent,
+      "asset.irrigation.pipe",
+      [1.6, 0.035, 0.035],
+      [x, 0.08, z],
+      pipe,
+    );
+    for (const offset of [-0.58, 0, 0.58]) {
+      cylinder(
+        parent,
+        "asset.irrigation.nozzle",
+        0.06,
+        0.16,
+        [x + offset, 0.16, z],
+        nozzle,
+      );
+    }
+    return;
+  }
+
+  const stone = material("#8d877b", { roughness: 0.92 });
+  const ember = material("#e17a3b", {
+    emissive: "#bd4d20",
+    emissiveIntensity: 2.1,
+    roughness: 0.42,
+  });
+  cylinder(parent, "asset.firepit.rim", 0.58, 0.18, [x, 0.09, z], stone);
+  cylinder(parent, "asset.firepit.ember", 0.28, 0.05, [x, 0.2, z], ember);
 }
 
 function addPergola(parent: THREE.Object3D, options: StudioSceneOptions) {
@@ -345,6 +464,10 @@ export function createStudioModel(options: StudioSceneOptions) {
       addPlant(root, x, z, 0.72 + (index % 3) * 0.12);
     }
   }
+
+  options.sceneAssets.forEach((key, index) => {
+    addSceneAsset(root, key, index, options);
+  });
 
   root.rotation.y = -0.18;
   return root;
