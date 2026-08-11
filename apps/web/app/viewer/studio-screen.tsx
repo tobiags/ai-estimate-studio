@@ -55,7 +55,7 @@ const products: readonly ProductDefinition[] = [
     nameFr: "Pergola",
     label: "Outdoor room",
     labelFr: "Pièce extérieure",
-    image: "/assets/references/pergola-real.jpg",
+    image: "/assets/references/pergola-real-generated.jpg",
     description: "A configurable aluminium structure for living outside.",
     descriptionFr: "Une structure aluminium configurable pour vivre dehors.",
     preset: { width: 4.8, depth: 3.5, height: 2.4 },

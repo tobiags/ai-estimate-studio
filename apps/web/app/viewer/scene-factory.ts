@@ -1,4 +1,5 @@
 import * as THREE from "three";
+import { RoundedBoxGeometry } from "three/examples/jsm/geometries/RoundedBoxGeometry.js";
 
 export type StudioProduct = "pergola" | "pool" | "garden";
 export type FrameFinish = "cedar" | "anthracite" | "sand" | "olive";
@@ -48,6 +49,33 @@ function box(
   rotationY = 0,
 ) {
   const mesh = new THREE.Mesh(new THREE.BoxGeometry(...size), mat);
+  mesh.name = name;
+  mesh.position.set(...position);
+  mesh.rotation.y = rotationY;
+  mesh.castShadow = true;
+  mesh.receiveShadow = true;
+  parent.add(mesh);
+  return mesh;
+}
+
+function roundedBox(
+  parent: THREE.Object3D,
+  name: string,
+  size: [number, number, number],
+  position: [number, number, number],
+  mat: THREE.Material,
+  radius = 0.04,
+  rotationY = 0,
+) {
+  const smallestSide = Math.min(...size);
+  const geometry = new RoundedBoxGeometry(
+    size[0],
+    size[1],
+    size[2],
+    3,
+    Math.min(radius, smallestSide / 2 - 0.002),
+  );
+  const mesh = new THREE.Mesh(geometry, mat);
   mesh.name = name;
   mesh.position.set(...position);
   mesh.rotation.y = rotationY;
@@ -173,28 +201,66 @@ function addOutdoorChair(
   chair.position.set(...position);
   chair.rotation.y = rotationY;
   parent.add(chair);
-  box(
+  const cushion = material("#c9c0af", { roughness: 0.94 });
+  roundedBox(
     chair,
     "pergola.furniture.chair-seat",
     [0.72, 0.09, 0.72],
     [0, 0.5, 0],
     finish,
+    0.055,
   );
-  box(
+  roundedBox(
     chair,
     "pergola.furniture.chair-back",
     [0.72, 0.78, 0.08],
     [0, 0.86, 0.31],
     finish,
+    0.045,
   );
+  roundedBox(
+    chair,
+    "pergola.furniture.chair-cushion",
+    [0.57, 0.065, 0.56],
+    [0, 0.56, -0.01],
+    cushion,
+    0.045,
+  );
+  roundedBox(
+    chair,
+    "pergola.furniture.chair-back-cushion",
+    [0.56, 0.5, 0.045],
+    [0, 0.86, 0.25],
+    cushion,
+    0.035,
+  );
+  for (const x of [-0.37, 0.37] as const) {
+    roundedBox(
+      chair,
+      "pergola.furniture.chair-arm",
+      [0.07, 0.08, 0.58],
+      [x, 0.82, 0.02],
+      finish,
+      0.03,
+    );
+    roundedBox(
+      chair,
+      "pergola.furniture.chair-arm-support",
+      [0.055, 0.35, 0.055],
+      [x, 0.65, 0.18],
+      finish,
+      0.02,
+    );
+  }
   for (const x of [-0.27, 0.27] as const) {
     for (const z of [-0.25, 0.25] as const) {
-      box(
+      roundedBox(
         chair,
         "pergola.furniture.chair-leg",
         [0.07, 0.5, 0.07],
         [x, 0.25, z],
         finish,
+        0.022,
       );
     }
   }
@@ -207,20 +273,35 @@ function addPergolaFurniture(parent: THREE.Object3D, depth: number) {
   table.name = "pergola.furniture.table";
   table.position.set(0, 0, Math.min(depth * 0.12, 0.45));
   parent.add(table);
-  box(
+  roundedBox(
     table,
     "pergola.furniture.table-top",
     [1.3, 0.09, 0.82],
     [0, 0.74, 0],
     darkWicker,
+    0.04,
   );
-  box(
+  roundedBox(
     table,
     "pergola.furniture.table-base",
     [0.12, 0.66, 0.12],
     [0, 0.39, 0],
     darkWicker,
+    0.035,
   );
+  const tableFoot = material("#3f4642", { metalness: 0.58, roughness: 0.36 });
+  for (const x of [-0.48, 0.48] as const) {
+    for (const z of [-0.28, 0.28] as const) {
+      roundedBox(
+        table,
+        "pergola.furniture.table-foot",
+        [0.055, 0.04, 0.055],
+        [x, 0.07, z],
+        tableFoot,
+        0.018,
+      );
+    }
+  }
   addOutdoorChair(parent, [-1.05, 0, 0.45], -Math.PI / 2, wicker);
   addOutdoorChair(parent, [1.05, 0, 0.45], Math.PI / 2, wicker);
   addOutdoorChair(parent, [0, 0, -0.78], Math.PI, wicker);
@@ -567,7 +648,15 @@ function addGardenContext(parent: THREE.Object3D, options: StudioSceneOptions) {
   const paving = material("#cfc5b4", { roughness: 0.82 });
   box(parent, "garden.patio", [10, 0.08, 8], [0, -0.02, 0], paving);
 
-  if (options.product === "pool") {
+  if (options.product === "pergola") {
+    for (const [x, z, scale] of [
+      [-3.1, -2.72, 0.66],
+      [-2.55, -2.82, 0.52],
+      [2.75, -2.65, 0.62],
+      [3.35, -2.45, 0.5],
+    ] as const)
+      addPlant(parent, x, z, scale);
+  } else if (options.product === "pool") {
     addPool(parent, options.width, options.depth);
     for (const [x, z, scale] of [
       [-4.0, -2.1, 1.1],
