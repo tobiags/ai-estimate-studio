@@ -157,6 +157,8 @@ The first production-oriented slice is exposed directly at `/` rather than behin
 - local reference assets for pergola, pool and garden scenes;
 - a named procedural factory with `root.userData.sculptRuntime` metadata inspired by the staged `img2threejs` output contract;
 - neutral studio canvas with a procedural Three.js scene; reference photographs are limited to product-selector thumbnails;
+- a locally cached, CC0 Poly Haven `Lapa` HDRI supplies environment reflections/ambient context without becoming a distracting flat background;
+- the garden scene lazy-loads one real Poly Haven painted-wooden-bench GLTF prop (1K maps, under 2 MB) and keeps the procedural scene as its deterministic fallback;
 - English/French copy toggle (English is the default for Fiverr-facing traffic);
 - orbit, zoom, reset, auto-orbit and measurement controls;
 - inline dimensions, finishes, roof and add-on selections;

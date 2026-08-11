@@ -4,6 +4,8 @@ import { useEffect, useMemo, useRef, useState, type DragEvent } from "react";
 import { gsap } from "gsap";
 import * as THREE from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
+import { HDRLoader } from "three/examples/jsm/loaders/HDRLoader.js";
+import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 import {
   createStudioModel,
   type FrameFinish,
@@ -15,6 +17,10 @@ import {
 
 const publicAssetPath = (path: string) =>
   `${process.env.NEXT_PUBLIC_BASE_PATH ?? ""}${path}`;
+
+const studioEnvironmentPath = "/assets/environments/polyhaven-lapa-1k.hdr";
+const gardenBenchPath =
+  "/assets/models/polyhaven/painted_wooden_bench_1k/painted_wooden_bench_1k.gltf";
 
 type ProductDefinition = Readonly<{
   key: StudioProduct;
@@ -565,7 +571,12 @@ function disposeObject(root: THREE.Object3D) {
     const materials = Array.isArray(object.material)
       ? object.material
       : [object.material];
-    materials.forEach((item) => item.dispose());
+    materials.forEach((item) => {
+      Object.values(item).forEach((value) => {
+        if (value instanceof THREE.Texture) value.dispose();
+      });
+      item.dispose();
+    });
   });
 }
 
@@ -580,7 +591,9 @@ export function StudioScreen() {
   const rendererRef = useRef<THREE.WebGLRenderer | null>(null);
   const cameraRef = useRef<THREE.PerspectiveCamera | null>(null);
   const controlsRef = useRef<OrbitControls | null>(null);
+  const environmentRef = useRef<THREE.Texture | null>(null);
   const modelRef = useRef<THREE.Group | null>(null);
+  const gardenBenchRef = useRef<THREE.Group | null>(null);
   const [ready, setReady] = useState(false);
   const [productKey, setProductKey] = useState<StudioProduct>("pergola");
   const [width, setWidth] = useState(4.8);
@@ -682,6 +695,28 @@ export function StudioScreen() {
     fill.position.set(4, 3, -4);
     scene.add(fill);
 
+    let environmentActive = true;
+    const environmentLoader = new HDRLoader();
+    environmentLoader.load(
+      publicAssetPath(studioEnvironmentPath),
+      (texture) => {
+        if (!environmentActive) {
+          texture.dispose();
+          return;
+        }
+        texture.mapping = THREE.EquirectangularReflectionMapping;
+        texture.colorSpace = THREE.LinearSRGBColorSpace;
+        scene.environment = texture;
+        scene.environmentIntensity = 0.34;
+        environmentRef.current = texture;
+      },
+      undefined,
+      () => {
+        // The procedural lights remain the deterministic fallback if the
+        // optional Poly Haven environment is unavailable.
+      },
+    );
+
     const controls = new OrbitControls(camera, renderer.domElement);
     controls.enableDamping = true;
     controls.dampingFactor = 0.065;
@@ -721,12 +756,20 @@ export function StudioScreen() {
       controls.dispose();
       renderer.dispose();
       if (modelRef.current) disposeObject(modelRef.current);
+      if (gardenBenchRef.current) disposeObject(gardenBenchRef.current);
+      environmentActive = false;
+      if (environmentRef.current) {
+        environmentRef.current.dispose();
+        environmentRef.current = null;
+      }
+      scene.environment = null;
       mount.removeChild(renderer.domElement);
       sceneRef.current = null;
       rendererRef.current = null;
       cameraRef.current = null;
       controlsRef.current = null;
       modelRef.current = null;
+      gardenBenchRef.current = null;
     };
   }, []);
 
@@ -765,6 +808,56 @@ export function StudioScreen() {
     sceneAssets,
     width,
   ]);
+
+  useEffect(() => {
+    const scene = sceneRef.current;
+    if (!ready || !scene) return;
+
+    if (gardenBenchRef.current) {
+      scene.remove(gardenBenchRef.current);
+      disposeObject(gardenBenchRef.current);
+      gardenBenchRef.current = null;
+    }
+    if (productKey !== "garden") return;
+
+    let active = true;
+    const loader = new GLTFLoader();
+    loader.load(
+      publicAssetPath(gardenBenchPath),
+      (gltf) => {
+        if (!active) {
+          disposeObject(gltf.scene);
+          return;
+        }
+        const bench = gltf.scene;
+        bench.name = "asset.polyhaven.painted-wooden-bench";
+        bench.position.set(-1.8, 0.02, 1.25);
+        bench.rotation.y = Math.PI;
+        bench.scale.setScalar(1.18);
+        bench.traverse((object) => {
+          if (!(object instanceof THREE.Mesh)) return;
+          object.castShadow = true;
+          object.receiveShadow = true;
+        });
+        scene.add(bench);
+        gardenBenchRef.current = bench;
+      },
+      undefined,
+      () => {
+        // The procedural garden remains the deterministic fallback if the
+        // optional Poly Haven prop is unavailable.
+      },
+    );
+
+    return () => {
+      active = false;
+      if (gardenBenchRef.current) {
+        scene.remove(gardenBenchRef.current);
+        disposeObject(gardenBenchRef.current);
+        gardenBenchRef.current = null;
+      }
+    };
+  }, [productKey, ready]);
 
   useEffect(() => {
     if (!ready) return;
