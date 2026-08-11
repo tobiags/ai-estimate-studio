@@ -1,7 +1,7 @@
 import * as THREE from "three";
 
 export type StudioProduct = "pergola" | "pool" | "garden";
-export type FrameFinish = "anthracite" | "sand" | "olive";
+export type FrameFinish = "cedar" | "anthracite" | "sand" | "olive";
 export type RoofType = "louvers" | "glass";
 export type SceneAssetKey =
   "planting" | "paving" | "lighting" | "privacy" | "irrigation" | "firepit";
@@ -17,9 +17,11 @@ export type StudioSceneOptions = Readonly<{
   led: boolean;
   heater: boolean;
   sceneAssets: readonly SceneAssetKey[];
+  woodTexture?: THREE.Texture | null;
 }>;
 
 const frameColors: Record<FrameFinish, string> = {
+  cedar: "#4a3027",
   anthracite: "#454a47",
   sand: "#c8b79f",
   olive: "#65715f",
@@ -160,6 +162,99 @@ function addPool(parent: THREE.Object3D, width: number, depth: number) {
   );
 }
 
+function addOutdoorChair(
+  parent: THREE.Object3D,
+  position: [number, number, number],
+  rotationY: number,
+  finish: THREE.Material,
+) {
+  const chair = new THREE.Group();
+  chair.name = "pergola.furniture.chair";
+  chair.position.set(...position);
+  chair.rotation.y = rotationY;
+  parent.add(chair);
+  box(
+    chair,
+    "pergola.furniture.chair-seat",
+    [0.72, 0.09, 0.72],
+    [0, 0.5, 0],
+    finish,
+  );
+  box(
+    chair,
+    "pergola.furniture.chair-back",
+    [0.72, 0.78, 0.08],
+    [0, 0.86, 0.31],
+    finish,
+  );
+  for (const x of [-0.27, 0.27] as const) {
+    for (const z of [-0.25, 0.25] as const) {
+      box(
+        chair,
+        "pergola.furniture.chair-leg",
+        [0.07, 0.5, 0.07],
+        [x, 0.25, z],
+        finish,
+      );
+    }
+  }
+}
+
+function addPergolaFurniture(parent: THREE.Object3D, depth: number) {
+  const wicker = material("#a89b88", { roughness: 0.82, metalness: 0.02 });
+  const darkWicker = material("#6d6257", { roughness: 0.76, metalness: 0.02 });
+  const table = new THREE.Group();
+  table.name = "pergola.furniture.table";
+  table.position.set(0, 0, Math.min(depth * 0.12, 0.45));
+  parent.add(table);
+  box(
+    table,
+    "pergola.furniture.table-top",
+    [1.3, 0.09, 0.82],
+    [0, 0.74, 0],
+    darkWicker,
+  );
+  box(
+    table,
+    "pergola.furniture.table-base",
+    [0.12, 0.66, 0.12],
+    [0, 0.39, 0],
+    darkWicker,
+  );
+  addOutdoorChair(parent, [-1.05, 0, 0.45], -Math.PI / 2, wicker);
+  addOutdoorChair(parent, [1.05, 0, 0.45], Math.PI / 2, wicker);
+  addOutdoorChair(parent, [0, 0, -0.78], Math.PI, wicker);
+}
+
+function addPergolaVine(
+  parent: THREE.Object3D,
+  position: [number, number, number],
+  height: number,
+) {
+  const stem = material("#3e6339", { roughness: 0.88 });
+  const leaf = material("#668d4b", { roughness: 0.8 });
+  const vine = new THREE.Group();
+  vine.name = "pergola.vine";
+  vine.position.set(...position);
+  parent.add(vine);
+  cylinder(vine, "pergola.vine.stem", 0.026, height, [0, height / 2, 0], stem);
+  for (let index = 0; index < 7; index += 1) {
+    const leafMesh = new THREE.Mesh(
+      new THREE.IcosahedronGeometry(0.1, 0),
+      leaf,
+    );
+    leafMesh.name = "pergola.vine.leaf";
+    leafMesh.position.set(
+      Math.sin(index * 1.8) * 0.13,
+      0.2 + (index * (height - 0.28)) / 6,
+      Math.cos(index * 1.4) * 0.08,
+    );
+    leafMesh.scale.set(1.15, 0.65, 0.82);
+    leafMesh.castShadow = true;
+    vine.add(leafMesh);
+  }
+}
+
 function addSceneAsset(
   parent: THREE.Object3D,
   key: SceneAssetKey,
@@ -277,9 +372,18 @@ function addSceneAsset(
 }
 
 function addPergola(parent: THREE.Object3D, options: StudioSceneOptions) {
+  const isCedar = options.frame === "cedar";
   const frame = material(frameColors[options.frame], {
-    metalness: 0.64,
-    roughness: 0.3,
+    map: isCedar ? (options.woodTexture ?? null) : null,
+    metalness: isCedar ? 0.02 : 0.64,
+    roughness: isCedar ? 0.62 : 0.3,
+  });
+  const deck = material(isCedar ? "#765944" : "#cfc5b4", {
+    map: isCedar ? (options.woodTexture ?? null) : null,
+    roughness: 0.82,
+  });
+  const deckSeam = material(isCedar ? "#49352a" : "#a59b8e", {
+    roughness: 0.9,
   });
   const glass = material("#dbe8e5", {
     transparent: true,
@@ -296,8 +400,27 @@ function addPergola(parent: THREE.Object3D, options: StudioSceneOptions) {
   const width = options.width;
   const depth = options.depth;
   const height = options.height;
-  const post = 0.18;
+  const post = isCedar ? 0.24 : 0.18;
   const y = height / 2;
+
+  box(
+    parent,
+    "pergola.deck",
+    [width + 1.6, 0.16, depth + 1.2],
+    [0, 0.08, 0],
+    deck,
+  );
+  const seamCount = Math.max(8, Math.round((depth + 1.2) * 2.2));
+  for (let index = 0; index < seamCount; index += 1) {
+    const z = -(depth + 1.2) / 2 + ((depth + 1.2) * (index + 0.5)) / seamCount;
+    box(
+      parent,
+      "pergola.deck.seam",
+      [width + 1.5, 0.012, 0.022],
+      [0, 0.17, z],
+      deckSeam,
+    );
+  }
 
   for (const x of [-width / 2 + post / 2, width / 2 - post / 2]) {
     for (const z of [-depth / 2 + post / 2, depth / 2 - post / 2]) {
@@ -332,6 +455,37 @@ function addPergola(parent: THREE.Object3D, options: StudioSceneOptions) {
     [width / 2, height, 0],
     frame,
   );
+
+  if (isCedar) {
+    box(
+      parent,
+      "pergola.frame.front-fascia",
+      [width + 0.4, 0.25, 0.2],
+      [0, height + 0.07, -depth / 2 - 0.04],
+      frame,
+    );
+    box(
+      parent,
+      "pergola.frame.back-fascia",
+      [width + 0.4, 0.25, 0.2],
+      [0, height + 0.07, depth / 2 + 0.04],
+      frame,
+    );
+    box(
+      parent,
+      "pergola.frame.left-fascia",
+      [0.2, 0.25, depth + 0.4],
+      [-width / 2 - 0.04, height + 0.07, 0],
+      frame,
+    );
+    box(
+      parent,
+      "pergola.frame.right-fascia",
+      [0.2, 0.25, depth + 0.4],
+      [width / 2 + 0.04, height + 0.07, 0],
+      frame,
+    );
+  }
 
   if (options.roof === "louvers") {
     const slatCount = Math.max(8, Math.round(width * 3));
@@ -392,6 +546,20 @@ function addPergola(parent: THREE.Object3D, options: StudioSceneOptions) {
     heater.rotation.x = Math.PI / 2;
     heater.castShadow = true;
     parent.add(heater);
+  }
+
+  if (isCedar) {
+    addPergolaFurniture(parent, depth);
+    addPergolaVine(
+      parent,
+      [-width / 2 + 0.12, 0, -depth / 2 + 0.12],
+      height * 0.9,
+    );
+    addPergolaVine(
+      parent,
+      [width / 2 - 0.12, 0, depth / 2 - 0.12],
+      height * 0.78,
+    );
   }
 }
 

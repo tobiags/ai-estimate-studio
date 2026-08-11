@@ -19,6 +19,8 @@ const publicAssetPath = (path: string) =>
   `${process.env.NEXT_PUBLIC_BASE_PATH ?? ""}${path}`;
 
 const studioEnvironmentPath = "/assets/environments/polyhaven-lapa-1k.hdr";
+const cedarTexturePath =
+  "/assets/materials/polyhaven/japanese_cedar_planks_diff_1k.jpg";
 const gardenBenchPath =
   "/assets/models/polyhaven/painted_wooden_bench_1k/painted_wooden_bench_1k.gltf";
 
@@ -53,7 +55,7 @@ const products: readonly ProductDefinition[] = [
     nameFr: "Pergola",
     label: "Outdoor room",
     labelFr: "Pièce extérieure",
-    image: "/assets/references/pergola.jpg",
+    image: "/assets/references/pergola-real.jpg",
     description: "A configurable aluminium structure for living outside.",
     descriptionFr: "Une structure aluminium configurable pour vivre dehors.",
     preset: { width: 4.8, depth: 3.5, height: 2.4 },
@@ -149,12 +151,14 @@ function isSceneAssetKey(value: string): value is SceneAssetKey {
 }
 
 const frameNames: Record<FrameFinish, string> = {
+  cedar: "Cedar wood",
   anthracite: "Anthracite",
   sand: "Sandstone",
   olive: "Olive grey",
 };
 
 const frameNamesFr: Record<FrameFinish, string> = {
+  cedar: "Bois cèdre",
   anthracite: "Anthracite",
   sand: "Sable",
   olive: "Gris olive",
@@ -592,6 +596,7 @@ export function StudioScreen() {
   const cameraRef = useRef<THREE.PerspectiveCamera | null>(null);
   const controlsRef = useRef<OrbitControls | null>(null);
   const environmentRef = useRef<THREE.Texture | null>(null);
+  const woodTextureRef = useRef<THREE.Texture | null>(null);
   const modelRef = useRef<THREE.Group | null>(null);
   const gardenBenchRef = useRef<THREE.Group | null>(null);
   const [ready, setReady] = useState(false);
@@ -599,10 +604,10 @@ export function StudioScreen() {
   const [width, setWidth] = useState(4.8);
   const [depth, setDepth] = useState(3.5);
   const [height, setHeight] = useState(2.4);
-  const [frame, setFrame] = useState<FrameFinish>("anthracite");
+  const [frame, setFrame] = useState<FrameFinish>("cedar");
   const [roof, setRoof] = useState<RoofType>("louvers");
-  const [glass, setGlass] = useState(true);
-  const [led, setLed] = useState(true);
+  const [glass, setGlass] = useState(false);
+  const [led, setLed] = useState(false);
   const [heater, setHeater] = useState(false);
   const [autoRotate, setAutoRotate] = useState(false);
   const [showMeasurements, setShowMeasurements] = useState(true);
@@ -614,6 +619,7 @@ export function StudioScreen() {
     null,
   );
   const [dropActive, setDropActive] = useState(false);
+  const [woodTextureRevision, setWoodTextureRevision] = useState(0);
 
   const copy = localized[language];
 
@@ -717,6 +723,29 @@ export function StudioScreen() {
       },
     );
 
+    let woodTextureActive = true;
+    const woodTextureLoader = new THREE.TextureLoader();
+    woodTextureLoader.load(
+      publicAssetPath(cedarTexturePath),
+      (texture) => {
+        if (!woodTextureActive) {
+          texture.dispose();
+          return;
+        }
+        texture.colorSpace = THREE.SRGBColorSpace;
+        texture.wrapS = THREE.RepeatWrapping;
+        texture.wrapT = THREE.RepeatWrapping;
+        texture.repeat.set(2.2, 2.2);
+        woodTextureRef.current = texture;
+        setWoodTextureRevision((revision) => revision + 1);
+      },
+      undefined,
+      () => {
+        // The cedar colour remains the deterministic fallback if the map is
+        // unavailable.
+      },
+    );
+
     const controls = new OrbitControls(camera, renderer.domElement);
     controls.enableDamping = true;
     controls.dampingFactor = 0.065;
@@ -763,6 +792,11 @@ export function StudioScreen() {
         environmentRef.current = null;
       }
       scene.environment = null;
+      woodTextureActive = false;
+      if (woodTextureRef.current) {
+        woodTextureRef.current.dispose();
+        woodTextureRef.current = null;
+      }
       mount.removeChild(renderer.domElement);
       sceneRef.current = null;
       rendererRef.current = null;
@@ -791,6 +825,7 @@ export function StudioScreen() {
       led,
       heater,
       sceneAssets,
+      woodTexture: woodTextureRef.current,
     };
     const model = createStudioModel(options);
     scene.add(model);
@@ -806,6 +841,7 @@ export function StudioScreen() {
     ready,
     roof,
     sceneAssets,
+    woodTextureRevision,
     width,
   ]);
 
@@ -1300,6 +1336,9 @@ export function StudioScreen() {
                 setQuoteRequested(false);
               }}
             >
+              <option value="cedar">
+                ● {language === "fr" ? frameNamesFr.cedar : frameNames.cedar}
+              </option>
               <option value="anthracite">
                 ●{" "}
                 {language === "fr"

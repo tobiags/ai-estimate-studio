@@ -155,6 +155,7 @@ Telemetry captures asset/revision, timing buckets, transfer size, device capabil
 The first production-oriented slice is exposed directly at `/` rather than behind a catalogue workflow:
 
 - local reference assets for pergola, pool and garden scenes;
+- the supplied cedar-pergola reference drives the default 3D material/scene brief without being used as a canvas background;
 - a named procedural factory with `root.userData.sculptRuntime` metadata inspired by the staged `img2threejs` output contract;
 - neutral studio canvas with a procedural Three.js scene; reference photographs are limited to product-selector thumbnails;
 - a locally cached, CC0 Poly Haven `Lapa` HDRI supplies environment reflections/ambient context without becoming a distracting flat background;
