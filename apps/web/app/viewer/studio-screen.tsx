@@ -31,6 +31,7 @@ import {
 } from "../studio/catalog";
 import { getStudioCopy } from "../studio/i18n";
 import { loadStudioState, saveStudioState } from "../studio/persistence";
+import { createStudioEstimatePdf } from "../studio/estimate-pdf";
 import { StudioViewer } from "./studio-viewer";
 
 type StudioState = Readonly<{
@@ -224,6 +225,12 @@ export function StudioScreen() {
   const [selectedWallId, setSelectedWallId] = useState<string | null>(
     defaultStudioConfiguration.walls[0]?.id ?? null,
   );
+  const [projectName, setProjectName] = useState("");
+  const [customerName, setCustomerName] = useState("");
+  const [customerEmail, setCustomerEmail] = useState("");
+  const [pdfStatus, setPdfStatus] = useState<
+    "idle" | "busy" | "ready" | "error"
+  >("idle");
   const copy = getStudioCopy(state.language);
 
   useEffect(() => {
@@ -290,6 +297,33 @@ export function StudioScreen() {
       : state.webglReady
         ? copy.ready
         : copy.loading;
+
+  const downloadEstimate = async () => {
+    setPdfStatus("busy");
+    try {
+      const bytes = await createStudioEstimatePdf({
+        configuration: state.configuration,
+        estimate,
+        language: state.language,
+        projectName: projectName.trim(),
+        customerName: customerName.trim(),
+        customerEmail: customerEmail.trim(),
+      });
+      const pdfBuffer = new ArrayBuffer(bytes.byteLength);
+      new Uint8Array(pdfBuffer).set(bytes);
+      const url = URL.createObjectURL(
+        new Blob([pdfBuffer], { type: "application/pdf" }),
+      );
+      const anchor = document.createElement("a");
+      anchor.href = url;
+      anchor.download = `mobup-estimate-${state.configuration.baseCode.toLowerCase()}.pdf`;
+      anchor.click();
+      URL.revokeObjectURL(url);
+      setPdfStatus("ready");
+    } catch {
+      setPdfStatus("error");
+    }
+  };
 
   const onDrop = (event: DragEvent<HTMLDivElement>) => {
     event.preventDefault();
@@ -647,8 +681,49 @@ export function StudioScreen() {
               </span>
             </div>
             <p>{copy.nonContractual}</p>
-            <button className="mobup-download-button" type="button" disabled>
-              {copy.download}
+            <details className="mobup-contact-details">
+              <summary>{copy.contactOptional}</summary>
+              <div className="mobup-contact-fields">
+                <label>
+                  <span>{copy.projectName}</span>
+                  <input
+                    value={projectName}
+                    onChange={(event) => setProjectName(event.target.value)}
+                    maxLength={80}
+                  />
+                </label>
+                <label>
+                  <span>{copy.customerName}</span>
+                  <input
+                    value={customerName}
+                    onChange={(event) => setCustomerName(event.target.value)}
+                    maxLength={80}
+                  />
+                </label>
+                <label>
+                  <span>{copy.customerEmail}</span>
+                  <input
+                    type="email"
+                    value={customerEmail}
+                    onChange={(event) => setCustomerEmail(event.target.value)}
+                    maxLength={120}
+                  />
+                </label>
+              </div>
+            </details>
+            <button
+              className="mobup-download-button"
+              type="button"
+              disabled={pdfStatus === "busy"}
+              onClick={() => void downloadEstimate()}
+            >
+              {pdfStatus === "busy"
+                ? "..."
+                : pdfStatus === "ready"
+                  ? copy.downloadReady
+                  : pdfStatus === "error"
+                    ? copy.downloadError
+                    : copy.download}
             </button>
           </section>
 

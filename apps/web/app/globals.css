@@ -761,6 +761,45 @@ a {
   font-size: 8px;
 }
 
+.mobup-contact-details {
+  margin-bottom: 14px;
+  color: #c6c2ba;
+  font-size: 9px;
+}
+
+.mobup-contact-details summary {
+  cursor: pointer;
+  color: #f2eee7;
+  font-weight: 600;
+}
+
+.mobup-contact-fields {
+  display: grid;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.mobup-contact-fields label {
+  display: grid;
+  gap: 4px;
+  color: #96948e;
+  font-size: 8px;
+}
+
+.mobup-contact-fields input {
+  width: 100%;
+  padding: 7px 8px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  outline: 0;
+  background: rgba(255, 255, 255, 0.06);
+  color: #f2eee7;
+  font-size: 9px;
+}
+
+.mobup-contact-fields input:focus {
+  border-color: #f0c1a8;
+}
+
 .mobup-download-button {
   width: 100%;
   padding: 11px 13px;
