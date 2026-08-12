@@ -12,6 +12,14 @@ The active public scene is the modular garden studio. Its orbitable structure, m
 
 All Mobup assets must declare a local URL, checksum, licence, byte size and whether they are critical to first paint. The initial critical bundle is capped at 6 MB; decorative assets are lazy-loaded or omitted.
 
+| Local Mobup asset | Source | Licence | SHA-256 | Use |
+| --- | --- | --- | --- | --- |
+| `apps/web/public/assets/studio/materials/cedar/cedar_diff_1k.jpg` | [Poly Haven Japanese Cedar Planks](https://polyhaven.com/a/japanese_cedar_planks) | [CC0](https://polyhaven.com/license) | `cce8e8c5e5e6ba7956a6edf9fa6121c57fa2bfab0ebd672951bede9e053cbec4` | Cedar cladding |
+| `apps/web/public/assets/studio/materials/mineral/mineral_diff_1k.jpg` | [Poly Haven Cobblestone Floor 01](https://polyhaven.com/a/cobblestone_floor_01) | [CC0](https://polyhaven.com/license) | `7630d6a59501cab4d2295b2be47bad892b8dae49895b4bee6bc26fd45c423e05` | Mineral ground colour |
+| `apps/web/public/assets/studio/materials/mineral/mineral_nor_gl_1k.jpg` | [Poly Haven Cobblestone Floor 01](https://polyhaven.com/a/cobblestone_floor_01) | [CC0](https://polyhaven.com/license) | `e8a07bd38fdaeb92a419bc4829631847df7c03fd657dd32b44f19e2550a4fb35` | Mineral relief |
+| `apps/web/public/assets/studio/materials/mineral/mineral_rough_1k.jpg` | [Poly Haven Cobblestone Floor 01](https://polyhaven.com/a/cobblestone_floor_01) | [CC0](https://polyhaven.com/license) | `18a5c4320378bc7eb17b2bc14981331912b1f0ff3100ced0a97aa59234377d41` | Mineral roughness |
+| `apps/web/public/assets/studio/references/mobup-studio-concept-v1.png` | OpenAI image generation, prompt recorded in the implementation plan | Generated reference | `d041bce256b156fb8c7041e87eec3d6bed158bc23b67d66af91165525ed80d36` | Concept/PDF thumbnail only; never the 3D background |
+
 The estimator uses locally cached reference photographs as thumbnails in the product selector. They are not presented as final customer deliverables and are intentionally not used as a background behind the interactive model; the viewer uses a neutral studio canvas so the generated geometry remains legible.
 
 | Asset | Source | Licence | Use |
