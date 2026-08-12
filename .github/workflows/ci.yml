@@ -47,6 +47,8 @@ jobs:
         run: pnpm install --frozen-lockfile
       - name: Generate Prisma client
         run: pnpm db:generate
+      - name: Prepare runtime environment for Next build
+        run: cp .env.example apps/web/.env.local
       - name: Check formatting
         run: pnpm format:check
       - name: Lint
