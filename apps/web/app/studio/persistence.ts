@@ -103,7 +103,7 @@ export function loadStudioState(
   storage: StudioStorage | undefined,
 ): PersistedStudioState {
   if (!storage) return defaultState();
-  let rawValue: string | null = null;
+  let rawValue: string | null;
   try {
     rawValue = storage.getItem(studioStorageKey);
   } catch {

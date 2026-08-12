@@ -7,6 +7,7 @@ const nextConfig: NextConfig = {
   output: isStaticExport ? "export" : "standalone",
   poweredByHeader: false,
   reactStrictMode: true,
+  allowedDevOrigins: ["127.0.0.1"],
   webpack(config) {
     config.resolve.extensionAlias = {
       ...(config.resolve.extensionAlias ?? {}),

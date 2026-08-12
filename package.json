@@ -29,6 +29,8 @@
     "infra:up": "docker compose up --detach --wait postgres minio mailpit",
     "lint": "eslint eslint.config.mjs prettier.config.mjs scripts docs/.vitepress/config.mts --max-warnings 0 && turbo run lint",
     "test": "turbo run test",
+    "test:e2e:studio": "pnpm --filter @ai-estimate-studio/web test:e2e",
+    "check:studio-assets": "node scripts/check-studio-assets.mjs",
     "typecheck": "turbo run typecheck"
   },
   "devDependencies": {

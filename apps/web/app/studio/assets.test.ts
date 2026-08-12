@@ -20,7 +20,9 @@ describe("Mobup asset manifest", () => {
   });
 
   it("points every committed asset to an existing public file", () => {
-    const publicRoot = join(process.cwd(), "apps", "web", "public");
+    const publicRoot = existsSync(join(process.cwd(), "public"))
+      ? join(process.cwd(), "public")
+      : join(process.cwd(), "apps", "web", "public");
     expect(
       studioAssets.every((asset) =>
         existsSync(join(publicRoot, asset.url.slice(1))),

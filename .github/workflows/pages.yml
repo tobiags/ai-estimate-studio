@@ -42,8 +42,12 @@ jobs:
           cache: pnpm
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
+      - name: Check Mobup assets
+        run: pnpm check:studio-assets
       - name: Build static application
         run: pnpm build
+      - name: Verify static application artifact
+        run: test -f apps/web/out/index.html
       - name: Build documentation
         run: pnpm docs:check
       - name: Combine application and documentation artifacts

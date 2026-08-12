@@ -141,6 +141,17 @@ export function disposeMobupScene(scene: THREE.Scene): void {
   });
 }
 
+function disposeMobupModel(model: MobupStudioModel): void {
+  model.traverse((object) => {
+    if (!(object instanceof THREE.Mesh)) return;
+    object.geometry.dispose();
+    const materials = Array.isArray(object.material)
+      ? object.material
+      : [object.material];
+    materials.forEach((material) => material.dispose());
+  });
+}
+
 export function setAnalysisVisibility(
   model: MobupStudioModel,
   visible: boolean,
@@ -210,6 +221,15 @@ export function StudioViewer({
   const containerRef = useRef<HTMLDivElement>(null);
   const resetRef = useRef<(() => void) | null>(null);
   const modelRef = useRef<MobupStudioModel | null>(null);
+  const configurationRef = useRef(configuration);
+  const showAnalysisRef = useRef(showAnalysis);
+  const sceneRef = useRef<THREE.Scene | null>(null);
+  const cameraRef = useRef<THREE.PerspectiveCamera | null>(null);
+  const controlsRef = useRef<OrbitControls | null>(null);
+  const rendererRef = useRef<THREE.WebGLRenderer | null>(null);
+  const materialsRef = useRef<StudioMaterialSet | null>(null);
+  configurationRef.current = configuration;
+  showAnalysisRef.current = showAnalysis;
 
   useEffect(() => {
     const container = containerRef.current;
@@ -217,12 +237,15 @@ export function StudioViewer({
 
     let active = true;
     let frame = 0;
-    let renderer: THREE.WebGLRenderer | undefined;
-    let controls: OrbitControls | undefined;
-    let scene: THREE.Scene | undefined;
-    let model: MobupStudioModel | undefined;
-    let environment: THREE.Texture | undefined;
-    let pmrem: THREE.PMREMGenerator | undefined;
+    let renderer: THREE.WebGLRenderer | null = null;
+    let controls: OrbitControls | null = null;
+    let scene: THREE.Scene | null = null;
+    let camera: THREE.PerspectiveCamera | null = null;
+    let model: MobupStudioModel | null = null;
+    let environment: THREE.Texture | null = null;
+    let pmrem: THREE.PMREMGenerator | null = null;
+    let resizeObserver: ResizeObserver | null = null;
+    let materialSet: StudioMaterialSet | null = null;
 
     const setup = async () => {
       try {
@@ -246,20 +269,22 @@ export function StudioViewer({
         false,
       );
       renderer.shadowMap.enabled = true;
-      renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+      renderer.shadowMap.type = THREE.PCFShadowMap;
       renderer.outputColorSpace = THREE.SRGBColorSpace;
       renderer.toneMapping = THREE.ACESFilmicToneMapping;
       renderer.toneMappingExposure = 1.04;
       renderer.domElement.className = "studio-viewer__canvas";
       renderer.domElement.setAttribute("aria-label", "Mobup 3D studio viewer");
       container.appendChild(renderer.domElement);
+      rendererRef.current = renderer;
 
       scene = new THREE.Scene();
       scene.background = new THREE.Color("#e9e6df");
       scene.fog = new THREE.Fog("#e9e6df", 14, 35);
       configureLighting(scene);
+      sceneRef.current = scene;
 
-      const camera = new THREE.PerspectiveCamera(
+      camera = new THREE.PerspectiveCamera(
         studioViewerCamera.fov,
         Math.max(container.clientWidth, 1) /
           Math.max(container.clientHeight, 1),
@@ -268,6 +293,8 @@ export function StudioViewer({
       );
       camera.position.set(7, 4, 7);
       controls = new OrbitControls(camera, renderer.domElement);
+      cameraRef.current = camera;
+      controlsRef.current = controls;
       controls.enableDamping = true;
       controls.dampingFactor = 0.08;
       controls.enablePan = false;
@@ -277,15 +304,37 @@ export function StudioViewer({
       controls.maxPolarAngle = Math.PI * 0.49;
 
       try {
-        const materialSet = await loadMaterialSet();
-        if (!active || !scene || !renderer || !controls) return;
+        materialSet = await loadMaterialSet();
+        if (!active || !scene || !renderer || !controls || !materialSet) {
+          if (materialSet) {
+            Object.values(materialSet).forEach((item) => {
+              if (item) disposeMaterial(item);
+            });
+          }
+          renderer?.dispose();
+          renderer?.domElement.remove();
+          return;
+        }
 
-        model = createMobupStudioModel(configuration, undefined, materialSet);
+        materialsRef.current = materialSet;
+        model = createMobupStudioModel(
+          configurationRef.current,
+          undefined,
+          materialSet,
+        );
         modelRef.current = model;
         scene.add(model);
-        setAnalysisVisibility(model, showAnalysis);
+        setAnalysisVisibility(model, showAnalysisRef.current);
         cameraForModel(camera, controls, model);
-        resetRef.current = () => cameraForModel(camera, controls!, model!);
+        resetRef.current = () => {
+          if (cameraRef.current && controlsRef.current && modelRef.current) {
+            cameraForModel(
+              cameraRef.current,
+              controlsRef.current,
+              modelRef.current,
+            );
+          }
+        };
 
         try {
           pmrem = new THREE.PMREMGenerator(renderer);
@@ -318,50 +367,68 @@ export function StudioViewer({
         if (!renderer || !scene) return;
         const width = Math.max(container.clientWidth, 1);
         const height = Math.max(container.clientHeight, 1);
-        camera.aspect = width / height;
-        camera.updateProjectionMatrix();
+        camera!.aspect = width / height;
+        camera!.updateProjectionMatrix();
         renderer.setPixelRatio(
           Math.min(window.devicePixelRatio, studioViewerCamera.maxPixelRatio),
         );
         renderer.setSize(width, height, false);
       };
-      const observer = new ResizeObserver(resize);
-      observer.observe(container);
+      resizeObserver = new ResizeObserver(resize);
+      resizeObserver.observe(container);
       resize();
 
       const render = () => {
         if (!active || !renderer || !scene || !controls) return;
         frame = window.requestAnimationFrame(render);
         controls.update();
-        renderer.render(scene, camera);
+        renderer.render(scene, camera!);
       };
       render();
-
-      return () => observer.disconnect();
     };
 
-    let cleanupObserver: (() => void) | undefined;
-    void setup().then((cleanup) => {
-      cleanupObserver = cleanup;
-    });
+    void setup();
 
     return () => {
       active = false;
-      cleanupObserver?.();
       window.cancelAnimationFrame(frame);
+      resizeObserver?.disconnect();
       resetRef.current = null;
-      modelRef.current = null;
+      if (model) {
+        scene?.remove(model);
+        disposeMobupModel(model);
+      }
+      if (modelRef.current === model) modelRef.current = null;
       if (scene) {
-        disposeMobupScene(scene);
         if (environment) environment.dispose();
       }
       pmrem?.dispose();
       controls?.dispose();
       renderer?.dispose();
       renderer?.domElement.remove();
+      if (sceneRef.current === scene) sceneRef.current = null;
+      if (cameraRef.current === camera) cameraRef.current = null;
+      if (controlsRef.current === controls) controlsRef.current = null;
+      if (rendererRef.current === renderer) rendererRef.current = null;
+      if (materialsRef.current === materialSet) {
+        if (materialSet) Object.values(materialSet).forEach(disposeMaterial);
+        materialsRef.current = null;
+      }
     };
-    // A configuration object is the explicit scene version boundary.
-  }, [configuration, onError, onReady]);
+  }, [onError, onReady]);
+
+  useEffect(() => {
+    const scene = sceneRef.current;
+    const materialSet = materialsRef.current;
+    if (!scene || !materialSet) return;
+    if (modelRef.current) {
+      scene.remove(modelRef.current);
+    }
+    const model = createMobupStudioModel(configuration, undefined, materialSet);
+    modelRef.current = model;
+    scene.add(model);
+    setAnalysisVisibility(model, showAnalysisRef.current);
+  }, [configuration]);
 
   useEffect(() => {
     resetRef.current?.();

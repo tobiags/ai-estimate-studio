@@ -53,5 +53,7 @@ jobs:
         run: pnpm typecheck
       - name: Test
         run: pnpm test
+      - name: Check Mobup assets
+        run: pnpm check:studio-assets
       - name: Build
         run: pnpm build

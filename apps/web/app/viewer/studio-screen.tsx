@@ -1,6 +1,7 @@
 "use client";
 
 import {
+  useCallback,
   useEffect,
   useMemo,
   useReducer,
@@ -232,6 +233,14 @@ export function StudioScreen() {
     "idle" | "busy" | "ready" | "error"
   >("idle");
   const copy = getStudioCopy(state.language);
+  const handleViewerReady = useCallback(
+    (ready: boolean) => dispatch({ type: "SET_WEBGL", ready }),
+    [],
+  );
+  const handleViewerError = useCallback(
+    (message: string) => dispatch({ type: "NOTICE", message }),
+    [],
+  );
 
   useEffect(() => {
     const restored = loadStudioState(
@@ -388,8 +397,8 @@ export function StudioScreen() {
               configuration={state.configuration}
               showAnalysis={state.showAnalysis}
               resetSignal={state.resetSignal}
-              onReady={(ready) => dispatch({ type: "SET_WEBGL", ready })}
-              onError={(message) => dispatch({ type: "NOTICE", message })}
+              onReady={handleViewerReady}
+              onError={handleViewerError}
             />
             <div className="mobup-viewer-corner mobup-viewer-corner--top">
               <span>{copy.dimensions}</span>
