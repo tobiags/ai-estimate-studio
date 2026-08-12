@@ -17,7 +17,11 @@ The original `AI-Estimate-Studio-Master-Kit.zip` is retained for provenance. Its
 
 ## Product scope
 
-The first release supports pools, pergolas, garden sheds, and roofing through shared category, product, option, pricing, asset, and viewer abstractions. Category-specific behavior is expressed as data and rules, not hard-coded components.
+The current public release is the Mobup modular garden-studio configurator. It starts with a visible, orbitable studio composition and supports bases P1-P4, facade modules M1-M10, the C1 canopy and the Claustra accessory. The public page no longer exposes the earlier pool, pergola or landscape demo families.
+
+The generic category, product, option, pricing, asset and viewer abstractions remain the platform boundary for future products. Category-specific behavior is expressed as data and rules, not hard-coded components.
+
+The Mobup slice is intentionally static-first: GitHub Pages serves the application, all pricing is indicative and computed locally, and the browser generates the bilingual estimate PDF without an account, server call or paid provider.
 
 ## Documentation map
 

@@ -1,9 +1,22 @@
 # UX Specification
 
+> **Mobup public mode:** The former multi-step public flow remains a reusable platform pattern, but the active demonstrator uses the direct studio screen below. There is no product-family catalog or mandatory wizard before the 3D result.
+
 **Status:** Proposed normative specification  
 **Principle:** Price clarity and completion of the quote journey must never depend on 3D or AI availability.
 
 ## 1. Information architecture and navigation
+
+### Mobup direct navigation
+
+```mermaid
+flowchart LR
+  Landing[Mobup studio scene] --> Compose[Base / facade / accessory controls]
+  Compose --> Analyze[Optional Analysis layer]
+  Compose --> PDF[Local bilingual estimate PDF]
+```
+
+The studio scene is the first screen and remains visible while the visitor composes. The inspector becomes a bottom sheet on narrow screens. No green marquee, category carousel or forced step transition is permitted in this public slice.
 
 ```mermaid
 flowchart TD
@@ -51,6 +64,16 @@ Public navigation contains the organization brand/home link, catalog, “Start a
 | ADM-11 | Audit log | investigate privileged actions | Filter/export |
 
 ## 3. Public user flow
+
+### Mobup direct flow
+
+1. Open the public URL and see `P4 + M1 + M8 + Claustra` in 3D.
+2. Orbit, zoom or reset the view; optionally enable Analysis.
+3. Choose a base or click/drag a wall or accessory.
+4. Read the width meter, line items, HT, VAT and TTC.
+5. Optionally enter contact details and download the local PDF.
+
+An incompatible module remains disabled and is explained inline; it never advances the user to an error page.
 
 ```mermaid
 stateDiagram-v2

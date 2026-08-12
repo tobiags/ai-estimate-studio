@@ -1,5 +1,7 @@
 # Deployment and Environment Strategy
 
+> **Current public deployment:** GitHub Pages is the primary host for the Mobup proof-of-realization. The application is exported statically, uses local assets and browser storage, and generates the indicative PDF client-side. Vercel, Docker and the server stack remain documented for the future platform edition and are not required to view or demonstrate the Mobup slice.
+
 **Status:** Proposed normative strategy
 
 ## 1. Environments
@@ -63,6 +65,8 @@ flowchart LR
 Workflows use least-privilege `permissions`, OIDC where supported, pinned action SHAs and concurrency cancellation for superseded PR builds. Production environment requires approval and records deploy actor/SHA.
 
 ## 6. GitHub Pages documentation
+
+The Pages artifact contains the Mobup application at the site root and the VitePress engineering documentation under `/docs/`. The workflow must build with `STATIC_EXPORT=true`, set `NEXT_PUBLIC_BASE_PATH=/ai-estimate-studio`, preserve `.nojekyll`, and fail if the app entrypoint or critical local assets are absent. No secret, customer data or API endpoint is required for the public demo.
 
 Pages publishes rendered content from `docs/` and root README only. It must not bundle, proxy or host the application, customer data, provider keys or generated quote artifacts. The docs workflow validates internal links, Mermaid syntax, headings and OpenAPI, then deploys a static documentation site from `main`.
 

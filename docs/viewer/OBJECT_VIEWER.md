@@ -154,16 +154,11 @@ Telemetry captures asset/revision, timing buckets, transfer size, device capabil
 
 The first production-oriented slice is exposed directly at `/` rather than behind a catalogue workflow:
 
-- local reference assets for pergola, pool and garden scenes;
-- the supplied cedar-pergola reference drives the default 3D material/scene brief without being used as a canvas background;
-- a named procedural factory with `root.userData.sculptRuntime` metadata inspired by the staged `img2threejs` output contract;
-- neutral studio canvas with a procedural Three.js scene; reference photographs are limited to product-selector thumbnails;
-- a locally cached, CC0 Poly Haven `Lapa` HDRI supplies environment reflections/ambient context without becoming a distracting flat background;
-- the garden scene lazy-loads one real Poly Haven painted-wooden-bench GLTF prop (1K maps, under 2 MB) and keeps the procedural scene as its deterministic fallback;
-- English/French copy toggle (English is the default for Fiverr-facing traffic);
-- orbit, zoom, reset, auto-orbit and measurement controls;
-- inline dimensions, finishes, roof and add-on selections;
-- live estimate lines for base product, footprint, options, labour, delivery, volume discount and VAT;
-- a quote-ready state that is intentionally local until customer, delivery-zone and PDF endpoints are wired.
+- the Mobup modular garden studio is the only public scene;
+- the default is `P4 + M1 + M8 + Claustra`, with a fixed 3.00 m depth and 2.80 m wall height;
+- the scene uses parametric structural groups and local PBR materials, not a photographic background plate;
+- the viewer supports orbit, bounded zoom, reset and an optional dimensions/material analysis layer;
+- French/English copy and Montserrat typography are part of the public presentation;
+- the estimate and PDF are intentionally local and indicative on GitHub Pages.
 
-The browser surface is an estimate preview, not a claim of photogrammetric accuracy. A production image-to-GLB provider remains behind the provider-neutral asset pipeline, while `img2threejs` is reserved for deterministic procedural reconstruction when the reference is suitable.
+The browser surface is an estimate preview, not a claim of photogrammetric accuracy. Generated references may guide art direction, but every object visible during orbit is a real mesh. A production image-to-GLB provider remains behind the provider-neutral asset pipeline for a future catalog revision.

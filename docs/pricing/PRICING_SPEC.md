@@ -3,6 +3,8 @@
 **Status:** Proposed normative specification  
 **Authority:** Only a server evaluation by the versioned pricing engine may issue a quote.
 
+> **Static Mobup exception:** The public GitHub Pages demonstrator produces an indicative estimate locally for proof-of-realization purposes. It is not an issued quote, carries a non-contractual notice, excludes delivery/installation/permits/utilities, and must never be described as a final or contractual price. The same integer-cent evaluator and tax policy are reused so a future server quote can reproduce the result.
+
 ## 1. Design goals
 
 - Deterministic, explainable and testable calculations.
@@ -76,6 +78,12 @@ Example:
 Actions cannot mutate facts or select options.
 
 ## 6. Pricing domains
+
+### Mobup demonstration catalog
+
+The active public catalog uses EUR and a 20% configurable VAT rate. Base prices are P1 EUR 1,150, P2 EUR 1,890, P3 EUR 2,590 and P4 EUR 3,290 HT. Wall prices are M1 EUR 690, M2 EUR 390, M3 EUR 520, M4-M6 EUR 590, M7 EUR 1,790, M8 EUR 2,490, M9 EUR 1,790 and M10 EUR 1,990 HT. C1 is EUR 390 and Claustra EUR 490 HT. C1 and Claustra add a line but do not consume facade width. These values are demonstration values, not manufacturer tariffs.
+
+The public slice does not add labour, delivery or discounts to the default total. The PDF lists those items as excluded and to be confirmed.
 
 ### Base and options
 

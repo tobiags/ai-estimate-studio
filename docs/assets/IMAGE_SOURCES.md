@@ -1,5 +1,17 @@
 # Reference image sources
 
+## Mobup public asset policy
+
+The active public scene is the modular garden studio. Its orbitable structure, materials and props are local assets; no Pergola, Pool or Landscape reference image is loaded into the public scene. A generated image can be retained as a labelled conceptual reference, but it must never be used as a 360-degree background plate.
+
+| Asset family | Required use | Licence / provenance |
+| --- | --- | --- |
+| Mobup CAD-like structure | Walls, base, roof and openings | Project-generated asset; source and checksum recorded beside the binary |
+| Cedar / graphite / mineral PBR maps | Surface appearance only | Poly Haven CC0 or another licence explicitly recorded before commit |
+| Mobup conceptual reference | Direction art and optional PDF thumbnail | Generated reference, not a measured survey and not interactive geometry |
+
+All Mobup assets must declare a local URL, checksum, licence, byte size and whether they are critical to first paint. The initial critical bundle is capped at 6 MB; decorative assets are lazy-loaded or omitted.
+
 The estimator uses locally cached reference photographs as thumbnails in the product selector. They are not presented as final customer deliverables and are intentionally not used as a background behind the interactive model; the viewer uses a neutral studio canvas so the generated geometry remains legible.
 
 | Asset | Source | Licence | Use |

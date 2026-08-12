@@ -1,5 +1,7 @@
 # AI Estimate Studio Product Specification
 
+> **Current public slice — Mobup modular garden studio:** This document retains the reusable platform contract, but the active demonstrator is one product family only. The public page shows a 3D garden studio immediately; it does not expose the previous Pergola, Pool or Landscape selectors. The detailed release decisions are in [the approved Mobup refonte specification](../superpowers/specs/2026-08-12-studio-modular-3d-refonte-design.md).
+
 **Status:** Proposed normative specification  
 **Target release:** MVP  
 **Product model:** Multi-organization B2B platform with an anonymous customer journey and authenticated administration
@@ -12,6 +14,14 @@ The platform is not a binding contract, construction survey, engineering calcula
 
 ## 2. Goals and non-goals
 
+### Mobup public release goals
+
+- Present `P4 + M1 + M8 + Claustra` as the initial, already-built studio view.
+- Support P1-P4 bases, M1-M10 facade modules, C1 and Claustra with the dimensions recorded in the source documents.
+- Provide honest orbit, zoom, reset and analysis controls for a real 3D scene.
+- Compute an indicative local estimate and download a bilingual PDF on GitHub Pages.
+- Use Montserrat and the approved ivory, mineral, graphite, warm wood and terracotta visual system; green decorative UI and marquee strips are out of scope.
+
 ### Goals
 
 - Let an anonymous visitor configure an eligible product without account creation.
@@ -21,7 +31,13 @@ The platform is not a binding contract, construction survey, engineering calcula
 - Let authorized staff manage catalog, assets, hotspots, pricing, publication, and quotes.
 - Support pools, pergolas, garden sheds, and roofing through configuration rather than category-specific code.
 
-### Non-goals for MVP
+### Non-goals for the Mobup public slice
+
+- Contractual manufacturer pricing, delivery, installation, permits or utility connections.
+- Accounts, CRM, payment, email capture, server-side quote issuance or remote customer storage.
+- The former Pergola, Pool and Landscape public category cards.
+
+### Non-goals for the generic platform MVP
 
 - Payments, financing decisions, inventory reservation, construction scheduling, CAD editing, AR, collaborative quote editing, CRM synchronization, and automatic contractual acceptance.
 - Customer accounts and cross-device saved configurations.
@@ -79,6 +95,17 @@ The platform is not a binding contract, construction survey, engineering calcula
 | US-012 | Owner | manage staff roles and audit events | privileged changes are accountable |
 
 ## 5. Functional requirements
+
+### Mobup public requirements
+
+- **MOBUP-FR-001:** The landing page must display a Mobup modular garden studio in 3D before any configuration action.
+- **MOBUP-FR-002:** The public catalog must expose bases P1-P4, walls M1-M10, C1 and Claustra with the approved dimensions.
+- **MOBUP-FR-003:** The facade must reject a wall insertion when the remaining width is insufficient, consistently for click, keyboard and drag/drop actions.
+- **MOBUP-FR-004:** The viewer must support 360-degree orbit, bounded zoom, reset and an optional analysis layer with dimensions and module identifiers.
+- **MOBUP-FR-005:** The estimate must show HT, configurable VAT and TTC from one deterministic local calculation and mark the result non-contractual.
+- **MOBUP-FR-006:** French and English must cover the public controls, status, estimate and generated PDF.
+- **MOBUP-FR-007:** The browser must generate a PDF locally without an API call and retain configuration if PDF generation fails.
+- **MOBUP-FR-008:** A static GitHub Pages build must keep configuration and pricing usable when WebGL or a non-critical asset is unavailable.
 
 ### Catalog and discovery
 
@@ -147,6 +174,15 @@ The platform is not a binding contract, construction survey, engineering calcula
 - **NFR-012 Cost:** AI requests are explicitly triggered, token-limited and cached by safe input hash; assets use CDN caching and lifecycle rules.
 
 ## 7. Acceptance criteria
+
+- **MOBUP-AC-001:** Given the public URL, an anonymous visitor sees the Mobup studio scene and can orbit it before selecting a module.
+- **MOBUP-AC-002:** Given any base and wall combination, P1-P4, M1-M10, C1 and Claustra preserve the documented dimensions and width rules.
+- **MOBUP-AC-003:** Given insufficient remaining width, click, keyboard and drag/drop insertion all leave the configuration unchanged and announce the reason.
+- **MOBUP-AC-004:** Given a pointer or touch device, orbit, zoom and reset work; Analysis reveals dimensions without replacing the scene.
+- **MOBUP-AC-005:** Given the same configuration and tax rate, the visible total and PDF totals are identical integer-cent calculations.
+- **MOBUP-AC-006:** Given FR or EN, all visible public strings and the PDF notice use the selected language.
+- **MOBUP-AC-007:** Given no server or API, the PDF downloads locally with configuration, prices, exclusions and non-contractual wording.
+- **MOBUP-AC-008:** Given WebGL or non-critical asset failure, the user retains a readable fallback, controls and estimate.
 
 - **AC-001:** Given a published product, an anonymous buyer can reach an issued PDF quote from the landing page on desktop and a 360×800 viewport without an account.
 - **AC-002:** Given JavaScript, WebGL or model loading failure, the buyer can still select options, see an authoritative price and issue a quote.
