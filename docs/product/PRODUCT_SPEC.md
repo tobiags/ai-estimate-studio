@@ -1,6 +1,6 @@
 # AI Estimate Studio Product Specification
 
-> **Current public slice — Mobup modular garden studio:** This document retains the reusable platform contract, but the active demonstrator is one product family only. The public page shows a 3D garden studio immediately; it does not expose the previous Pergola, Pool or Landscape selectors. The detailed release decisions are in [the approved Mobup refonte specification](../superpowers/specs/2026-08-12-studio-modular-3d-refonte-design.md).
+> **Current public slice — Mobup modular garden studio:** This document retains the reusable platform contract, but the active demonstrator is one product family only. The public page shows a 3D garden studio immediately and offers Garden, Poolside and Terrace visual contexts around the same product. These contexts are presentation-only and do not change the indicative module price; the previous Pergola, Pool and Landscape product-family selectors remain retired. The detailed release decisions are in [the approved Mobup refonte specification](../superpowers/specs/2026-08-12-studio-modular-3d-refonte-design.md).
 
 **Status:** Proposed normative specification  
 **Target release:** MVP  
@@ -106,6 +106,7 @@ The platform is not a binding contract, construction survey, engineering calcula
 - **MOBUP-FR-006:** French and English must cover the public controls, status, estimate and generated PDF.
 - **MOBUP-FR-007:** The browser must generate a PDF locally without an API call and retain configuration if PDF generation fails.
 - **MOBUP-FR-008:** A static GitHub Pages build must keep configuration and pricing usable when WebGL or a non-critical asset is unavailable.
+- **MOBUP-FR-009:** The public configurator must offer Garden, Poolside and Terrace visual contexts around the same studio, persist the selected context locally, and keep it explicitly presentation-only with no price impact.
 
 ### Catalog and discovery
 
@@ -183,6 +184,7 @@ The platform is not a binding contract, construction survey, engineering calcula
 - **MOBUP-AC-006:** Given FR or EN, all visible public strings and the PDF notice use the selected language.
 - **MOBUP-AC-007:** Given no server or API, the PDF downloads locally with configuration, prices, exclusions and non-contractual wording.
 - **MOBUP-AC-008:** Given WebGL or non-critical asset failure, the user retains a readable fallback, controls and estimate.
+- **MOBUP-AC-009:** Given a context selection, the 3D scene changes to the selected Garden, Poolside or Terrace treatment, the choice survives reload, and the displayed total remains unchanged.
 
 - **AC-001:** Given a published product, an anonymous buyer can reach an issued PDF quote from the landing page on desktop and a 360×800 viewport without an account.
 - **AC-002:** Given JavaScript, WebGL or model loading failure, the buyer can still select options, see an authoritative price and issue a quote.

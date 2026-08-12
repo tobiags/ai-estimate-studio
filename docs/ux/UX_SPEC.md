@@ -68,10 +68,11 @@ Public navigation contains the organization brand/home link, catalog, “Start a
 ### Mobup direct flow
 
 1. Open the public URL and see `P4 + M1 + M8 + Claustra` in 3D.
-2. Orbit, zoom or reset the view; optionally enable Analysis.
-3. Choose a base or click/drag a wall or accessory.
-4. Read the width meter, line items, HT, VAT and TTC.
-5. Optionally enter contact details and download the local PDF.
+2. Choose a Garden, Poolside or Terrace visual context; the same studio remains the priced product.
+3. Orbit, zoom or reset the view; optionally enable Analysis.
+4. Choose a base or click/drag a wall or accessory.
+5. Read the width meter, line items, HT, VAT and TTC.
+6. Optionally enter contact details and download the local PDF.
 
 An incompatible module remains disabled and is explained inline; it never advances the user to an error page.
 

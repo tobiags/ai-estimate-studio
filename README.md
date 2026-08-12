@@ -17,7 +17,7 @@ The original `AI-Estimate-Studio-Master-Kit.zip` is retained for provenance. Its
 
 ## Product scope
 
-The current public release is the Mobup modular garden-studio configurator. It starts with a visible, orbitable studio composition and supports bases P1-P4, facade modules M1-M10, the C1 canopy and the Claustra accessory. The public page no longer exposes the earlier pool, pergola or landscape demo families.
+The current public release is the Mobup modular garden-studio configurator. It starts with a visible, orbitable studio composition and supports bases P1-P4, facade modules M1-M10, the C1 canopy, the Claustra accessory and three visual site contexts: Garden, Poolside and Terrace. These contexts dress the same studio product; they are not separate product families and do not change the indicative module price.
 
 The generic category, product, option, pricing, asset and viewer abstractions remain the platform boundary for future products. Category-specific behavior is expressed as data and rules, not hard-coded components.
 

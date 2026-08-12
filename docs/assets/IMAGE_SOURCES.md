@@ -4,6 +4,8 @@
 
 The active public scene is the modular garden studio. Its orbitable structure, materials and props are local assets; no Pergola, Pool or Landscape reference image is loaded into the public scene. A generated image can be retained as a labelled conceptual reference, but it must never be used as a 360-degree background plate.
 
+The public configurator now exposes three local environment treatments around the same priced studio: Garden uses grass, path and planting-bed materials; Poolside uses the local mineral PBR deck and a water surface with coping; Terrace uses a cedar deck and planters. These are scene context layers, not separate product-family models or pricing inputs.
+
 | Asset family | Required use | Licence / provenance |
 | --- | --- | --- |
 | Mobup CAD-like structure | Walls, base, roof and openings | Project-generated asset; source and checksum recorded beside the binary |
