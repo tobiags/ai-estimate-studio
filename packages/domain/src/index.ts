@@ -13,3 +13,5 @@ export * from "./shared/money.js";
 export * from "./shared/ports.js";
 export * from "./shared/revision.js";
 export * from "./state-machines.js";
+export * from "./studio/catalog.js";
+export * from "./studio/configuration.js";
