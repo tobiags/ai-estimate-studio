@@ -18,11 +18,11 @@ flowchart LR
   Source --> Step[Validated STEP source]
   Step --> GLB[Meter-scaled structural GLB]
   GLB --> Viewer[Three.js viewer]
-  Viewer --> Decor[Runtime PBR, furniture, planting and lighting]
+  Viewer --> Decor[Local Poly Haven GLTF/PBR furniture, plants, ground and accessories]
   Decor --> Quote[Deterministic estimate]
 ```
 
-The committed source uses millimetres and an explicit width/depth/height contract. The web loader scales the exported GLB to the current estimator dimensions, applies the local cedar texture, and keeps the decorative layers separate. If the GLB cannot be loaded, the existing procedural structure remains visible.
+The committed source uses millimetres and an explicit width/depth/height contract. The web loader scales the exported GLB to the current estimator dimensions, applies the local cedar texture, and keeps the decorative layers separate. The pergola scene now loads local Poly Haven GLTF assets for furniture, potted plants, grass cover, lanterns and a fire pit, plus a small generated GLB patio carrier with Poly Haven cobblestone diffuse/normal/roughness maps. If a CAD asset cannot be loaded, the procedural structure remains visible.
 
 ## What this improves
 

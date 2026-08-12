@@ -21,9 +21,26 @@ const publicAssetPath = (path: string) =>
 const studioEnvironmentPath = "/assets/environments/polyhaven-lapa-1k.hdr";
 const cedarTexturePath =
   "/assets/materials/polyhaven/japanese_cedar_planks_diff_1k.jpg";
+const groundTexturePath =
+  "/assets/materials/polyhaven/cobblestone_floor_01/cobblestone_floor_01_diff_1k.jpg";
+const groundNormalTexturePath =
+  "/assets/materials/polyhaven/cobblestone_floor_01/cobblestone_floor_01_nor_gl_1k.jpg";
+const groundRoughnessTexturePath =
+  "/assets/materials/polyhaven/cobblestone_floor_01/cobblestone_floor_01_rough_1k.jpg";
 const cadPergolaPath = "/assets/models/cad/cedar_pergola.glb";
+const pbrGroundPath = "/assets/models/cad/cobblestone_ground.glb";
 const gardenBenchPath =
   "/assets/models/polyhaven/painted_wooden_bench_1k/painted_wooden_bench_1k.gltf";
+const pergolaFurniturePath =
+  "/assets/models/polyhaven/outdoor_table_chair_set_01/outdoor_table_chair_set_01_1k.gltf";
+const pergolaPlantPath =
+  "/assets/models/polyhaven/potted_plant_01/potted_plant_01_1k.gltf";
+const pergolaGrassPath =
+  "/assets/models/polyhaven/grass_medium_01/grass_medium_01_1k.gltf";
+const pergolaAccessoryPath =
+  "/assets/models/polyhaven/stone_fire_pit/stone_fire_pit_1k.gltf";
+const pergolaLanternPath =
+  "/assets/models/polyhaven/Lantern_01/Lantern_01_1k.gltf";
 
 type ProductDefinition = Readonly<{
   key: StudioProduct;
@@ -585,6 +602,61 @@ function disposeObject(root: THREE.Object3D) {
   });
 }
 
+function loadGltfScene(loader: GLTFLoader, path: string) {
+  return new Promise<THREE.Group>((resolve, reject) => {
+    loader.load(
+      publicAssetPath(path),
+      (gltf) => resolve(gltf.scene),
+      undefined,
+      reject,
+    );
+  });
+}
+
+function fitAsset(
+  asset: THREE.Group,
+  target: { width: number; depth: number; height: number },
+) {
+  asset.updateMatrixWorld(true);
+  const initialBounds = new THREE.Box3().setFromObject(asset);
+  const initialSize = initialBounds.getSize(new THREE.Vector3());
+  asset.scale.set(
+    target.width / Math.max(initialSize.x, 0.001),
+    target.height / Math.max(initialSize.y, 0.001),
+    target.depth / Math.max(initialSize.z, 0.001),
+  );
+  asset.updateMatrixWorld(true);
+  const fittedBounds = new THREE.Box3().setFromObject(asset);
+  asset.position.y -= fittedBounds.min.y;
+}
+
+function markAssetForLighting(asset: THREE.Group) {
+  asset.traverse((object) => {
+    if (!(object instanceof THREE.Mesh)) return;
+    object.castShadow = true;
+    object.receiveShadow = true;
+  });
+}
+
+function applyGroundPbr(
+  asset: THREE.Group,
+  diffuse: THREE.Texture | null,
+  roughness: THREE.Texture | null,
+) {
+  asset.traverse((object) => {
+    if (!(object instanceof THREE.Mesh)) return;
+    if (!(object.material instanceof THREE.MeshStandardMaterial)) return;
+    const groundMaterial = object.material.clone();
+    groundMaterial.map = diffuse;
+    groundMaterial.normalMap = null;
+    groundMaterial.roughnessMap = roughness;
+    groundMaterial.roughness = 0.86;
+    groundMaterial.flatShading = true;
+    groundMaterial.needsUpdate = true;
+    object.material = groundMaterial;
+  });
+}
+
 function defaultCameraPosition(mount: HTMLDivElement | null) {
   const scale = (mount?.clientWidth ?? 1000) < 600 ? 1.35 : 1;
   return new THREE.Vector3(8.4 * scale, 5.6 * scale, 9.3 * scale);
@@ -598,8 +670,12 @@ export function StudioScreen() {
   const controlsRef = useRef<OrbitControls | null>(null);
   const environmentRef = useRef<THREE.Texture | null>(null);
   const woodTextureRef = useRef<THREE.Texture | null>(null);
+  const groundTextureRef = useRef<THREE.Texture | null>(null);
+  const groundNormalTextureRef = useRef<THREE.Texture | null>(null);
+  const groundRoughnessTextureRef = useRef<THREE.Texture | null>(null);
   const modelRef = useRef<THREE.Group | null>(null);
   const cadPergolaRef = useRef<THREE.Group | null>(null);
+  const realDecorRef = useRef<THREE.Group | null>(null);
   const gardenBenchRef = useRef<THREE.Group | null>(null);
   const [ready, setReady] = useState(false);
   const [productKey, setProductKey] = useState<StudioProduct>("pergola");
@@ -622,6 +698,7 @@ export function StudioScreen() {
   );
   const [dropActive, setDropActive] = useState(false);
   const [woodTextureRevision, setWoodTextureRevision] = useState(0);
+  const [groundTextureRevision, setGroundTextureRevision] = useState(0);
 
   const copy = localized[language];
 
@@ -748,6 +825,44 @@ export function StudioScreen() {
       },
     );
 
+    let groundTexturesActive = true;
+    const groundTextureLoader = new THREE.TextureLoader();
+    const loadGroundTexture = (path: string) =>
+      new Promise<THREE.Texture>((resolve, reject) => {
+        groundTextureLoader.load(
+          publicAssetPath(path),
+          resolve,
+          undefined,
+          reject,
+        );
+      });
+    Promise.all([
+      loadGroundTexture(groundTexturePath),
+      loadGroundTexture(groundNormalTexturePath),
+      loadGroundTexture(groundRoughnessTexturePath),
+    ])
+      .then(([diffuse, normal, roughness]) => {
+        if (!groundTexturesActive) {
+          diffuse.dispose();
+          normal.dispose();
+          roughness.dispose();
+          return;
+        }
+        [diffuse, normal, roughness].forEach((texture) => {
+          texture.wrapS = THREE.RepeatWrapping;
+          texture.wrapT = THREE.RepeatWrapping;
+          texture.repeat.set(3.5, 2.8);
+        });
+        diffuse.colorSpace = THREE.SRGBColorSpace;
+        groundTextureRef.current = diffuse;
+        groundNormalTextureRef.current = normal;
+        groundRoughnessTextureRef.current = roughness;
+        setGroundTextureRevision((revision) => revision + 1);
+      })
+      .catch(() => {
+        // The neutral patio material remains the deterministic fallback.
+      });
+
     const controls = new OrbitControls(camera, renderer.domElement);
     controls.enableDamping = true;
     controls.dampingFactor = 0.065;
@@ -788,6 +903,7 @@ export function StudioScreen() {
       renderer.dispose();
       if (modelRef.current) disposeObject(modelRef.current);
       if (cadPergolaRef.current) disposeObject(cadPergolaRef.current);
+      if (realDecorRef.current) disposeObject(realDecorRef.current);
       if (gardenBenchRef.current) disposeObject(gardenBenchRef.current);
       environmentActive = false;
       if (environmentRef.current) {
@@ -796,9 +912,22 @@ export function StudioScreen() {
       }
       scene.environment = null;
       woodTextureActive = false;
+      groundTexturesActive = false;
       if (woodTextureRef.current) {
         woodTextureRef.current.dispose();
         woodTextureRef.current = null;
+      }
+      if (groundTextureRef.current) {
+        groundTextureRef.current.dispose();
+        groundTextureRef.current = null;
+      }
+      if (groundNormalTextureRef.current) {
+        groundNormalTextureRef.current.dispose();
+        groundNormalTextureRef.current = null;
+      }
+      if (groundRoughnessTextureRef.current) {
+        groundRoughnessTextureRef.current.dispose();
+        groundRoughnessTextureRef.current = null;
       }
       mount.removeChild(renderer.domElement);
       sceneRef.current = null;
@@ -807,6 +936,7 @@ export function StudioScreen() {
       controlsRef.current = null;
       modelRef.current = null;
       cadPergolaRef.current = null;
+      realDecorRef.current = null;
       gardenBenchRef.current = null;
     };
   }, []);
@@ -830,6 +960,9 @@ export function StudioScreen() {
       heater,
       sceneAssets,
       woodTexture: woodTextureRef.current,
+      groundTexture: groundTextureRef.current,
+      groundNormalTexture: groundNormalTextureRef.current,
+      groundRoughnessTexture: groundRoughnessTextureRef.current,
     };
     const model = createStudioModel(options);
     scene.add(model);
@@ -845,6 +978,7 @@ export function StudioScreen() {
     ready,
     roof,
     sceneAssets,
+    groundTextureRevision,
     woodTextureRevision,
     width,
   ]);
@@ -934,6 +1068,168 @@ export function StudioScreen() {
     width,
     woodTextureRevision,
   ]);
+
+  useEffect(() => {
+    const scene = sceneRef.current;
+    if (!ready || !scene) return;
+
+    if (realDecorRef.current) {
+      scene.remove(realDecorRef.current);
+      disposeObject(realDecorRef.current);
+      realDecorRef.current = null;
+    }
+    const proceduralPatio = modelRef.current?.getObjectByName("garden.patio");
+    if (proceduralPatio) proceduralPatio.visible = true;
+    if (productKey !== "pergola") return;
+
+    let active = true;
+    const loader = new GLTFLoader();
+    const loadOptional = (path: string) =>
+      loadGltfScene(loader, path).catch(() => null);
+
+    Promise.all([
+      loadOptional(pergolaFurniturePath),
+      loadOptional(pergolaPlantPath),
+      loadOptional(pbrGroundPath),
+      loadOptional(pergolaGrassPath),
+      loadOptional(pergolaAccessoryPath),
+      loadOptional(pergolaLanternPath),
+    ]).then(
+      ([
+        furnitureSource,
+        plantSource,
+        groundSource,
+        grassSource,
+        accessorySource,
+        lanternSource,
+      ]) => {
+        if (!active) {
+          [
+            furnitureSource,
+            plantSource,
+            groundSource,
+            grassSource,
+            accessorySource,
+            lanternSource,
+          ].forEach((asset) => {
+            if (asset) disposeObject(asset);
+          });
+          return;
+        }
+
+        const decor = new THREE.Group();
+        decor.name = "assets.polyhaven.pergola.decor";
+        decor.userData.sources = [
+          "Poly Haven outdoor_table_chair_set_01",
+          "Poly Haven potted_plant_01",
+          "Generated GLB carrier + Poly Haven cobblestone PBR maps",
+          "Poly Haven grass_medium_01",
+          "Poly Haven stone_fire_pit",
+          "Poly Haven Lantern_01",
+        ];
+
+        const addInstance = (
+          source: THREE.Group | null,
+          name: string,
+          target: { width: number; depth: number; height: number },
+          position: [number, number, number],
+          rotationY = 0,
+        ) => {
+          if (!source) return null;
+          const instance = source.clone(true);
+          instance.name = name;
+          fitAsset(instance, target);
+          instance.position.x = position[0];
+          instance.position.y += position[1];
+          instance.position.z = position[2];
+          instance.rotation.y = rotationY;
+          markAssetForLighting(instance);
+          decor.add(instance);
+          return instance;
+        };
+
+        const ground = addInstance(
+          groundSource,
+          "asset.pbr.cobblestone-ground",
+          { width: 10, depth: 8, height: 0.08 },
+          [0, -0.01, 0],
+        );
+        if (ground) {
+          applyGroundPbr(
+            ground,
+            groundTextureRef.current,
+            groundRoughnessTextureRef.current,
+          );
+          if (proceduralPatio) proceduralPatio.visible = false;
+        }
+
+        addInstance(
+          furnitureSource,
+          "asset.polyhaven.outdoor-table-chair-set",
+          { width: 2.8, depth: 1.85, height: 1.05 },
+          [0, 0.16, 0.28],
+          Math.PI,
+        );
+
+        for (const [x, z, rotation] of [
+          [-3.25, -2.55, 0.2],
+          [3.25, -2.55, -0.2],
+        ] as const) {
+          addInstance(
+            plantSource,
+            "asset.polyhaven.potted-plant",
+            { width: 0.82, depth: 0.82, height: 1.45 },
+            [x, 0.02, z],
+            rotation,
+          );
+        }
+
+        for (const [x, z, rotation] of [
+          [-4.1, -2.9, 0.08],
+          [4.05, -2.82, -0.12],
+          [-4.0, 2.85, -0.05],
+          [3.95, 2.78, 0.1],
+        ] as const) {
+          addInstance(
+            grassSource,
+            "asset.polyhaven.grass-tuft",
+            { width: 1.65, depth: 0.7, height: 0.58 },
+            [x, 0, z],
+            rotation,
+          );
+        }
+
+        addInstance(
+          accessorySource,
+          "asset.polyhaven.stone-fire-pit",
+          { width: 0.95, depth: 0.95, height: 0.34 },
+          [2.55, 0.02, -2.25],
+        );
+
+        for (const x of [-3.25, 3.25] as const) {
+          addInstance(
+            lanternSource,
+            "asset.polyhaven.lantern",
+            { width: 0.28, depth: 0.28, height: 0.82 },
+            [x, 0.02, -2.12],
+          );
+        }
+
+        scene.add(decor);
+        realDecorRef.current = decor;
+      },
+    );
+
+    return () => {
+      active = false;
+      if (realDecorRef.current) {
+        scene.remove(realDecorRef.current);
+        disposeObject(realDecorRef.current);
+        realDecorRef.current = null;
+      }
+      if (proceduralPatio) proceduralPatio.visible = true;
+    };
+  }, [depth, groundTextureRevision, height, productKey, ready, width]);
 
   useEffect(() => {
     const scene = sceneRef.current;
