@@ -1,6 +1,6 @@
 import { expect, test } from "@playwright/test";
 
-test("configures a Mobup studio, orbits it, switches language and downloads a PDF", async ({
+test("configures a Mobup studio, orbits and zooms it, switches language and downloads a PDF", async ({
   page,
 }) => {
   const consoleErrors: string[] = [];
@@ -17,6 +17,19 @@ test("configures a Mobup studio, orbits it, switches language and downloads a PD
     "aria-label",
     "Visualisation 3D interactive du studio de jardin Mobup",
   );
+  const canvas = page.locator("canvas.studio-viewer__canvas");
+  const canvasBox = await canvas.boundingBox();
+  expect(canvasBox).not.toBeNull();
+  if (canvasBox) {
+    const x = canvasBox.x + canvasBox.width * 0.52;
+    const y = canvasBox.y + canvasBox.height * 0.48;
+    await page.mouse.move(x, y);
+    await page.mouse.down();
+    await page.mouse.move(x + 110, y + 18, { steps: 8 });
+    await page.mouse.up();
+    await page.mouse.wheel(0, -240);
+    await expect(canvas).toBeVisible();
+  }
   await page.locator(".mobup-switch").click({ force: true });
   await expect(page.getByText("Hide analysis")).toBeVisible();
 

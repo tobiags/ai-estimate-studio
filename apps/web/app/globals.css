@@ -172,12 +172,14 @@ a {
 .mobup-workspace {
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(380px, 430px);
+  height: calc(100vh - 72px);
   min-height: calc(100vh - 72px);
 }
 
 .mobup-stage-panel {
   display: flex;
   min-width: 0;
+  min-height: 0;
   flex-direction: column;
   background: var(--stage);
 }
@@ -210,6 +212,7 @@ a {
 .mobup-viewer-wrap {
   position: relative;
   flex: 1;
+  min-height: 0;
   min-height: 540px;
   overflow: hidden;
   border-top: 1px solid rgba(36, 37, 34, 0.1);
@@ -286,6 +289,7 @@ a {
 
 .mobup-inspector {
   overflow-y: auto;
+  min-height: 0;
   border-left: 1px solid var(--line);
   background: var(--panel);
 }
@@ -873,6 +877,7 @@ a {
 @media (max-width: 760px) {
   .mobup-workspace {
     display: block;
+    height: auto;
   }
 
   .mobup-stage-panel {

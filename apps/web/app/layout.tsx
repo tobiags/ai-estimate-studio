@@ -4,8 +4,9 @@ import type { ReactNode } from "react";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "AI Estimate Studio",
-  description: "Inspect configurable objects in an interactive 3D viewer.",
+  title: "Mobup | Garden Studio Configurator",
+  description:
+    "Configure a garden studio in 3D and receive an indicative live estimate.",
 };
 
 export default function RootLayout({

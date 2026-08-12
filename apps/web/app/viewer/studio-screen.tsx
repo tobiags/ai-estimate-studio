@@ -662,6 +662,9 @@ export function StudioScreen() {
             <button
               className={`mobup-switch ${state.showAnalysis ? "is-on" : ""}`}
               type="button"
+              aria-label={
+                state.showAnalysis ? copy.hideAnalysis : copy.analysis
+              }
               aria-pressed={state.showAnalysis}
               onClick={() =>
                 dispatch({ type: "SET_ANALYSIS", visible: !state.showAnalysis })

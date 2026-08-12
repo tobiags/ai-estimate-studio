@@ -171,8 +171,10 @@ function cameraForModel(
   const radius = Math.max(size.x, size.y, size.z, 2.8);
   const distance = Math.min(
     studioViewerCamera.maxDistance,
-    Math.max(studioViewerCamera.minDistance, radius * 1.52),
+    Math.max(studioViewerCamera.minDistance, radius * 1.7),
   );
+  const target = center.clone();
+  target.y -= 0.35;
   camera.position.set(
     center.x + distance * 0.92,
     center.y + distance * 0.58,
@@ -180,8 +182,8 @@ function cameraForModel(
   );
   camera.near = studioViewerCamera.near;
   camera.far = studioViewerCamera.far;
-  camera.lookAt(center.x, center.y, center.z);
-  controls.target.copy(center);
+  camera.lookAt(target.x, target.y, target.z);
+  controls.target.copy(target);
   controls.update();
 }
 
