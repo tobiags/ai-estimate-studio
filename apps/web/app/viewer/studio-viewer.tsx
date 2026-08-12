@@ -361,7 +361,6 @@ export function StudioViewer({
       renderer?.domElement.remove();
     };
     // A configuration object is the explicit scene version boundary.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [configuration, onError, onReady]);
 
   useEffect(() => {
