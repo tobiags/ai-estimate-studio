@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { defaultStudioConfiguration } from "./catalog";
+import { defaultStudioEnvironment } from "./environments";
 import {
   loadStudioState,
   saveStudioState,
@@ -21,20 +22,37 @@ function memoryStorage(initial: string | null = null) {
 }
 
 describe("Mobup local persistence", () => {
-  it("round trips only configuration data and language", () => {
+  it("round trips configuration, language and environment", () => {
     const memory = memoryStorage();
     saveStudioState(memory.storage, {
       catalogVersion: defaultStudioConfiguration.catalogVersion,
       language: "fr",
+      environment: "pool",
       configuration: defaultStudioConfiguration,
     });
     const loaded = loadStudioState(memory.storage);
     expect(loaded.language).toBe("fr");
+    expect(loaded.environment).toBe("pool");
     expect(loaded.configuration.walls.map((wall) => wall.code)).toEqual([
       "M1",
       "M8",
     ]);
     expect(memory.savedKey()).toBe(studioStorageKey);
+  });
+
+  it("keeps older payloads in the garden context", () => {
+    const legacy = memoryStorage(
+      JSON.stringify({
+        catalogVersion: defaultStudioConfiguration.catalogVersion,
+        language: "en",
+        baseCode: "P4",
+        walls: [],
+        accessories: [],
+      }),
+    );
+    expect(loadStudioState(legacy.storage).environment).toBe(
+      defaultStudioEnvironment,
+    );
   });
 
   it("falls back safely for malformed, stale or oversized payloads", () => {
@@ -77,6 +95,7 @@ describe("Mobup local persistence", () => {
       saveStudioState(broken, {
         catalogVersion: defaultStudioConfiguration.catalogVersion,
         language: "en",
+        environment: defaultStudioEnvironment,
         configuration: defaultStudioConfiguration,
       }),
     ).not.toThrow();

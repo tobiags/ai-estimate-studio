@@ -352,6 +352,90 @@ a {
   gap: 6px;
 }
 
+.mobup-environment-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 6px;
+}
+
+.mobup-environment-card {
+  min-width: 0;
+  padding: 7px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: transparent;
+  text-align: left;
+  transition:
+    border-color 150ms ease,
+    background 150ms ease,
+    transform 150ms ease;
+}
+
+.mobup-environment-card:hover {
+  border-color: var(--ink-muted);
+  transform: translateY(-2px);
+}
+
+.mobup-environment-card.is-active {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+}
+
+.mobup-environment-card strong,
+.mobup-environment-card small {
+  display: block;
+}
+
+.mobup-environment-card strong {
+  margin-top: 8px;
+  font-size: 10px;
+  font-weight: 700;
+}
+
+.mobup-environment-card small {
+  margin-top: 3px;
+  overflow: hidden;
+  color: var(--ink-muted);
+  font-size: 7px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.mobup-environment-swatch {
+  display: block;
+  height: 32px;
+  border: 1px solid rgba(36, 37, 34, 0.12);
+  background: #809567;
+}
+
+.mobup-environment-card--garden .mobup-environment-swatch {
+  background:
+    linear-gradient(
+      145deg,
+      transparent 0 39%,
+      #baa88f 40% 58%,
+      transparent 59%
+    ),
+    linear-gradient(0deg, #718b62 0 100%);
+}
+
+.mobup-environment-card--pool .mobup-environment-swatch {
+  background:
+    linear-gradient(90deg, #bcb5a9 0 28%, #6da5b4 29% 72%, #bcb5a9 73%), #bcb5a9;
+}
+
+.mobup-environment-card--terrace .mobup-environment-swatch {
+  background:
+    repeating-linear-gradient(90deg, #9c6948 0 7px, #b7835d 8px 10px), #9c6948;
+}
+
+.mobup-environment-hint {
+  margin: 10px 0 0;
+  color: var(--ink-faint);
+  font-size: 8px;
+  line-height: 1.5;
+}
+
 .mobup-base-card {
   min-width: 0;
   padding: 11px 7px 10px;

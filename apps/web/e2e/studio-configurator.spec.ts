@@ -1,5 +1,7 @@
 import { expect, test } from "@playwright/test";
 
+test.setTimeout(60_000);
+
 test("configures a Mobup studio, orbits and zooms it, switches language and downloads a PDF", async ({
   page,
 }) => {
@@ -30,6 +32,12 @@ test("configures a Mobup studio, orbits and zooms it, switches language and down
     await page.mouse.wheel(0, -240);
     await expect(canvas).toBeVisible();
   }
+  const poolEnvironment = page.locator(".mobup-environment-card--pool");
+  await poolEnvironment.click({ force: true });
+  await expect(poolEnvironment).toHaveAttribute("aria-pressed", "true");
+  await page.reload();
+  await expect(page.getByText("3D view ready")).toBeVisible();
+  await expect(poolEnvironment).toHaveAttribute("aria-pressed", "true");
   await page.locator(".mobup-switch").click({ force: true });
   await expect(page.getByText("Hide analysis")).toBeVisible();
 

@@ -10,6 +10,11 @@ import {
   type StudioLanguage,
   type StudioWallCode,
 } from "./catalog";
+import {
+  defaultStudioEnvironment,
+  isStudioEnvironmentCode,
+  type StudioEnvironmentCode,
+} from "./environments";
 import type { StudioConfiguration } from "@ai-estimate-studio/domain";
 
 export const studioStorageKey = "mobup-studio-configuration-v1";
@@ -23,12 +28,14 @@ export type StudioStorage = Readonly<{
 export type PersistedStudioState = Readonly<{
   catalogVersion: string;
   language: StudioLanguage;
+  environment: StudioEnvironmentCode;
   configuration: StudioConfiguration;
 }>;
 
 type PersistedPayload = Readonly<{
   catalogVersion: string;
   language: StudioLanguage;
+  environment?: StudioEnvironmentCode;
   baseCode: StudioBaseCode;
   walls: readonly Readonly<{ id: string; code: StudioWallCode }>[];
   accessories: readonly Readonly<{
@@ -41,6 +48,7 @@ type PersistedPayload = Readonly<{
 const defaultState = (): PersistedStudioState => ({
   catalogVersion: studioCatalogVersion,
   language: "en",
+  environment: defaultStudioEnvironment,
   configuration: defaultStudioConfiguration,
 });
 
@@ -56,6 +64,9 @@ function parsePayload(value: string | null): PersistedPayload | undefined {
     if (
       parsed.catalogVersion !== studioCatalogVersion ||
       (parsed.language !== "en" && parsed.language !== "fr") ||
+      (parsed.environment !== undefined &&
+        (typeof parsed.environment !== "string" ||
+          !isStudioEnvironmentCode(parsed.environment))) ||
       typeof parsed.baseCode !== "string" ||
       !Array.isArray(parsed.walls) ||
       !Array.isArray(parsed.accessories)
@@ -87,9 +98,15 @@ function parsePayload(value: string | null): PersistedPayload | undefined {
     ) {
       return undefined;
     }
+    const candidateEnvironment =
+      typeof parsed.environment === "string" ? parsed.environment : "";
+    const environment = isStudioEnvironmentCode(candidateEnvironment)
+      ? candidateEnvironment
+      : defaultStudioEnvironment;
     return {
       catalogVersion: studioCatalogVersion,
       language: parsed.language,
+      environment,
       baseCode,
       walls: walls as PersistedPayload["walls"],
       accessories: accessories as PersistedPayload["accessories"],
@@ -120,6 +137,7 @@ export function loadStudioState(
   return Object.freeze({
     catalogVersion: studioCatalogVersion,
     language: payload.language,
+    environment: payload.environment ?? defaultStudioEnvironment,
     configuration,
   });
 }
@@ -132,6 +150,7 @@ export function saveStudioState(
   const payload: PersistedPayload = {
     catalogVersion: studioCatalogVersion,
     language: state.language,
+    environment: state.environment,
     baseCode: state.configuration.baseCode,
     walls: state.configuration.walls,
     accessories: state.configuration.accessories,

@@ -92,6 +92,8 @@ export const studioCopy = Object.freeze({
     width: "width",
     depth: "depth",
     height: "height",
+    environment: "Environment",
+    environmentHint: "Visual context only Â· no price impact",
   },
   fr: {
     brand: "Mobup Studio",
@@ -136,6 +138,8 @@ export const studioCopy = Object.freeze({
     width: "largeur",
     depth: "profondeur",
     height: "hauteur",
+    environment: "Environnement",
+    environmentHint: "Contexte visuel uniquement Â· sans impact sur le prix",
   },
 } as const);
 

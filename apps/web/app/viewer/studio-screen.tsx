@@ -30,6 +30,13 @@ import {
   studioCatalog,
   type StudioLanguage,
 } from "../studio/catalog";
+import {
+  defaultStudioEnvironment,
+  isStudioEnvironmentCode,
+  studioEnvironmentLabel,
+  studioEnvironments,
+  type StudioEnvironmentCode,
+} from "../studio/environments";
 import { getStudioCopy } from "../studio/i18n";
 import { loadStudioState, saveStudioState } from "../studio/persistence";
 import { createStudioEstimatePdf } from "../studio/estimate-pdf";
@@ -38,6 +45,7 @@ import { StudioViewer } from "./studio-viewer";
 type StudioState = Readonly<{
   configuration: StudioConfiguration;
   language: StudioLanguage;
+  environment: StudioEnvironmentCode;
   showAnalysis: boolean;
   resetSignal: number;
   hydrated: boolean;
@@ -50,8 +58,13 @@ type StudioAction =
       type: "HYDRATE";
       configuration: StudioConfiguration;
       language: StudioLanguage;
+      environment: StudioEnvironmentCode;
     }>
   | Readonly<{ type: "SET_LANGUAGE"; language: StudioLanguage }>
+  | Readonly<{
+      type: "SET_ENVIRONMENT";
+      environment: StudioEnvironmentCode;
+    }>
   | Readonly<{ type: "SET_ANALYSIS"; visible: boolean }>
   | Readonly<{ type: "SET_WEBGL"; ready: boolean }>
   | Readonly<{ type: "RESET_VIEW" }>
@@ -70,6 +83,7 @@ type StudioAction =
 const initialState: StudioState = {
   configuration: defaultStudioConfiguration,
   language: "en",
+  environment: defaultStudioEnvironment,
   showAnalysis: false,
   resetSignal: 0,
   hydrated: false,
@@ -100,10 +114,15 @@ function reducer(state: StudioState, action: StudioAction): StudioState {
         ...state,
         configuration: action.configuration,
         language: action.language,
+        environment: action.environment,
         hydrated: true,
       };
     case "SET_LANGUAGE":
       return { ...state, language: action.language, notice: null };
+    case "SET_ENVIRONMENT":
+      return isStudioEnvironmentCode(action.environment)
+        ? { ...state, environment: action.environment, notice: null }
+        : state;
     case "SET_ANALYSIS":
       return { ...state, showAnalysis: action.visible };
     case "SET_WEBGL":
@@ -250,6 +269,7 @@ export function StudioScreen() {
       type: "HYDRATE",
       configuration: restored.configuration,
       language: restored.language,
+      environment: restored.environment,
     });
     setSelectedWallId(restored.configuration.walls[0]?.id ?? null);
   }, []);
@@ -261,10 +281,11 @@ export function StudioScreen() {
       {
         catalogVersion: state.configuration.catalogVersion,
         language: state.language,
+        environment: state.environment,
         configuration: state.configuration,
       },
     );
-  }, [state.configuration, state.hydrated, state.language]);
+  }, [state.configuration, state.environment, state.hydrated, state.language]);
 
   useEffect(() => {
     if (
@@ -314,6 +335,7 @@ export function StudioScreen() {
         configuration: state.configuration,
         estimate,
         language: state.language,
+        environment: state.environment,
         projectName: projectName.trim(),
         customerName: customerName.trim(),
         customerEmail: customerEmail.trim(),
@@ -395,6 +417,7 @@ export function StudioScreen() {
           >
             <StudioViewer
               configuration={state.configuration}
+              environment={state.environment}
               showAnalysis={state.showAnalysis}
               resetSignal={state.resetSignal}
               onReady={handleViewerReady}
@@ -423,7 +446,13 @@ export function StudioScreen() {
 
         <aside className="mobup-inspector" aria-label="Studio configuration">
           <div className="mobup-inspector-intro">
-            <div className="mobup-eyebrow">GARDEN ROOM / LIVE QUOTE</div>
+            <div className="mobup-eyebrow">
+              {studioEnvironmentLabel(
+                state.environment,
+                state.language,
+              ).toUpperCase()}{" "}
+              / LIVE QUOTE
+            </div>
             <h1>
               {copy.title.split("\n").map((line, index) => (
                 <span key={line} className={index === 1 ? "accent" : undefined}>
@@ -435,10 +464,48 @@ export function StudioScreen() {
             <p>{copy.intro}</p>
           </div>
 
-          <section className="mobup-section">
+          <section className="mobup-section mobup-environment-section">
             <div className="mobup-section-head">
               <div>
                 <span className="mobup-eyebrow">01</span>
+                <h2>{copy.environment}</h2>
+              </div>
+              <span className="mobup-section-value">
+                {studioEnvironmentLabel(state.environment, state.language)}
+              </span>
+            </div>
+            <div className="mobup-environment-grid">
+              {studioEnvironments.map((item) => (
+                <button
+                  className={`mobup-environment-card ${
+                    item.code === state.environment ? "is-active" : ""
+                  } mobup-environment-card--${item.code}`}
+                  key={item.code}
+                  type="button"
+                  aria-pressed={item.code === state.environment}
+                  onClick={() =>
+                    dispatch({
+                      type: "SET_ENVIRONMENT",
+                      environment: item.code,
+                    })
+                  }
+                >
+                  <span
+                    className="mobup-environment-swatch"
+                    aria-hidden="true"
+                  />
+                  <strong>{item.label[state.language]}</strong>
+                  <small>{item.description[state.language]}</small>
+                </button>
+              ))}
+            </div>
+            <p className="mobup-environment-hint">{copy.environmentHint}</p>
+          </section>
+
+          <section className="mobup-section">
+            <div className="mobup-section-head">
+              <div>
+                <span className="mobup-eyebrow">02</span>
                 <h2>{copy.base}</h2>
               </div>
               <span className="mobup-section-value">{dimensions}</span>
@@ -477,7 +544,7 @@ export function StudioScreen() {
           <section className="mobup-section">
             <div className="mobup-section-head">
               <div>
-                <span className="mobup-eyebrow">02</span>
+                <span className="mobup-eyebrow">03</span>
                 <h2>{copy.facade}</h2>
               </div>
               <span className="mobup-section-value">
@@ -587,7 +654,7 @@ export function StudioScreen() {
           <section className="mobup-section">
             <div className="mobup-section-head">
               <div>
-                <span className="mobup-eyebrow">03</span>
+                <span className="mobup-eyebrow">04</span>
                 <h2>{copy.accessories}</h2>
               </div>
               <span className="mobup-section-value">
@@ -675,7 +742,7 @@ export function StudioScreen() {
           </section>
 
           <section className="mobup-quote-card">
-            <div className="mobup-eyebrow">04 / {copy.estimate}</div>
+            <div className="mobup-eyebrow">05 / {copy.estimate}</div>
             <div className="mobup-quote-total">
               <span>{copy.total}</span>
               <strong>

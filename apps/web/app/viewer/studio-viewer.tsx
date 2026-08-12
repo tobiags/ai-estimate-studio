@@ -10,6 +10,11 @@ import {
   type StudioMaterialSet,
 } from "./studio-model";
 import type { StudioConfiguration } from "@ai-estimate-studio/domain";
+import type { StudioEnvironmentCode } from "../studio/environments";
+import {
+  createMobupEnvironmentScene,
+  disposeMobupEnvironment,
+} from "./studio-environment";
 
 const environmentPath = "/assets/environments/polyhaven-lapa-1k.hdr";
 const cedarMapPath = "/assets/studio/materials/cedar/cedar_diff_1k.jpg";
@@ -30,6 +35,7 @@ export const studioViewerCamera = Object.freeze({
 
 export type StudioViewerProps = Readonly<{
   configuration: StudioConfiguration;
+  environment?: StudioEnvironmentCode;
   showAnalysis?: boolean;
   resetSignal?: number;
   className?: string;
@@ -213,6 +219,7 @@ function classNames(...names: Array<string | undefined>): string {
 
 export function StudioViewer({
   configuration,
+  environment = "garden",
   showAnalysis = false,
   resetSignal = 0,
   className,
@@ -224,13 +231,16 @@ export function StudioViewer({
   const resetRef = useRef<(() => void) | null>(null);
   const modelRef = useRef<MobupStudioModel | null>(null);
   const configurationRef = useRef(configuration);
+  const environmentRef = useRef(environment);
   const showAnalysisRef = useRef(showAnalysis);
   const sceneRef = useRef<THREE.Scene | null>(null);
   const cameraRef = useRef<THREE.PerspectiveCamera | null>(null);
   const controlsRef = useRef<OrbitControls | null>(null);
   const rendererRef = useRef<THREE.WebGLRenderer | null>(null);
   const materialsRef = useRef<StudioMaterialSet | null>(null);
+  const environmentSceneRef = useRef<THREE.Group | null>(null);
   configurationRef.current = configuration;
+  environmentRef.current = environment;
   showAnalysisRef.current = showAnalysis;
 
   useEffect(() => {
@@ -244,6 +254,7 @@ export function StudioViewer({
     let scene: THREE.Scene | null = null;
     let camera: THREE.PerspectiveCamera | null = null;
     let model: MobupStudioModel | null = null;
+    let environmentScene: THREE.Group | null = null;
     let environment: THREE.Texture | null = null;
     let pmrem: THREE.PMREMGenerator | null = null;
     let resizeObserver: ResizeObserver | null = null;
@@ -325,6 +336,12 @@ export function StudioViewer({
           materialSet,
         );
         modelRef.current = model;
+        environmentScene = createMobupEnvironmentScene(
+          environmentRef.current,
+          materialSet,
+        );
+        environmentSceneRef.current = environmentScene;
+        scene.add(environmentScene);
         scene.add(model);
         setAnalysisVisibility(model, showAnalysisRef.current);
         cameraForModel(camera, controls, model);
@@ -400,6 +417,13 @@ export function StudioViewer({
         scene?.remove(model);
         disposeMobupModel(model);
       }
+      const currentEnvironmentScene =
+        environmentSceneRef.current ?? environmentScene;
+      if (currentEnvironmentScene) {
+        scene?.remove(currentEnvironmentScene);
+        disposeMobupEnvironment(currentEnvironmentScene);
+        environmentSceneRef.current = null;
+      }
       if (modelRef.current === model) modelRef.current = null;
       if (scene) {
         if (environment) environment.dispose();
@@ -425,12 +449,25 @@ export function StudioViewer({
     if (!scene || !materialSet) return;
     if (modelRef.current) {
       scene.remove(modelRef.current);
+      disposeMobupModel(modelRef.current);
+      modelRef.current = null;
     }
+    if (environmentSceneRef.current) {
+      scene.remove(environmentSceneRef.current);
+      disposeMobupEnvironment(environmentSceneRef.current);
+      environmentSceneRef.current = null;
+    }
+    const nextEnvironment = createMobupEnvironmentScene(
+      environment,
+      materialSet,
+    );
+    environmentSceneRef.current = nextEnvironment;
+    scene.add(nextEnvironment);
     const model = createMobupStudioModel(configuration, undefined, materialSet);
     modelRef.current = model;
     scene.add(model);
     setAnalysisVisibility(model, showAnalysisRef.current);
-  }, [configuration]);
+  }, [configuration, environment]);
 
   useEffect(() => {
     resetRef.current?.();

@@ -2,11 +2,17 @@ import { PDFDocument, StandardFonts, rgb } from "pdf-lib";
 import type { StudioEstimate } from "@ai-estimate-studio/pricing-engine";
 import type { StudioConfiguration } from "@ai-estimate-studio/domain";
 import { studioLabel, type StudioLanguage } from "./catalog";
+import {
+  defaultStudioEnvironment,
+  studioEnvironmentLabel,
+  type StudioEnvironmentCode,
+} from "./environments";
 
 export type EstimatePdfInput = Readonly<{
   configuration: StudioConfiguration;
   estimate: StudioEstimate;
   language: StudioLanguage;
+  environment?: StudioEnvironmentCode;
   projectName?: string;
   customerName?: string;
   customerEmail?: string;
@@ -30,6 +36,7 @@ export async function createStudioEstimatePdf(
   document.setSubject(notice[input.language]);
   document.setKeywords([
     "Mobup",
+    input.environment ?? defaultStudioEnvironment,
     input.configuration.baseCode,
     ...input.configuration.walls.map((wall) => wall.code),
     ...input.configuration.accessories.map((item) => item.code),
@@ -90,12 +97,20 @@ export async function createStudioEstimatePdf(
   draw(
     input.language === "fr" ? "Modules de façade" : "Facade modules",
     46,
-    520,
+    500,
     10,
     bold,
     muted,
   );
-  let y = 500;
+  draw(
+    `${input.language === "fr" ? "Environnement" : "Environment"} - ${studioEnvironmentLabel(input.environment ?? defaultStudioEnvironment, input.language)}`,
+    46,
+    526,
+    10,
+    regular,
+    muted,
+  );
+  let y = 480;
   for (const wall of input.configuration.walls) {
     draw(`${wall.code} · ${studioLabel(wall.code, input.language)}`, 62, y, 10);
     y -= 18;
