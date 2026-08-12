@@ -1,6 +1,6 @@
 # Quality Engineering Strategy
 
-**Status:** Proposed normative strategy
+**Status:** Normative strategy; Mobup demo evidence recorded 2026-08-12
 
 ## 1. Quality gates
 
@@ -74,6 +74,14 @@ Lighthouse CI minimum: performance 0.85 preview and 0.90 release for representat
 ## 8. Test data and flake policy
 
 Factories create synthetic tenant-isolated deterministic data. Tests freeze time and random IDs where output is asserted. No production-derived PII. A failed test may be retried once only to classify; flaky tests block merge, are assigned an owner and fixed or quarantined with an expiry ≤7 days. E2E avoids arbitrary sleeps and waits on user-visible/network state.
+
+## 8A. Mobup demo verification evidence (2026-08-12)
+
+- `pnpm format:check`, `pnpm lint`, `pnpm typecheck` and `pnpm test` pass. The web package runs 28 focused unit/integration tests; Playwright is kept in the separate `test:e2e` command.
+- `pnpm check:studio-assets` passes: 5 declared local assets, 1,163,555 bytes in the critical transfer set, SHA-256 and declared byte sizes verified, no retired Pergola/Pool/Garden path admitted.
+- `STATIC_EXPORT=true NEXT_PUBLIC_BASE_PATH='' pnpm --filter @ai-estimate-studio/web build` passes and produces `apps/web/out/index.html` (13,097 bytes in the verification build). The Pages workflow repeats the guard with `/ai-estimate-studio` as its base path.
+- Playwright smoke passes on Chromium 151.0.7922.34 (Windows, desktop profile): initial render, analysis toggle, module removal/addition, live width/price update, language switch and client-side PDF download. Headless Chromium uses SwiftShader and the test deliberately avoids asserting GPU frame timing; manual orbit/zoom acceptance remains required before a visual release.
+- Lighthouse CI and real-user metrics were not available in this offline verification session. Performance scores, p75 Web Vitals, accessibility tree review at 390 px, NVDA/VoiceOver and the WebGL-absent manual fallback remain release checklist items, not silently passed gates.
 
 ## 9. Defect severity
 

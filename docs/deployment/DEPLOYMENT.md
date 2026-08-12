@@ -68,7 +68,9 @@ Workflows use least-privilege `permissions`, OIDC where supported, pinned action
 
 The Pages artifact contains the Mobup application at the site root and the VitePress engineering documentation under `/docs/`. The workflow must build with `STATIC_EXPORT=true`, set `NEXT_PUBLIC_BASE_PATH=/ai-estimate-studio`, preserve `.nojekyll`, and fail if the app entrypoint or critical local assets are absent. No secret, customer data or API endpoint is required for the public demo.
 
-Pages publishes rendered content from `docs/` and root README only. It must not bundle, proxy or host the application, customer data, provider keys or generated quote artifacts. The docs workflow validates internal links, Mermaid syntax, headings and OpenAPI, then deploys a static documentation site from `main`.
+The interactive proof URL is `https://tobiags.github.io/ai-estimate-studio/` after the Pages workflow completes. The docs workflow remains documentation-only at `https://tobiags.github.io/ai-estimate-studio/docs/`; it validates internal links, Mermaid syntax, headings and OpenAPI before publishing the engineering reference from `main`.
+
+The static demo stores only a validated configuration in browser storage and creates its indicative PDF locally. It must not bundle, proxy or host customer data, provider keys or server-generated quote artifacts. Rollback is a Pages redeploy of the last known-good commit (workflow dispatch or revert on `develop`/`main`); because the demo is stateless, no database migration or data rollback is needed. A failed artifact check blocks deployment.
 
 ## 7. Database migration and rollback
 
