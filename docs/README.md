@@ -21,6 +21,7 @@
 | Architecture | [Key sequence diagrams](architecture/SEQUENCES.md) | Normative, proposed | Architecture |
 | Viewer | [Generic Object Viewer specification](viewer/OBJECT_VIEWER.md) | Normative, proposed | 3D engineering |
 | Viewer | [3D generation provider evaluation](viewer/GENERATION_PROVIDER_EVALUATION.md) | Informative decision record | 3D engineering |
+| Viewer | [text-to-cad evaluation](viewer/TEXT_TO_CAD_EVALUATION.md) | Informative decision record | 3D engineering |
 | Data | [Domain and data model](data/DATA_MODEL.md) | Normative, proposed | Architecture |
 | Database | [Prisma schema design](data/PRISMA_SCHEMA.md) | Normative, proposed | Data engineering |
 | Pricing | [Pricing engine specification](pricing/PRICING_SPEC.md) | Normative, proposed | Product + Finance |

@@ -628,20 +628,6 @@ function addPergola(parent: THREE.Object3D, options: StudioSceneOptions) {
     heater.castShadow = true;
     parent.add(heater);
   }
-
-  if (isCedar) {
-    addPergolaFurniture(parent, depth);
-    addPergolaVine(
-      parent,
-      [-width / 2 + 0.12, 0, -depth / 2 + 0.12],
-      height * 0.9,
-    );
-    addPergolaVine(
-      parent,
-      [width / 2 - 0.12, 0, depth / 2 - 0.12],
-      height * 0.78,
-    );
-  }
 }
 
 function addGardenContext(parent: THREE.Object3D, options: StudioSceneOptions) {
@@ -698,7 +684,26 @@ export function createStudioModel(options: StudioSceneOptions) {
 
   addGardenContext(root, options);
   if (options.product === "pergola") {
-    addPergola(root, options);
+    const structure = new THREE.Group();
+    structure.name = "procedural.pergola.structure";
+    addPergola(structure, options);
+    root.add(structure);
+    if (options.frame === "cedar") {
+      const details = new THREE.Group();
+      details.name = "pergola.details.fallback";
+      addPergolaFurniture(details, options.depth);
+      addPergolaVine(
+        details,
+        [-options.width / 2 + 0.12, 0, -options.depth / 2 + 0.12],
+        options.height * 0.9,
+      );
+      addPergolaVine(
+        details,
+        [options.width / 2 - 0.12, 0, options.depth / 2 - 0.12],
+        options.height * 0.78,
+      );
+      root.add(details);
+    }
   } else if (options.product === "pool") {
     box(
       root,

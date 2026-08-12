@@ -21,6 +21,7 @@ const publicAssetPath = (path: string) =>
 const studioEnvironmentPath = "/assets/environments/polyhaven-lapa-1k.hdr";
 const cedarTexturePath =
   "/assets/materials/polyhaven/japanese_cedar_planks_diff_1k.jpg";
+const cadPergolaPath = "/assets/models/cad/cedar_pergola.glb";
 const gardenBenchPath =
   "/assets/models/polyhaven/painted_wooden_bench_1k/painted_wooden_bench_1k.gltf";
 
@@ -598,6 +599,7 @@ export function StudioScreen() {
   const environmentRef = useRef<THREE.Texture | null>(null);
   const woodTextureRef = useRef<THREE.Texture | null>(null);
   const modelRef = useRef<THREE.Group | null>(null);
+  const cadPergolaRef = useRef<THREE.Group | null>(null);
   const gardenBenchRef = useRef<THREE.Group | null>(null);
   const [ready, setReady] = useState(false);
   const [productKey, setProductKey] = useState<StudioProduct>("pergola");
@@ -785,6 +787,7 @@ export function StudioScreen() {
       controls.dispose();
       renderer.dispose();
       if (modelRef.current) disposeObject(modelRef.current);
+      if (cadPergolaRef.current) disposeObject(cadPergolaRef.current);
       if (gardenBenchRef.current) disposeObject(gardenBenchRef.current);
       environmentActive = false;
       if (environmentRef.current) {
@@ -803,6 +806,7 @@ export function StudioScreen() {
       cameraRef.current = null;
       controlsRef.current = null;
       modelRef.current = null;
+      cadPergolaRef.current = null;
       gardenBenchRef.current = null;
     };
   }, []);
@@ -843,6 +847,92 @@ export function StudioScreen() {
     sceneAssets,
     woodTextureRevision,
     width,
+  ]);
+
+  useEffect(() => {
+    const scene = sceneRef.current;
+    if (!ready || !scene) return;
+
+    if (cadPergolaRef.current) {
+      scene.remove(cadPergolaRef.current);
+      disposeObject(cadPergolaRef.current);
+      cadPergolaRef.current = null;
+    }
+    const proceduralStructure = modelRef.current?.getObjectByName(
+      "procedural.pergola.structure",
+    );
+    if (proceduralStructure) proceduralStructure.visible = true;
+    if (
+      productKey !== "pergola" ||
+      frame !== "cedar" ||
+      glass ||
+      roof !== "louvers" ||
+      led ||
+      heater
+    )
+      return;
+
+    let active = true;
+    const loader = new GLTFLoader();
+    loader.load(
+      publicAssetPath(cadPergolaPath),
+      (gltf) => {
+        if (!active) {
+          disposeObject(gltf.scene);
+          return;
+        }
+        const cad = gltf.scene;
+        cad.name = "asset.text-to-cad.cedar-pergola";
+        cad.scale.set(
+          (width + 1.6) / 6.4,
+          height / 2.83,
+          (depth + 1.2) / 5.097,
+        );
+        cad.traverse((object) => {
+          if (!(object instanceof THREE.Mesh)) return;
+          object.castShadow = true;
+          object.receiveShadow = true;
+          if (!(object.material instanceof THREE.MeshStandardMaterial)) return;
+          object.material = object.material.clone();
+          object.material.color.set("#8a5236");
+          object.material.roughness = 0.68;
+          const texture = woodTextureRef.current;
+          if (texture) {
+            object.material.map = texture.clone();
+            object.material.map.needsUpdate = true;
+          }
+        });
+        scene.add(cad);
+        cadPergolaRef.current = cad;
+        if (proceduralStructure) proceduralStructure.visible = false;
+      },
+      undefined,
+      () => {
+        // Keep the procedural pergola visible when the optional CAD asset fails.
+      },
+    );
+
+    return () => {
+      active = false;
+      if (cadPergolaRef.current) {
+        scene.remove(cadPergolaRef.current);
+        disposeObject(cadPergolaRef.current);
+        cadPergolaRef.current = null;
+      }
+      if (proceduralStructure) proceduralStructure.visible = true;
+    };
+  }, [
+    depth,
+    frame,
+    glass,
+    heater,
+    height,
+    led,
+    productKey,
+    ready,
+    roof,
+    width,
+    woodTextureRevision,
   ]);
 
   useEffect(() => {

@@ -12,6 +12,7 @@ The estimator uses locally cached reference photographs as thumbnails in the pro
 | `apps/web/public/assets/environments/polyhaven-lapa-1k.hdr` | [Poly Haven - Lapa](https://polyhaven.com/a/lapa) | [CC0](https://polyhaven.com/license) | Local 1K HDRI for physically plausible reflections and ambient garden light |
 | `apps/web/public/assets/models/polyhaven/painted_wooden_bench_1k/` | [Poly Haven - Painted Wooden Bench](https://polyhaven.com/a/painted_wooden_bench) | [CC0](https://polyhaven.com/license) | Local 1K GLTF prop loaded in the garden scene (geometry plus three JPEG maps) |
 | `apps/web/public/assets/materials/polyhaven/japanese_cedar_planks_diff_1k.jpg` | [Poly Haven - Japanese Cedar Planks](https://polyhaven.com/a/japanese_cedar_planks) | [CC0](https://polyhaven.com/license) | Local 1K albedo map for the cedar pergola frame and deck |
+| `apps/web/public/assets/models/cad/cedar_pergola.glb` | [earthtojake/text-to-cad](https://github.com/earthtojake/text-to-cad) CAD export from `tools/cad/cedar_pergola.step.py` | [MIT](https://github.com/earthtojake/text-to-cad/blob/main/LICENSE) for the source workflow; project-generated asset | Dimensioned CAD-derived pergola structure used as the primary web geometry; Poly Haven texture is applied at runtime |
 
 The image-to-3D structure follows the staged, spec-first approach from [img2threejs](https://github.com/img2threejs/img2threejs): reference intake, procedural structural pass, material pass and interaction metadata. The current browser implementation is intentionally honest about single-view uncertainty: it provides an editable spatial estimate, while production photogrammetric assets will be supplied by a provider adapter that emits GLB/GLTF.
 
@@ -22,6 +23,8 @@ The viewer uses the locally cached `Lapa` HDRI from Poly Haven as an environment
 The garden scene also loads one selective real prop, Poly Haven's painted wooden bench, through the generic GLTF loader. Its local 1K package is 1,989,639 bytes and is lazy-loaded only when the garden product is selected; if it cannot load, the procedural garden remains visible.
 
 The supplied pergola image is treated as a visual brief: the default finish is now cedar, with a raised plank deck, overhanging fascia, outdoor table/chairs and climbing vines. The implementation remains true 3D geometry, so orbit and zoom reveal the structure instead of presenting the reference as a background plate.
+
+The structural pergola is generated from a STEP-first parametric source and exported to a meter-scaled GLB. The CAD asset is intentionally limited to the load-bearing frame, deck boards and roof rafters; furniture, planting and lighting remain separate viewer layers so pricing dimensions can scale the structure without baking the decorative scene into the CAD model.
 
 Poly Haven states that its asset files are CC0 and can be used commercially without attribution. The repository records the source URL and the asset checksum so the binary can be replaced deterministically if the upstream catalog changes; Poly Haven website metadata itself is not redistributed.
 
