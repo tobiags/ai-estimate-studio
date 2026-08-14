@@ -42,6 +42,17 @@ import { loadStudioState, saveStudioState } from "../studio/persistence";
 import { createStudioEstimatePdf } from "../studio/estimate-pdf";
 import { StudioViewer } from "./studio-viewer";
 
+const receiptPrintDurationMs = 620;
+
+async function waitForReceiptPrint(startedAt: number) {
+  const remainingMs = receiptPrintDurationMs - (performance.now() - startedAt);
+  if (remainingMs > 0) {
+    await new Promise<void>((resolve) =>
+      window.setTimeout(resolve, remainingMs),
+    );
+  }
+}
+
 type StudioState = Readonly<{
   configuration: StudioConfiguration;
   language: StudioLanguage;
@@ -248,6 +259,7 @@ export function StudioScreen() {
   const [projectName, setProjectName] = useState("");
   const [customerName, setCustomerName] = useState("");
   const [customerEmail, setCustomerEmail] = useState("");
+  const [isDownloadPressed, setIsDownloadPressed] = useState(false);
   const [pdfStatus, setPdfStatus] = useState<
     "idle" | "busy" | "ready" | "error"
   >("idle");
@@ -329,6 +341,7 @@ export function StudioScreen() {
         : copy.loading;
 
   const downloadEstimate = async () => {
+    const printStartedAt = performance.now();
     setPdfStatus("busy");
     try {
       const bytes = await createStudioEstimatePdf({
@@ -350,8 +363,10 @@ export function StudioScreen() {
       anchor.download = `mobup-estimate-${state.configuration.baseCode.toLowerCase()}.pdf`;
       anchor.click();
       URL.revokeObjectURL(url);
+      await waitForReceiptPrint(printStartedAt);
       setPdfStatus("ready");
     } catch {
+      await waitForReceiptPrint(printStartedAt);
       setPdfStatus("error");
     }
   };
@@ -790,20 +805,61 @@ export function StudioScreen() {
                 </label>
               </div>
             </details>
-            <button
-              className="mobup-download-button"
-              type="button"
-              disabled={pdfStatus === "busy"}
-              onClick={() => void downloadEstimate()}
-            >
-              {pdfStatus === "busy"
-                ? "..."
-                : pdfStatus === "ready"
-                  ? copy.downloadReady
-                  : pdfStatus === "error"
-                    ? copy.downloadError
-                    : copy.download}
-            </button>
+            <div className="mobup-download-printer" data-state={pdfStatus}>
+              <div
+                className="mobup-download-printer__device"
+                aria-hidden="true"
+              >
+                <div className="mobup-download-printer__top">
+                  <span className="mobup-download-printer__mark">
+                    <span />
+                    <span />
+                    <span />
+                  </span>
+                  <span className="mobup-download-printer__signal" />
+                </div>
+                <div className="mobup-download-printer__slot" />
+                <div className="mobup-download-printer__receipt">
+                  <span className="mobup-download-printer__receipt-mark" />
+                  <span className="mobup-download-printer__receipt-line mobup-download-printer__receipt-line--wide" />
+                  <span className="mobup-download-printer__receipt-line" />
+                  <span className="mobup-download-printer__receipt-line mobup-download-printer__receipt-line--short" />
+                  <span className="mobup-download-printer__receipt-total" />
+                </div>
+              </div>
+              <button
+                className="mobup-download-button"
+                type="button"
+                data-state={pdfStatus}
+                data-pressed={isDownloadPressed}
+                aria-busy={pdfStatus === "busy"}
+                disabled={pdfStatus === "busy"}
+                onBlur={() => setIsDownloadPressed(false)}
+                onClick={() => void downloadEstimate()}
+                onPointerCancel={() => setIsDownloadPressed(false)}
+                onPointerDown={() => setIsDownloadPressed(true)}
+                onPointerUp={() => setIsDownloadPressed(false)}
+              >
+                <span
+                  className="mobup-download-button__base"
+                  aria-hidden="true"
+                />
+                <span className="mobup-download-button__face">
+                  <svg aria-hidden="true" viewBox="0 0 16 16" focusable="false">
+                    <path d="M8 1.75v7.5m0 0 2.5-2.5M8 9.25l-2.5-2.5M3 11.75v1.5h10v-1.5" />
+                  </svg>
+                  <span aria-live="polite">
+                    {pdfStatus === "busy"
+                      ? "..."
+                      : pdfStatus === "ready"
+                        ? copy.downloadReady
+                        : pdfStatus === "error"
+                          ? copy.downloadError
+                          : copy.download}
+                  </span>
+                </span>
+              </button>
+            </div>
           </section>
 
           {state.notice ? (

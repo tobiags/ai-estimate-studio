@@ -55,11 +55,16 @@ test("configures a Mobup studio, orbits and zooms it, switches language and down
   await expect(
     page.getByRole("heading", { name: /Votre studio de jardin/ }),
   ).toBeVisible();
+  const downloadButton = page.getByRole("button", {
+    name: /Télécharger l’estimation PDF/,
+  });
+  await expect(downloadButton).toHaveAttribute("data-state", "idle");
   const download = page.waitForEvent("download");
-  await page
-    .getByRole("button", { name: /Télécharger l’estimation PDF/ })
-    .click({ force: true });
+  await downloadButton.click({ force: true });
   const file = await download;
   expect(file.suggestedFilename()).toMatch(/mobup-estimate-p4\.pdf/);
+  await expect(
+    page.getByRole("button", { name: /PDF téléchargé/ }),
+  ).toHaveAttribute("data-state", "ready");
   expect(consoleErrors).toEqual([]);
 });

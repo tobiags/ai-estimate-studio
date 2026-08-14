@@ -888,19 +888,293 @@ a {
   border-color: #f0c1a8;
 }
 
+.mobup-download-printer {
+  display: grid;
+  gap: 9px;
+}
+
+.mobup-download-printer__device {
+  position: relative;
+  height: 76px;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: 3px;
+  background:
+    linear-gradient(155deg, rgba(255, 255, 255, 0.11), transparent 45%), #302b27;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.12),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.46),
+    0 9px 18px rgba(0, 0, 0, 0.12);
+}
+
+.mobup-download-printer__top {
+  position: relative;
+  z-index: 4;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 11px 0;
+}
+
+.mobup-download-printer__mark {
+  display: inline-flex;
+  align-items: flex-end;
+  gap: 2px;
+  height: 10px;
+  color: #f0c1a8;
+}
+
+.mobup-download-printer__mark span {
+  display: block;
+  width: 3px;
+  border-radius: 1px;
+  background: currentColor;
+}
+
+.mobup-download-printer__mark span:nth-child(1) {
+  height: 5px;
+  opacity: 0.5;
+}
+
+.mobup-download-printer__mark span:nth-child(2) {
+  height: 8px;
+  opacity: 0.75;
+}
+
+.mobup-download-printer__mark span:nth-child(3) {
+  height: 10px;
+}
+
+.mobup-download-printer__signal {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: #8a8279;
+  box-shadow: 0 0 0 3px rgba(138, 130, 121, 0.12);
+  transition:
+    background 150ms ease,
+    box-shadow 150ms ease;
+}
+
+.mobup-download-printer[data-state="busy"] .mobup-download-printer__signal {
+  background: #f0c1a8;
+  box-shadow: 0 0 0 3px rgba(240, 193, 168, 0.14);
+}
+
+.mobup-download-printer[data-state="ready"] .mobup-download-printer__signal {
+  background: #a9c28e;
+  box-shadow: 0 0 0 3px rgba(169, 194, 142, 0.14);
+}
+
+.mobup-download-printer[data-state="error"] .mobup-download-printer__signal {
+  background: #df8b7d;
+  box-shadow: 0 0 0 3px rgba(223, 139, 125, 0.14);
+}
+
+.mobup-download-printer__slot {
+  position: absolute;
+  z-index: 3;
+  right: 10px;
+  bottom: 11px;
+  left: 10px;
+  height: 7px;
+  border: 1px solid rgba(0, 0, 0, 0.48);
+  border-radius: 2px;
+  background: #171513;
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.65);
+}
+
+.mobup-download-printer__receipt {
+  position: absolute;
+  z-index: 2;
+  right: 17px;
+  bottom: 5px;
+  left: 17px;
+  display: grid;
+  gap: 4px;
+  height: 60px;
+  padding: 9px 10px 8px;
+  overflow: hidden;
+  background: #f5eee4;
+  color: #322a24;
+  clip-path: polygon(
+    0 0,
+    100% 0,
+    100% calc(100% - 4px),
+    96% 100%,
+    92% calc(100% - 4px),
+    88% 100%,
+    84% calc(100% - 4px),
+    80% 100%,
+    76% calc(100% - 4px),
+    72% 100%,
+    68% calc(100% - 4px),
+    64% 100%,
+    60% calc(100% - 4px),
+    56% 100%,
+    52% calc(100% - 4px),
+    48% 100%,
+    44% calc(100% - 4px),
+    40% 100%,
+    36% calc(100% - 4px),
+    32% 100%,
+    28% calc(100% - 4px),
+    24% 100%,
+    20% calc(100% - 4px),
+    16% 100%,
+    12% calc(100% - 4px),
+    8% 100%,
+    4% calc(100% - 4px),
+    0 100%
+  );
+  opacity: 0.94;
+  transform: translateY(42px);
+  transition:
+    transform 180ms cubic-bezier(0.23, 1, 0.32, 1),
+    opacity 180ms ease;
+}
+
+.mobup-download-printer[data-state="busy"] .mobup-download-printer__receipt {
+  animation: mobup-receipt-print 620ms cubic-bezier(0.23, 1, 0.32, 1) forwards;
+}
+
+.mobup-download-printer[data-state="ready"] .mobup-download-printer__receipt {
+  opacity: 1;
+  transform: translateY(10px);
+}
+
+.mobup-download-printer[data-state="error"] .mobup-download-printer__receipt {
+  opacity: 0.48;
+  transform: translateY(42px);
+}
+
+.mobup-download-printer__receipt-mark,
+.mobup-download-printer__receipt-line,
+.mobup-download-printer__receipt-total {
+  display: block;
+  height: 3px;
+  background: currentColor;
+  opacity: 0.26;
+}
+
+.mobup-download-printer__receipt-mark {
+  width: 23%;
+  height: 5px;
+  margin-bottom: 1px;
+  opacity: 0.58;
+}
+
+.mobup-download-printer__receipt-line--wide {
+  width: 76%;
+}
+
+.mobup-download-printer__receipt-line--short {
+  width: 42%;
+}
+
+.mobup-download-printer__receipt-total {
+  width: 32%;
+  margin-top: 2px;
+  margin-left: auto;
+  opacity: 0.6;
+}
+
 .mobup-download-button {
+  position: relative;
+  display: grid;
   width: 100%;
-  padding: 11px 13px;
-  border: 1px solid rgba(255, 255, 255, 0.28);
+  min-height: 40px;
+  padding: 0 0 4px;
+  border: 0;
   background: transparent;
-  color: #f2eee7;
+  color: #2d201b;
   font-size: 9px;
-  font-weight: 600;
+  font-weight: 700;
   letter-spacing: 0.03em;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.mobup-download-button__base {
+  position: absolute;
+  inset: 4px 0 0;
+  border-radius: 2px;
+  background: #8f4935;
+  box-shadow: inset 0 -1px 0 rgba(46, 20, 13, 0.7);
+}
+
+.mobup-download-button__face {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 40px;
+  padding: 0 13px;
+  border-radius: 2px;
+  background: #f0c1a8;
+  box-shadow: inset 0 1px 0 #ffded2;
+  transition: transform 150ms cubic-bezier(0.23, 1, 0.32, 1);
+}
+
+.mobup-download-button__face svg {
+  width: 14px;
+  height: 14px;
+  fill: none;
+  stroke: currentColor;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 1.45;
+}
+
+.mobup-download-button:hover:not(:disabled) .mobup-download-button__face {
+  transform: translateY(1px);
+}
+
+.mobup-download-button[data-pressed="true"] .mobup-download-button__face,
+.mobup-download-button:active:not(:disabled) .mobup-download-button__face {
+  transform: translateY(4px);
+}
+
+.mobup-download-button[data-pressed="true"] .mobup-download-button__face {
+  transition: none;
+}
+
+.mobup-download-button:focus-visible {
+  border-radius: 4px;
+  outline: 2px solid #f0c1a8;
+  outline-offset: 4px;
 }
 
 .mobup-download-button:disabled {
-  opacity: 0.56;
+  cursor: wait;
+  opacity: 0.74;
+}
+
+.mobup-download-button[data-state="ready"] .mobup-download-button__face {
+  background: #c6d8ae;
+  box-shadow: inset 0 1px 0 #e7f0d7;
+}
+
+.mobup-download-button[data-state="error"] .mobup-download-button__face {
+  background: #e4aaa0;
+  box-shadow: inset 0 1px 0 #f4d3cd;
+}
+
+@keyframes mobup-receipt-print {
+  0% {
+    opacity: 0.65;
+    transform: translateY(42px);
+  }
+
+  18% {
+    opacity: 1;
+  }
+
+  100% {
+    opacity: 1;
+    transform: translateY(10px);
+  }
 }
 
 .mobup-notice {
@@ -1033,5 +1307,15 @@ a {
   *::after {
     scroll-behavior: auto !important;
     transition-duration: 0.01ms !important;
+  }
+
+  .mobup-download-printer__receipt {
+    animation: none !important;
+    transition: none !important;
+  }
+
+  .mobup-download-printer[data-state="busy"] .mobup-download-printer__receipt {
+    opacity: 1;
+    transform: translateY(10px);
   }
 }
