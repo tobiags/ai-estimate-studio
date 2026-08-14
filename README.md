@@ -19,6 +19,8 @@ The original `AI-Estimate-Studio-Master-Kit.zip` is retained for provenance. Its
 
 The current public release is the Mobup modular garden-studio configurator. It starts with a visible, orbitable studio composition and supports bases P1-P4, facade modules M1-M10, the C1 canopy, the Claustra accessory and three visual site contexts: Garden, Poolside and Terrace. These contexts dress the same studio product; they are not separate product families and do not change the indicative module price.
 
+The browser scene is rendered with ClayGL by default: the domain dimensions are mapped to a closed studio volume with a glazed facade, cedar cladding, roof, foundation and selectable site context. The existing Three.js renderer remains available as a compatibility fallback with `NEXT_PUBLIC_STUDIO_RENDERER=three` or `?renderer=three`.
+
 The generic category, product, option, pricing, asset and viewer abstractions remain the platform boundary for future products. Category-specific behavior is expressed as data and rules, not hard-coded components.
 
 The Mobup slice is intentionally static-first: GitHub Pages serves the application, all pricing is indicative and computed locally, and the browser generates the bilingual estimate PDF without an account, server call or paid provider.

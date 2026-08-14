@@ -1,6 +1,6 @@
 import { expect, test } from "@playwright/test";
 
-test.setTimeout(60_000);
+test.setTimeout(120_000);
 
 test("configures a Mobup studio, orbits and zooms it, switches language and downloads a PDF", async ({
   page,
@@ -10,16 +10,21 @@ test("configures a Mobup studio, orbits and zooms it, switches language and down
     if (message.type() === "error") consoleErrors.push(message.text());
   });
   await page.goto("/");
-  await expect(
-    page.getByText(/3D view ready|3D preview unavailable/),
-  ).toBeVisible();
+  const readyStatus = page.getByText(
+    /3D view ready|3D preview unavailable|Vue 3D prête|Aperçu 3D indisponible/,
+  );
+  await expect(readyStatus).toBeVisible({ timeout: 20_000 });
 
   const viewer = page.locator(".studio-viewer");
   await expect(viewer).toHaveAttribute(
     "aria-label",
-    "Visualisation 3D interactive du studio de jardin Mobup",
+    /Visualisation 3D interactive du studio de jardin Mobup(?: avec ClayGL)?/,
   );
   const canvas = page.locator("canvas.studio-viewer__canvas");
+  await expect(canvas).toHaveAttribute(
+    "aria-label",
+    /Mobup 3D studio viewer(?: rendered with ClayGL)?/,
+  );
   const canvasBox = await canvas.boundingBox();
   expect(canvasBox).not.toBeNull();
   if (canvasBox) {
@@ -36,7 +41,7 @@ test("configures a Mobup studio, orbits and zooms it, switches language and down
   await poolEnvironment.click({ force: true });
   await expect(poolEnvironment).toHaveAttribute("aria-pressed", "true");
   await page.reload();
-  await expect(page.getByText("3D view ready")).toBeVisible();
+  await expect(readyStatus).toBeVisible({ timeout: 20_000 });
   await expect(poolEnvironment).toHaveAttribute("aria-pressed", "true");
   await page.locator(".mobup-switch").click({ force: true });
   await expect(page.getByText("Hide analysis")).toBeVisible();

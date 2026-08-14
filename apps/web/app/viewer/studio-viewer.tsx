@@ -1,6 +1,12 @@
 "use client";
 
-import { useEffect, useRef, type CSSProperties } from "react";
+import {
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+  type CSSProperties,
+} from "react";
 import * as THREE from "three";
 import { HDRLoader } from "three/examples/jsm/loaders/HDRLoader.js";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
@@ -15,6 +21,7 @@ import {
   createMobupEnvironmentScene,
   disposeMobupEnvironment,
 } from "./studio-environment";
+import { ClayStudioViewer } from "./clay-studio-viewer";
 
 const environmentPath = "/assets/environments/polyhaven-lapa-1k.hdr";
 const cedarMapPath = "/assets/studio/materials/cedar/cedar_diff_1k.jpg";
@@ -23,6 +30,8 @@ const mineralNormalPath =
   "/assets/studio/materials/mineral/mineral_nor_gl_1k.jpg";
 const mineralRoughnessPath =
   "/assets/studio/materials/mineral/mineral_rough_1k.jpg";
+const defaultRenderer: "clay" | "three" =
+  process.env.NEXT_PUBLIC_STUDIO_RENDERER === "three" ? "three" : "clay";
 
 export const studioViewerCamera = Object.freeze({
   fov: 42,
@@ -36,6 +45,7 @@ export const studioViewerCamera = Object.freeze({
 export type StudioViewerProps = Readonly<{
   configuration: StudioConfiguration;
   environment?: StudioEnvironmentCode;
+  renderer?: "clay" | "three";
   showAnalysis?: boolean;
   resetSignal?: number;
   className?: string;
@@ -217,7 +227,7 @@ function classNames(...names: Array<string | undefined>): string {
   return names.filter(Boolean).join(" ");
 }
 
-export function StudioViewer({
+function ThreeStudioViewer({
   configuration,
   environment = "garden",
   showAnalysis = false,
@@ -484,6 +494,54 @@ export function StudioViewer({
       style={style}
       role="img"
       aria-label="Visualisation 3D interactive du studio de jardin Mobup"
+    />
+  );
+}
+
+/**
+ * ClayGL is the public renderer for the product scene. The validated
+ * Three.js composition remains an explicit fallback so the quote experience
+ * stays available when a browser cannot initialise ClayGL.
+ */
+export function StudioViewer(props: StudioViewerProps) {
+  const [queryRenderer, setQueryRenderer] = useState<"clay" | "three" | null>(
+    null,
+  );
+  const [clayFailed, setClayFailed] = useState(false);
+  const renderer = props.renderer ?? queryRenderer ?? defaultRenderer;
+
+  useEffect(() => {
+    const value = new URLSearchParams(window.location.search).get("renderer");
+    if (value === "clay" || value === "three") setQueryRenderer(value);
+  }, []);
+
+  useEffect(() => {
+    setClayFailed(false);
+  }, [props.configuration, props.environment, renderer]);
+
+  const handleClayReady = useCallback(
+    (ready: boolean) => {
+      props.onReady?.(ready);
+    },
+    [props.onReady],
+  );
+  const handleClayError = useCallback(
+    (message: string) => {
+      setClayFailed(true);
+      props.onError?.(message);
+    },
+    [props.onError],
+  );
+
+  if (renderer === "three" || clayFailed) {
+    return <ThreeStudioViewer {...props} />;
+  }
+
+  return (
+    <ClayStudioViewer
+      {...props}
+      onReady={handleClayReady}
+      onError={handleClayError}
     />
   );
 }

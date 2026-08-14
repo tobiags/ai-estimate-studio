@@ -36,6 +36,10 @@ export default withMermaid(
             { text: "Repository structure", link: "/architecture/REPOSITORY_STRUCTURE" },
             { text: "Sequences", link: "/architecture/SEQUENCES" },
             { text: "Decision records", link: "/architecture/adr/" },
+            {
+              text: "ClayGL renderer decision",
+              link: "/architecture/adr/0007-claygl-premium-renderer",
+            },
           ],
         },
         {
