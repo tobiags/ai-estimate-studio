@@ -2,6 +2,10 @@ import type { application, Node } from "claygl";
 import type * as THREE from "three";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 import type { StudioEnvironmentCode } from "../studio/environments";
+import {
+  getUltraShapeAssetRefinement,
+  resolveUltraShapeAssetPath,
+} from "./ultrashape-assets";
 
 export type StudioEnvironmentAssetPlacement = Readonly<{
   id: string;
@@ -40,6 +44,15 @@ export const studioEnvironmentAssetPlans: Readonly<
       scale: 1.15,
       rotationY: -0.45,
     },
+    {
+      id: "garden-plant",
+      path: "/assets/models/polyhaven/potted_plant_01/potted_plant_01_1k.gltf",
+      license: "CC0" as const,
+      source: "https://polyhaven.com/a/potted_plant_01",
+      position: [-3.1, -0.02, -1.95] as const,
+      scale: 0.82,
+      rotationY: 0.25,
+    },
   ]),
   pool: Object.freeze([
     {
@@ -59,6 +72,15 @@ export const studioEnvironmentAssetPlans: Readonly<
       position: [3.1, 0.03, -2.3] as const,
       scale: 1.45,
       rotationY: 0.35,
+    },
+    {
+      id: "pool-plant",
+      path: "/assets/models/polyhaven/potted_plant_01/potted_plant_01_1k.gltf",
+      license: "CC0" as const,
+      source: "https://polyhaven.com/a/potted_plant_01",
+      position: [2.78, -0.02, 2.15] as const,
+      scale: 0.78,
+      rotationY: -0.35,
     },
   ]),
   terrace: Object.freeze([
@@ -80,11 +102,25 @@ export const studioEnvironmentAssetPlans: Readonly<
       scale: 0.62,
       rotationY: -0.25,
     },
+    {
+      id: "terrace-plant",
+      path: "/assets/models/polyhaven/potted_plant_01/potted_plant_01_1k.gltf",
+      license: "CC0" as const,
+      source: "https://polyhaven.com/a/potted_plant_01",
+      position: [-2.9, -0.02, -1.85] as const,
+      scale: 0.82,
+      rotationY: 0.18,
+    },
   ]),
 });
 
 const publicAssetPath = (path: string) =>
   `${process.env.NEXT_PUBLIC_BASE_PATH ?? ""}${path}`;
+
+function resolvedAssetPath(placement: StudioEnvironmentAssetPlacement): string {
+  const refinement = getUltraShapeAssetRefinement(placement.id);
+  return resolveUltraShapeAssetPath(placement.path, refinement).path;
+}
 
 function prepareClayAsset(
   node: Node,
@@ -113,7 +149,7 @@ export async function loadClayEnvironmentAssets(
   const loaded = await Promise.allSettled(
     studioEnvironmentAssetPlans[environment].map(async (placement) => {
       const result = await app.loadModel(
-        publicAssetPath(placement.path),
+        publicAssetPath(resolvedAssetPath(placement)),
         {
           shader: "clay.standardMR",
           waitTextureLoaded: true,
@@ -154,7 +190,9 @@ export async function loadThreeEnvironmentAssets(
   const loader = new GLTFLoader();
   const loaded = await Promise.allSettled(
     studioEnvironmentAssetPlans[environment].map(async (placement) => {
-      const result = await loader.loadAsync(publicAssetPath(placement.path));
+      const result = await loader.loadAsync(
+        publicAssetPath(resolvedAssetPath(placement)),
+      );
       prepareThreeAsset(result.scene, placement);
       parent.add(result.scene);
       return placement.id;

@@ -3,6 +3,10 @@ import {
   studioEnvironmentAssetPlans,
   type StudioEnvironmentAssetPlacement,
 } from "./studio-environment-assets";
+import {
+  ultraShapeAssetManifest,
+  validateUltraShapeAssetManifest,
+} from "./ultrashape-assets";
 
 describe("studio environment asset plans", () => {
   it("uses local Poly Haven assets for every exterior", () => {
@@ -18,6 +22,20 @@ describe("studio environment asset plans", () => {
       );
       expect(plan.every((asset) => asset.position.length === 3)).toBe(true);
     }
+  });
+
+  it("keeps a safe fallback for every pending UltraShape refinement", () => {
+    expect(validateUltraShapeAssetManifest()).toEqual([]);
+    const plannedIds = new Set(
+      Object.values(studioEnvironmentAssetPlans)
+        .flat()
+        .map((asset) => asset.id),
+    );
+    expect(
+      ultraShapeAssetManifest.every(
+        (asset) => plannedIds.has(asset.id) && asset.status === "pending",
+      ),
+    ).toBe(true);
   });
 
   it("keeps placements bounded to the visible outdoor context", () => {

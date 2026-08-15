@@ -59,5 +59,7 @@ jobs:
         run: pnpm test
       - name: Check Mobup assets
         run: pnpm check:studio-assets
+      - name: Check UltraShape asset contract
+        run: pnpm check:ultrashape-assets
       - name: Build
         run: pnpm build

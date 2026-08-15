@@ -17,6 +17,7 @@ The three references are useful at different layers, but none is a drop-in repla
 | [Hunyuan3D WorldClaw](https://tencent-hunyuan.github.io/Hunyuan3D-WorldClaw/) | Agentic coarse-to-fine open-world generation | Scene specification, global terrain, regional assets, placement/refinement loop | The associated research pipeline uses multiple GPU workers and Blender. The public project page is a reference/demo, not a static browser SDK. |
 | [LiteReality-Agent](https://github.com/LiteReality/LiteReality-Agent) | Agentic indoor scene reconstruction from RGB/depth frames and an Apple RoomPlan scan | A staged reconstruction job, semantic scene graph, articulated asset boundary and final `Room.glb` package | It expects a RoomPlan `room.usdz` plus RGB/depth captures, Blender and either a local 24 GB+ GPU or hosted Modal/TRELLIS/GroundingDINO. It is an external job runner, not a browser library, and it targets indoor rooms rather than a single outdoor pergola photograph. |
 | [PolyLayout](https://github.com/ghanning/PolyLayout) | Multi-room Manhattan layout estimation from posed perspective images | Early structural geometry, shared orientation and floor/ceiling scale hypotheses | It is a Python/PyTorch research pipeline that needs camera poses and downloaded weights. It predicts room layout polygons; it does not reconstruct furniture, materials or garden/pergola assets and cannot run in a static visitor browser. |
+| [UltraShape-1.0](https://github.com/PKU-YuanGroup/UltraShape-1.0) | Two-stage geometric refinement from an image and coarse mesh | Offline refinement of decorative furniture, plants and accessories before GLB publication | It requires a Python/PyTorch/CUDA environment and a coarse mesh; it is not a browser runtime, terrain engine or metrically authoritative CAD generator. |
 
 ## Licensing gate
 
@@ -37,7 +38,8 @@ flowchart LR
   Pose --> Recon[Optional LiteReality or other reconstruction job]
   Layout --> Graph[Normalized scene graph]
   Recon --> Graph
-  Graph --> Package[Validated GLB + viewer manifest]
+  Graph --> Refine[Optional UltraShape decorative refinement]
+  Refine --> Package[Validated GLB + viewer manifest]
   Package --> Pages[GitHub Pages static assets]
   Pages --> Viewer[Three.js Object Viewer]
   Viewer --> Estimate[Deterministic pricing engine]
@@ -71,6 +73,7 @@ The browser consumes only `ScenePackage`. It never receives provider credentials
 - **Current static demo:** procedural Three.js scene plus approved, optimized GLB/Poly Haven assets. This is the only path that is fully free and self-contained on GitHub Pages.
 - **PolyLayout (research adapter):** optional pre-processing for indoor room geometry when the input contains reliable camera poses. Its JSON layout may produce an early wireframe, but it is not an outdoor pergola estimator and must not be presented as a final reconstruction.
 - **LiteReality-Agent (hosted/offline adapter):** optional reconstruction provider when the customer can supply a compatible RoomPlan/depth capture. Its `Room.glb` is normalized and published as an immutable asset before the viewer loads it. It is not a replacement for the current browser scene and cannot be invoked from GitHub Pages alone.
+- **UltraShape-1.0 (offline refinement adapter):** optional post-processing for a coarse decorative GLB. It can improve silhouettes and geometric detail for furniture, plants and accessories, but its output remains visual-only. The studio CAD shell, dimensions and pricing stay authoritative and are never replaced by an AI-refined mesh. See [the UltraShape integration contract](./ULTRASHAPE_INTEGRATION).
 
 No provider is approved to compute a price directly. Providers produce geometry and confidence metadata; the deterministic pricing engine remains the sole authority for totals.
 
@@ -97,7 +100,7 @@ The adapter is provider-neutral and produces:
 - a checksum, byte size, triangle count and texture budget;
 - a viewer manifest that contains camera presets, capabilities and hotspots.
 
-SceneGen can be used as an offline implementation of this adapter after a GPU run. WorldClaw's three-stage contract is the design reference for future scene batches: plan the scene, build terrain/regions, then generate and refine instance assets. DAAAM's scene-graph ideas can inform stable node identities, but no ROS, Hydra or robotics code belongs in the web application.
+SceneGen can be used as an offline implementation of this adapter after a GPU run. UltraShape can be used after a coarse mesh exists to refine decorative instances; it is tracked by `apps/web/app/studio/ultrashape-assets.manifest.json` and resolved with a local fallback. WorldClaw's three-stage contract is the design reference for future scene batches: plan the scene, build terrain/regions, then generate and refine instance assets. DAAAM's scene-graph ideas can inform stable node identities, but no ROS, Hydra or robotics code belongs in the web application.
 
 ### Browser runtime
 

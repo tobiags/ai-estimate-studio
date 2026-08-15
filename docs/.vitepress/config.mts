@@ -50,6 +50,10 @@ export default withMermaid(
           text: "Subsystems",
           items: [
             { text: "Object Viewer", link: "/viewer/OBJECT_VIEWER" },
+            {
+              text: "UltraShape asset refinement",
+              link: "/viewer/ULTRASHAPE_INTEGRATION",
+            },
             { text: "Data model", link: "/data/DATA_MODEL" },
             { text: "Prisma schema", link: "/data/PRISMA_SCHEMA" },
             { text: "Pricing", link: "/pricing/PRICING_SPEC" },

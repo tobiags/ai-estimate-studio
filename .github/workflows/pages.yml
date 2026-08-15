@@ -46,6 +46,8 @@ jobs:
         run: pnpm db:generate
       - name: Check Mobup assets
         run: pnpm check:studio-assets
+      - name: Check UltraShape asset contract
+        run: pnpm check:ultrashape-assets
       - name: Build static application
         run: pnpm build
       - name: Verify static application artifact
