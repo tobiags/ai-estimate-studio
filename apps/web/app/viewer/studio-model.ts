@@ -12,6 +12,7 @@ export type StudioMaterialSet = Readonly<{
   cedar?: THREE.Material;
   graphite?: THREE.Material;
   mineral?: THREE.Material;
+  grass?: THREE.Material;
   glass?: THREE.Material;
 }>;
 

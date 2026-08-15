@@ -1,6 +1,8 @@
 import * as THREE from "three";
 import type { StudioEnvironmentCode } from "../studio/environments";
 import type { StudioMaterialSet } from "./studio-model";
+import { studioTerrainHeight, studioTerrainProfiles } from "./studio-terrain";
+import { loadThreeEnvironmentAssets } from "./studio-environment-assets";
 
 function materialOr(
   material: THREE.Material | undefined,
@@ -68,10 +70,13 @@ function environmentMaterials(materials: StudioMaterialSet) {
         roughness: 0.66,
       }),
     ),
-    grass: new THREE.MeshStandardMaterial({
-      color: "#728b62",
-      roughness: 0.98,
-    }),
+    grass: materialOr(
+      materials.grass,
+      new THREE.MeshStandardMaterial({
+        color: "#728b62",
+        roughness: 0.98,
+      }),
+    ),
     soil: new THREE.MeshStandardMaterial({
       color: "#3f3027",
       roughness: 1,
@@ -91,10 +96,47 @@ function environmentMaterials(materials: StudioMaterialSet) {
   };
 }
 
+function addProceduralTerrain(
+  root: THREE.Group,
+  environment: StudioEnvironmentCode,
+  material: THREE.Material,
+): void {
+  const profile = studioTerrainProfiles[environment];
+  const [columns, rows] = profile.subdivisions;
+  const geometry = new THREE.PlaneGeometry(
+    profile.width,
+    profile.depth,
+    columns,
+    rows,
+  );
+  geometry.rotateX(-Math.PI / 2);
+  const positions = geometry.getAttribute("position");
+  for (let index = 0; index < positions.count; index += 1) {
+    positions.setY(
+      index,
+      studioTerrainHeight(
+        environment,
+        positions.getX(index),
+        positions.getZ(index),
+      ),
+    );
+  }
+  positions.needsUpdate = true;
+  geometry.computeVertexNormals();
+  mesh(
+    root,
+    geometry,
+    material,
+    `procedural-terrain-${environment}`,
+    [0, 0, 0],
+  );
+}
+
 function addGardenContext(
   root: THREE.Group,
   materials: ReturnType<typeof environmentMaterials>,
 ): void {
+  addProceduralTerrain(root, "garden", materials.grass);
   box(root, [8.8, 0.12, 6.8], materials.grass, "garden-ground", [0, -0.08, 0]);
   box(root, [5.9, 0.04, 3.7], materials.mineral, "garden-path", [0, -0.005, 0]);
   for (const [index, x, z] of [
@@ -118,6 +160,7 @@ function addPoolContext(
   root: THREE.Group,
   materials: ReturnType<typeof environmentMaterials>,
 ): void {
+  addProceduralTerrain(root, "pool", materials.grass);
   box(root, [8.8, 0.12, 6.8], materials.mineral, "pool-deck", [0, -0.08, 0]);
   const poolX = 3.25;
   const poolZ = 0;
@@ -156,6 +199,7 @@ function addTerraceContext(
   root: THREE.Group,
   materials: ReturnType<typeof environmentMaterials>,
 ): void {
+  addProceduralTerrain(root, "terrace", materials.grass);
   box(
     root,
     [8.8, 0.12, 6.8],
@@ -208,6 +252,8 @@ export function createMobupEnvironmentScene(
   });
   return root;
 }
+
+export { loadThreeEnvironmentAssets };
 
 export function disposeMobupEnvironment(root: THREE.Object3D): void {
   root.traverse((object) => {

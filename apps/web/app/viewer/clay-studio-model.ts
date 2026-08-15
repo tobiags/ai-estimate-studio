@@ -1,4 +1,4 @@
-import type { application, Material, Node } from "claygl";
+import { geometry, type application, type Material, type Node } from "claygl";
 import {
   defaultStudioCatalog,
   findStudioBase,
@@ -8,6 +8,7 @@ import {
   type StudioWall,
 } from "@ai-estimate-studio/domain";
 import type { StudioEnvironmentCode } from "../studio/environments";
+import { studioTerrainHeight, studioTerrainProfiles } from "./studio-terrain";
 
 type ClayApp = application.App3D;
 
@@ -15,6 +16,7 @@ type ClayMaterialSet = Readonly<{
   cedar: Material;
   graphite: Material;
   mineral: Material;
+  grass: Material;
   glass: Material;
   foliage: Material;
   soil: Material;
@@ -58,6 +60,13 @@ function materialSet(app: ClayApp): ClayMaterialSet {
       "/assets/studio/materials/mineral/mineral_rough_1k.jpg",
     ),
   });
+  const grass = app.createMaterial({
+    name: "grass-terrain-pbr",
+    shader: "clay.standardMR",
+    color: "#6f845d",
+    roughness: 0.98,
+    metalness: 0,
+  });
   const graphite = app.createMaterial({
     name: "graphite-pbr",
     shader: "clay.standardMR",
@@ -97,7 +106,7 @@ function materialSet(app: ClayApp): ClayMaterialSet {
     alpha: 0.84,
     transparent: true,
   });
-  return { cedar, graphite, mineral, glass, foliage, soil, water };
+  return { cedar, graphite, mineral, grass, glass, foliage, soil, water };
 }
 
 function box(
@@ -375,15 +384,37 @@ function addAccessory(
   );
 }
 
+function addOutdoorTerrain(
+  app: ClayApp,
+  root: Node,
+  environment: StudioEnvironmentCode,
+  materials: ClayMaterialSet,
+): void {
+  const profile = studioTerrainProfiles[environment];
+  const [columns, rows] = profile.subdivisions;
+  const surface = new geometry.ParametricSurface({
+    generator: {
+      u: [0, 1, 1 / columns],
+      v: [0, 1, 1 / rows],
+      x: (u: number) => (u - 0.5) * profile.width,
+      y: (u: number, v: number) =>
+        studioTerrainHeight(
+          environment,
+          (u - 0.5) * profile.width,
+          (v - 0.5) * profile.depth,
+        ),
+      z: (_u: number, v: number) => (v - 0.5) * profile.depth,
+    },
+  });
+  surface.generateTangents();
+  const terrain = app.createMesh(surface, materials.grass, root);
+  terrain.name = `procedural-terrain-${environment}`;
+  terrain.castShadow = true;
+  terrain.receiveShadow = true;
+}
+
 function addGarden(app: ClayApp, root: Node, materials: ClayMaterialSet): void {
-  box(
-    app,
-    root,
-    "garden-ground",
-    [8.8, 0.12, 6.8],
-    [0, -0.08, 0],
-    materials.foliage,
-  );
+  addOutdoorTerrain(app, root, "garden", materials);
   box(
     app,
     root,
@@ -416,6 +447,7 @@ function addGarden(app: ClayApp, root: Node, materials: ClayMaterialSet): void {
 }
 
 function addPool(app: ClayApp, root: Node, materials: ClayMaterialSet): void {
+  addOutdoorTerrain(app, root, "pool", materials);
   box(
     app,
     root,
@@ -472,6 +504,7 @@ function addTerrace(
   root: Node,
   materials: ClayMaterialSet,
 ): void {
+  addOutdoorTerrain(app, root, "terrace", materials);
   box(
     app,
     root,

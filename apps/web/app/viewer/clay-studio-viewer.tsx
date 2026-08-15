@@ -6,6 +6,7 @@ import type { camera as clayCamera } from "claygl";
 import type { StudioConfiguration } from "@ai-estimate-studio/domain";
 import type { StudioEnvironmentCode } from "../studio/environments";
 import { createClayStudioModel } from "./clay-studio-model";
+import { loadClayEnvironmentAssets } from "./studio-environment-assets";
 
 export type ClayStudioViewerProps = Readonly<{
   configuration: StudioConfiguration;
@@ -80,6 +81,11 @@ export function ClayStudioViewer({
             );
             (model.analysis as unknown as { invisible: boolean }).invisible =
               !showAnalysis;
+
+            // ProceduralTerrains-inspired height fields provide the broad
+            // context. Local CC0 Poly Haven assets add close-range silhouettes
+            // without making the public demo depend on a runtime API.
+            void loadClayEnvironmentAssets(instance, model.root, environment);
 
             control = new plugin.OrbitControl({
               target: camera,

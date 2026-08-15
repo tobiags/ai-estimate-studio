@@ -40,6 +40,10 @@ export default withMermaid(
               text: "ClayGL renderer decision",
               link: "/architecture/adr/0007-claygl-premium-renderer",
             },
+            {
+              text: "Procedural exterior contexts",
+              link: "/architecture/adr/0008-procedural-exterior-contexts",
+            },
           ],
         },
         {

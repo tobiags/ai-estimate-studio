@@ -20,6 +20,7 @@ import type { StudioEnvironmentCode } from "../studio/environments";
 import {
   createMobupEnvironmentScene,
   disposeMobupEnvironment,
+  loadThreeEnvironmentAssets,
 } from "./studio-environment";
 import { ClayStudioViewer } from "./clay-studio-viewer";
 
@@ -113,6 +114,11 @@ async function loadMaterialSet(): Promise<StudioMaterialSet> {
       normalMap: mineralNormalMap ?? null,
       roughnessMap: mineralRoughnessMap ?? null,
       roughness: 0.86,
+      metalness: 0,
+    }),
+    grass: new THREE.MeshStandardMaterial({
+      color: "#728b62",
+      roughness: 0.96,
       metalness: 0,
     }),
     glass: new THREE.MeshPhysicalMaterial({
@@ -352,6 +358,10 @@ function ThreeStudioViewer({
         );
         environmentSceneRef.current = environmentScene;
         scene.add(environmentScene);
+        await loadThreeEnvironmentAssets(
+          environmentScene,
+          environmentRef.current,
+        );
         scene.add(model);
         setAnalysisVisibility(model, showAnalysisRef.current);
         cameraForModel(camera, controls, model);
@@ -473,6 +483,10 @@ function ThreeStudioViewer({
     );
     environmentSceneRef.current = nextEnvironment;
     scene.add(nextEnvironment);
+    void loadThreeEnvironmentAssets(nextEnvironment, environment).catch(() => {
+      // The procedural terrain remains a complete fallback when a GLB asset
+      // cannot be fetched from a static deployment.
+    });
     const model = createMobupStudioModel(configuration, undefined, materialSet);
     modelRef.current = model;
     scene.add(model);
