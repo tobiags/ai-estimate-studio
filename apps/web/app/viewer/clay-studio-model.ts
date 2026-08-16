@@ -9,6 +9,7 @@ import {
 } from "@ai-estimate-studio/domain";
 import type { StudioEnvironmentCode } from "../studio/environments";
 import { studioTerrainHeight, studioTerrainProfiles } from "./studio-terrain";
+import { studioPoolLayout } from "./studio-layout";
 
 type ClayApp = application.App3D;
 
@@ -128,23 +129,6 @@ function box(
   cube.castShadow = true;
   cube.receiveShadow = true;
   return cube;
-}
-
-function sphere(
-  app: ClayApp,
-  parent: Node,
-  name: string,
-  radius: number,
-  position: [number, number, number],
-  material: Material,
-): Node {
-  const item = app.createSphere(material, parent, 16);
-  item.name = name;
-  item.position.set(...position);
-  item.scale.set(radius, radius, radius);
-  item.castShadow = true;
-  item.receiveShadow = true;
-  return item;
 }
 
 function addSolidWall(
@@ -423,30 +407,14 @@ function addGarden(app: ClayApp, root: Node, materials: ClayMaterialSet): void {
     [0, -0.005, 0],
     materials.mineral,
   );
-  for (const [index, x, z] of [
-    [1, -3.25, -1.65],
-    [2, 3.25, 1.65],
-  ] as const) {
-    box(
-      app,
-      root,
-      `garden-bed-${index}`,
-      [1.35, 0.08, 1.8],
-      [x, 0.02, z],
-      materials.soil,
-    );
-    sphere(
-      app,
-      root,
-      `garden-shrub-${index}`,
-      0.28,
-      [x, 0.25, z],
-      materials.foliage,
-    );
-  }
 }
 
-function addPool(app: ClayApp, root: Node, materials: ClayMaterialSet): void {
+function addPool(
+  app: ClayApp,
+  root: Node,
+  materials: ClayMaterialSet,
+  studioWidth: number,
+): void {
   addOutdoorTerrain(app, root, "pool", materials);
   box(
     app,
@@ -456,45 +424,47 @@ function addPool(app: ClayApp, root: Node, materials: ClayMaterialSet): void {
     [0, -0.08, 0],
     materials.mineral,
   );
-  const poolX = 3.25;
+  const pool = studioPoolLayout(studioWidth);
+  const poolHalfWidth = pool.outerWidth / 2;
+  const poolHalfDepth = pool.depth / 2;
   box(
     app,
     root,
     "pool-water",
-    [2.25, 0.055, 4.45],
-    [poolX, 0.03, 0],
+    [pool.waterWidth, 0.055, pool.depth],
+    [pool.x, 0.03, pool.z],
     materials.water,
   );
   box(
     app,
     root,
     "pool-coping-front",
-    [2.45, 0.08, 0.12],
-    [poolX, 0.06, -2.28],
+    [pool.outerWidth, 0.08, 0.12],
+    [pool.x, 0.06, pool.z - poolHalfDepth - 0.03],
     materials.mineral,
   );
   box(
     app,
     root,
     "pool-coping-back",
-    [2.45, 0.08, 0.12],
-    [poolX, 0.06, 2.28],
+    [pool.outerWidth, 0.08, 0.12],
+    [pool.x, 0.06, pool.z + poolHalfDepth + 0.03],
     materials.mineral,
   );
   box(
     app,
     root,
     "pool-coping-left",
-    [0.12, 0.08, 4.45],
-    [poolX - 1.18, 0.06, 0],
+    [0.12, 0.08, pool.depth],
+    [pool.x - poolHalfWidth, 0.06, pool.z],
     materials.mineral,
   );
   box(
     app,
     root,
     "pool-coping-right",
-    [0.12, 0.08, 4.45],
-    [poolX + 1.18, 0.06, 0],
+    [0.12, 0.08, pool.depth],
+    [pool.x + poolHalfWidth, 0.06, pool.z],
     materials.mineral,
   );
 }
@@ -521,27 +491,6 @@ function addTerrace(
     [0, 0.02, 0.12],
     materials.cedar,
   );
-  for (const [index, x] of [
-    [1, -3.25],
-    [2, 3.25],
-  ] as const) {
-    box(
-      app,
-      root,
-      `terrace-planter-${index}`,
-      [0.62, 0.52, 0.62],
-      [x, 0.28, 1.85],
-      materials.cedar,
-    );
-    sphere(
-      app,
-      root,
-      `terrace-plant-${index}`,
-      0.22,
-      [x, 0.78, 1.85],
-      materials.foliage,
-    );
-  }
 }
 
 export function createClayStudioModel(
@@ -684,7 +633,7 @@ export function createClayStudioModel(
     materials.graphite,
   );
 
-  if (environment === "pool") addPool(app, root, materials);
+  if (environment === "pool") addPool(app, root, materials, width);
   else if (environment === "terrace") addTerrace(app, root, materials);
   else addGarden(app, root, materials);
 

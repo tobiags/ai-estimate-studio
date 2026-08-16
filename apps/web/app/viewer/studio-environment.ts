@@ -3,6 +3,7 @@ import type { StudioEnvironmentCode } from "../studio/environments";
 import type { StudioMaterialSet } from "./studio-model";
 import { studioTerrainHeight, studioTerrainProfiles } from "./studio-terrain";
 import { loadThreeEnvironmentAssets } from "./studio-environment-assets";
+import { studioPoolLayout } from "./studio-layout";
 
 function materialOr(
   material: THREE.Material | undefined,
@@ -35,23 +36,6 @@ function box(
   position: [number, number, number],
 ): THREE.Mesh {
   return mesh(parent, new THREE.BoxGeometry(...size), material, name, position);
-}
-
-function cylinder(
-  parent: THREE.Object3D,
-  radius: number,
-  height: number,
-  material: THREE.Material,
-  name: string,
-  position: [number, number, number],
-): THREE.Mesh {
-  return mesh(
-    parent,
-    new THREE.CylinderGeometry(radius, radius * 1.08, height, 24),
-    material,
-    name,
-    position,
-  );
 }
 
 function environmentMaterials(materials: StudioMaterialSet) {
@@ -139,59 +123,52 @@ function addGardenContext(
   addProceduralTerrain(root, "garden", materials.grass);
   box(root, [8.8, 0.12, 6.8], materials.grass, "garden-ground", [0, -0.08, 0]);
   box(root, [5.9, 0.04, 3.7], materials.mineral, "garden-path", [0, -0.005, 0]);
-  for (const [index, x, z] of [
-    [1, -3.25, -1.65],
-    [2, 3.25, 1.65],
-  ] as const) {
-    box(root, [1.35, 0.08, 1.8], materials.soil, `garden-bed-${index}`, [
-      x,
-      0.02,
-      z,
-    ]);
-    cylinder(root, 0.28, 0.42, materials.foliage, `garden-shrub-${index}`, [
-      x,
-      0.25,
-      z,
-    ]);
-  }
 }
 
 function addPoolContext(
   root: THREE.Group,
   materials: ReturnType<typeof environmentMaterials>,
+  studioWidth: number,
 ): void {
   addProceduralTerrain(root, "pool", materials.grass);
   box(root, [8.8, 0.12, 6.8], materials.mineral, "pool-deck", [0, -0.08, 0]);
-  const poolX = 3.25;
-  const poolZ = 0;
-  box(root, [2.25, 0.055, 4.45], materials.water, "pool-water", [
-    poolX,
-    0.03,
-    poolZ,
-  ]);
+  const pool = studioPoolLayout(studioWidth);
+  const poolHalfWidth = pool.outerWidth / 2;
+  const poolHalfDepth = pool.depth / 2;
   box(
     root,
-    [2.45, 0.08, 0.12],
+    [pool.waterWidth, 0.055, pool.depth],
+    materials.water,
+    "pool-water",
+    [pool.x, 0.03, pool.z],
+  );
+  box(
+    root,
+    [pool.outerWidth, 0.08, 0.12],
     materials.mineral.clone(),
     "pool-coping-front",
-    [poolX, 0.06, poolZ - 2.28],
+    [pool.x, 0.06, pool.z - poolHalfDepth - 0.03],
   );
-  box(root, [2.45, 0.08, 0.12], materials.mineral.clone(), "pool-coping-back", [
-    poolX,
-    0.06,
-    poolZ + 2.28,
-  ]);
-  box(root, [0.12, 0.08, 4.45], materials.mineral.clone(), "pool-coping-left", [
-    poolX - 1.18,
-    0.06,
-    poolZ,
-  ]);
   box(
     root,
-    [0.12, 0.08, 4.45],
+    [pool.outerWidth, 0.08, 0.12],
+    materials.mineral.clone(),
+    "pool-coping-back",
+    [pool.x, 0.06, pool.z + poolHalfDepth + 0.03],
+  );
+  box(
+    root,
+    [0.12, 0.08, pool.depth],
+    materials.mineral.clone(),
+    "pool-coping-left",
+    [pool.x - poolHalfWidth, 0.06, pool.z],
+  );
+  box(
+    root,
+    [0.12, 0.08, pool.depth],
     materials.mineral.clone(),
     "pool-coping-right",
-    [poolX + 1.18, 0.06, poolZ],
+    [pool.x + poolHalfWidth, 0.06, pool.z],
   );
 }
 
@@ -214,35 +191,19 @@ function addTerraceContext(
     "terrace-deck",
     [0, 0.02, 0.12],
   );
-  for (const [index, x] of [
-    [1, -3.25],
-    [2, 3.25],
-  ] as const) {
-    box(
-      root,
-      [0.62, 0.52, 0.62],
-      materials.cedar.clone(),
-      `terrace-planter-${index}`,
-      [x, 0.28, 1.85],
-    );
-    cylinder(root, 0.22, 0.6, materials.foliage, `terrace-plant-${index}`, [
-      x,
-      0.78,
-      1.85,
-    ]);
-  }
 }
 
 export function createMobupEnvironmentScene(
   environment: StudioEnvironmentCode,
   materials: StudioMaterialSet = {},
+  studioWidth = 3.75,
 ): THREE.Group {
   const root = new THREE.Group();
   root.name = `mobup-environment-${environment}`;
   root.userData = { environment };
   const sceneMaterials = environmentMaterials(materials);
 
-  if (environment === "pool") addPoolContext(root, sceneMaterials);
+  if (environment === "pool") addPoolContext(root, sceneMaterials, studioWidth);
   else if (environment === "terrace") addTerraceContext(root, sceneMaterials);
   else addGardenContext(root, sceneMaterials);
 

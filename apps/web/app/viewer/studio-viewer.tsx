@@ -15,7 +15,11 @@ import {
   type MobupStudioModel,
   type StudioMaterialSet,
 } from "./studio-model";
-import type { StudioConfiguration } from "@ai-estimate-studio/domain";
+import {
+  defaultStudioCatalog,
+  findStudioBase,
+  type StudioConfiguration,
+} from "@ai-estimate-studio/domain";
 import type { StudioEnvironmentCode } from "../studio/environments";
 import {
   createMobupEnvironmentScene,
@@ -355,12 +359,20 @@ function ThreeStudioViewer({
         environmentScene = createMobupEnvironmentScene(
           environmentRef.current,
           materialSet,
+          (findStudioBase(
+            defaultStudioCatalog,
+            configurationRef.current.baseCode,
+          )?.widthMm ?? 3750) / 1000,
         );
         environmentSceneRef.current = environmentScene;
         scene.add(environmentScene);
         await loadThreeEnvironmentAssets(
           environmentScene,
           environmentRef.current,
+          (findStudioBase(
+            defaultStudioCatalog,
+            configurationRef.current.baseCode,
+          )?.widthMm ?? 3750) / 1000,
         );
         scene.add(model);
         setAnalysisVisibility(model, showAnalysisRef.current);
@@ -480,10 +492,17 @@ function ThreeStudioViewer({
     const nextEnvironment = createMobupEnvironmentScene(
       environment,
       materialSet,
+      (findStudioBase(defaultStudioCatalog, configuration.baseCode)?.widthMm ??
+        3750) / 1000,
     );
     environmentSceneRef.current = nextEnvironment;
     scene.add(nextEnvironment);
-    void loadThreeEnvironmentAssets(nextEnvironment, environment).catch(() => {
+    void loadThreeEnvironmentAssets(
+      nextEnvironment,
+      environment,
+      (findStudioBase(defaultStudioCatalog, configuration.baseCode)?.widthMm ??
+        3750) / 1000,
+    ).catch(() => {
       // The procedural terrain remains a complete fallback when a GLB asset
       // cannot be fetched from a static deployment.
     });

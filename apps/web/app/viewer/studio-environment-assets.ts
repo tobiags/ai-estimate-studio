@@ -6,6 +6,10 @@ import {
   getUltraShapeAssetRefinement,
   resolveUltraShapeAssetPath,
 } from "./ultrashape-assets";
+import {
+  defaultStudioWidth,
+  resolveStudioAssetPosition,
+} from "./studio-layout";
 
 export type StudioEnvironmentAssetPlacement = Readonly<{
   id: string;
@@ -15,6 +19,8 @@ export type StudioEnvironmentAssetPlacement = Readonly<{
   position: readonly [number, number, number];
   scale: number;
   rotationY?: number;
+  side?: "left" | "right";
+  clearanceFromStudio?: number;
 }>;
 
 /**
@@ -34,6 +40,8 @@ export const studioEnvironmentAssetPlans: Readonly<
       position: [-2.25, -0.03, 1.55] as const,
       scale: 1.65,
       rotationY: -0.22,
+      side: "left" as const,
+      clearanceFromStudio: 1.15,
     },
     {
       id: "garden-bench",
@@ -43,6 +51,8 @@ export const studioEnvironmentAssetPlans: Readonly<
       position: [3.05, -0.02, -2.1] as const,
       scale: 1.15,
       rotationY: -0.45,
+      side: "right" as const,
+      clearanceFromStudio: 1.05,
     },
     {
       id: "garden-plant",
@@ -52,6 +62,8 @@ export const studioEnvironmentAssetPlans: Readonly<
       position: [-3.1, -0.02, -1.95] as const,
       scale: 0.82,
       rotationY: 0.25,
+      side: "left" as const,
+      clearanceFromStudio: 0.65,
     },
   ]),
   pool: Object.freeze([
@@ -63,6 +75,8 @@ export const studioEnvironmentAssetPlans: Readonly<
       position: [-2.05, -0.03, 1.7] as const,
       scale: 1.5,
       rotationY: 0.18,
+      side: "left" as const,
+      clearanceFromStudio: 1.05,
     },
     {
       id: "pool-lantern",
@@ -72,6 +86,8 @@ export const studioEnvironmentAssetPlans: Readonly<
       position: [3.1, 0.03, -2.3] as const,
       scale: 1.45,
       rotationY: 0.35,
+      side: "right" as const,
+      clearanceFromStudio: 1.25,
     },
     {
       id: "pool-plant",
@@ -81,6 +97,8 @@ export const studioEnvironmentAssetPlans: Readonly<
       position: [2.78, -0.02, 2.15] as const,
       scale: 0.78,
       rotationY: -0.35,
+      side: "right" as const,
+      clearanceFromStudio: 1,
     },
   ]),
   terrace: Object.freeze([
@@ -92,6 +110,8 @@ export const studioEnvironmentAssetPlans: Readonly<
       position: [-2.65, -0.02, 1.78] as const,
       scale: 1.45,
       rotationY: 0.14,
+      side: "left" as const,
+      clearanceFromStudio: 1.05,
     },
     {
       id: "terrace-fire-pit",
@@ -101,6 +121,8 @@ export const studioEnvironmentAssetPlans: Readonly<
       position: [3.05, 0.14, -1.95] as const,
       scale: 0.62,
       rotationY: -0.25,
+      side: "right" as const,
+      clearanceFromStudio: 1,
     },
     {
       id: "terrace-plant",
@@ -110,6 +132,8 @@ export const studioEnvironmentAssetPlans: Readonly<
       position: [-2.9, -0.02, -1.85] as const,
       scale: 0.82,
       rotationY: 0.18,
+      side: "left" as const,
+      clearanceFromStudio: 0.65,
     },
   ]),
 });
@@ -125,9 +149,10 @@ function resolvedAssetPath(placement: StudioEnvironmentAssetPlacement): string {
 function prepareClayAsset(
   node: Node,
   placement: StudioEnvironmentAssetPlacement,
+  studioWidth: number,
 ) {
   node.name = `environment-asset-${placement.id}`;
-  node.position.set(...placement.position);
+  node.position.set(...resolveStudioAssetPosition(placement, studioWidth));
   node.scale.set(placement.scale, placement.scale, placement.scale);
   if (placement.rotationY) node.rotation.rotateY(placement.rotationY);
   node.traverse((child) => {
@@ -145,6 +170,7 @@ export async function loadClayEnvironmentAssets(
   app: application.App3D,
   parent: Node,
   environment: StudioEnvironmentCode,
+  studioWidth = defaultStudioWidth,
 ): Promise<readonly string[]> {
   const loaded = await Promise.allSettled(
     studioEnvironmentAssetPlans[environment].map(async (placement) => {
@@ -157,7 +183,8 @@ export async function loadClayEnvironmentAssets(
         },
         parent,
       );
-      if (result.rootNode) prepareClayAsset(result.rootNode, placement);
+      if (result.rootNode)
+        prepareClayAsset(result.rootNode, placement, studioWidth);
       return placement.id;
     }),
   );
@@ -171,9 +198,10 @@ export async function loadClayEnvironmentAssets(
 function prepareThreeAsset(
   scene: THREE.Object3D,
   placement: StudioEnvironmentAssetPlacement,
+  studioWidth: number,
 ): void {
   scene.name = `environment-asset-${placement.id}`;
-  scene.position.set(...placement.position);
+  scene.position.set(...resolveStudioAssetPosition(placement, studioWidth));
   scene.scale.setScalar(placement.scale);
   scene.rotation.y = placement.rotationY ?? 0;
   scene.traverse((object) => {
@@ -186,6 +214,7 @@ function prepareThreeAsset(
 export async function loadThreeEnvironmentAssets(
   parent: THREE.Object3D,
   environment: StudioEnvironmentCode,
+  studioWidth = defaultStudioWidth,
 ): Promise<readonly string[]> {
   const loader = new GLTFLoader();
   const loaded = await Promise.allSettled(
@@ -193,7 +222,7 @@ export async function loadThreeEnvironmentAssets(
       const result = await loader.loadAsync(
         publicAssetPath(resolvedAssetPath(placement)),
       );
-      prepareThreeAsset(result.scene, placement);
+      prepareThreeAsset(result.scene, placement, studioWidth);
       parent.add(result.scene);
       return placement.id;
     }),

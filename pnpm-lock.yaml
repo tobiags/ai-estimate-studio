@@ -92,6 +92,12 @@ importers:
       '@ai-estimate-studio/pricing-engine':
         specifier: workspace:*
         version: link:../../packages/pricing-engine
+      '@formepdf/core':
+        specifier: ^0.11.0
+        version: 0.11.0(react@19.2.8)
+      '@formepdf/react':
+        specifier: ^0.11.0
+        version: 0.11.0(react@19.2.8)
       claygl:
         specifier: 1.3.0
         version: 1.3.0
@@ -710,6 +716,19 @@ packages:
   '@eslint/plugin-kit@0.7.2':
     resolution: {integrity: sha512-+CNAzxglkrpNf/kKywqQfk74QjtceuOE7Qm+AF8miRvPF/wmmK5+OJOgVh3AVTT3RP2mH3+FOaxlE5v72owk0A==}
     engines: {node: ^20.19.0 || ^22.13.0 || >=24}
+
+  '@formepdf/core@0.11.0':
+    resolution: {integrity: sha512-7Wn6sQsd/IW3YWw+1XLs1BK0gg2y5P5YETD96pHZo/1tOZ7owoy/nDXxYgw/h4e5VWtKBWZK1wBgu08T5Ux+ug==}
+    peerDependencies:
+      react: ^18 || ^19
+
+  '@formepdf/react@0.11.0':
+    resolution: {integrity: sha512-2nfI5uhOzxBT+NtktZRE5ghpec57Uo6wMt6jzrLA1F3ZVISldkuqzuNt6/s1di3g60KVx0yRCEF1yXifYcfvYQ==}
+    peerDependencies:
+      react: ^18 || ^19
+
+  '@formepdf/shared@0.11.0':
+    resolution: {integrity: sha512-KBGr+U9mDYD8+tWiLG4AprvrfEM+3KhZ5GMqYeAyj91sPLLSrUId1IBkf9CQ5q7lVWjZrb3drAoqJtHCRdtxRg==}
 
   '@humanfs/core@0.19.2':
     resolution: {integrity: sha512-UhXNm+CFMWcbChXywFwkmhqjs3PRCmcSa/hfBgLIb7oQ5HNb1wS0icWsGtSAUNgefHeI+eBrA8I1fxmbHsGdvA==}
@@ -3444,6 +3463,18 @@ snapshots:
     dependencies:
       '@eslint/core': 1.2.1
       levn: 0.4.1
+
+  '@formepdf/core@0.11.0(react@19.2.8)':
+    dependencies:
+      '@formepdf/react': 0.11.0(react@19.2.8)
+      react: 19.2.8
+
+  '@formepdf/react@0.11.0(react@19.2.8)':
+    dependencies:
+      '@formepdf/shared': 0.11.0
+      react: 19.2.8
+
+  '@formepdf/shared@0.11.0': {}
 
   '@humanfs/core@0.19.2':
     dependencies:

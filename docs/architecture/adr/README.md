@@ -10,5 +10,6 @@
 | [0006](0006-docs-first-branching.md) | Documentation-first `main`, implementation on `develop` | Accepted by project mandate |
 | [0007](0007-claygl-premium-renderer.md) | ClayGL as the default premium browser renderer with a Three.js fallback | Accepted for Mobup slice |
 | [0008](0008-procedural-exterior-contexts.md) | Seeded terrain contexts with local PBR dressing | Accepted for Mobup slice |
+| [0009](0009-pdfcn-forme-browser-rendering.md) | Forme browser PDF with a pdf-lib static fallback | Accepted for Mobup slice |
 
 ADRs are immutable after acceptance. A changed decision creates a superseding ADR and updates this index.

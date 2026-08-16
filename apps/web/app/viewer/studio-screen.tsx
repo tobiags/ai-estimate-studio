@@ -344,7 +344,7 @@ export function StudioScreen() {
     const printStartedAt = performance.now();
     setPdfStatus("busy");
     try {
-      const bytes = await createStudioEstimatePdf({
+      const pdfInput = {
         configuration: state.configuration,
         estimate,
         language: state.language,
@@ -352,7 +352,17 @@ export function StudioScreen() {
         projectName: projectName.trim(),
         customerName: customerName.trim(),
         customerEmail: customerEmail.trim(),
-      });
+      };
+      let bytes: Uint8Array;
+      try {
+        const { createStudioEstimatePdfForme } =
+          await import("../studio/estimate-pdf-forme");
+        bytes = await createStudioEstimatePdfForme(pdfInput);
+      } catch {
+        // Forme is the premium browser renderer. Keep the existing pdf-lib
+        // path as a deterministic fallback for static hosts that block WASM.
+        bytes = await createStudioEstimatePdf(pdfInput);
+      }
       const pdfBuffer = new ArrayBuffer(bytes.byteLength);
       new Uint8Array(pdfBuffer).set(bytes);
       const url = URL.createObjectURL(

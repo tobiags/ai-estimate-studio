@@ -14,6 +14,10 @@ const nextConfig: NextConfig = {
       ".js": [".ts", ".tsx", ".js"],
       ".jsx": [".tsx", ".jsx"],
     };
+    config.experiments = {
+      ...(config.experiments ?? {}),
+      asyncWebAssembly: true,
+    };
     return config;
   },
   ...(isStaticExport
