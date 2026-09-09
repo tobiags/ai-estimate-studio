@@ -11,6 +11,10 @@ import {
 import type { StudioEnvironmentCode } from "../studio/environments";
 import { createClayStudioModel } from "./clay-studio-model";
 import { loadClayEnvironmentAssets } from "./studio-environment-assets";
+import {
+  hideClayProceduralStudioStructure,
+  loadClayStudioCadAsset,
+} from "./studio-cad-assets";
 
 export type ClayStudioViewerProps = Readonly<{
   configuration: StudioConfiguration;
@@ -85,6 +89,13 @@ export function ClayStudioViewer({
             );
             (model.analysis as unknown as { invisible: boolean }).invisible =
               !showAnalysis;
+            void loadClayStudioCadAsset(
+              instance,
+              model.root,
+              configuration,
+            ).then((cadAsset) => {
+              if (cadAsset) hideClayProceduralStudioStructure(model.root);
+            });
 
             // ProceduralTerrains-inspired height fields provide the broad
             // context. Local CC0 Poly Haven assets add close-range silhouettes

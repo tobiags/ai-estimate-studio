@@ -50,6 +50,7 @@ export default withMermaid(
           text: "Subsystems",
           items: [
             { text: "Object Viewer", link: "/viewer/OBJECT_VIEWER" },
+            { text: "CAD asset pipeline", link: "/viewer/CAD_ASSET_PIPELINE" },
             {
               text: "UltraShape asset refinement",
               link: "/viewer/ULTRASHAPE_INTEGRATION",

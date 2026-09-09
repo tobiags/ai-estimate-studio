@@ -20,6 +20,7 @@
 | Architecture | [Repository and package design](architecture/REPOSITORY_STRUCTURE.md) | Normative, proposed | Architecture |
 | Architecture | [Key sequence diagrams](architecture/SEQUENCES.md) | Normative, proposed | Architecture |
 | Viewer | [Generic Object Viewer specification](viewer/OBJECT_VIEWER.md) | Normative, proposed | 3D engineering |
+| Viewer | [Mobup CAD asset pipeline](viewer/CAD_ASSET_PIPELINE.md) | Normative, implemented | build123d + trimesh + GLB |
 | Viewer | [3D generation provider evaluation](viewer/GENERATION_PROVIDER_EVALUATION.md) | Informative decision record | 3D engineering |
 | Viewer | [text-to-cad evaluation](viewer/TEXT_TO_CAD_EVALUATION.md) | Informative decision record | 3D engineering |
 | Architecture | [ClayGL renderer decision](architecture/adr/0007-claygl-premium-renderer.md) | Accepted decision record | Architecture + 3D engineering |

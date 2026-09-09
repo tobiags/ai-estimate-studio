@@ -44,6 +44,50 @@
     "critical": false
   },
   {
+    "key": "studio-cad-p1-m1",
+    "url": "/assets/models/studio/mobup-studio-p1-m1.glb",
+    "kind": "MODEL",
+    "role": "STRUCTURE",
+    "license": "GENERATED_CAD",
+    "source": "scripts/generate-studio-cad.py",
+    "bytes": 32836,
+    "sha256": "5afdec34b4c12412ffc296fa60d9e12cd17b13e7310be23136d78f651757b387",
+    "critical": true
+  },
+  {
+    "key": "studio-cad-p2-m7",
+    "url": "/assets/models/studio/mobup-studio-p2-m7.glb",
+    "kind": "MODEL",
+    "role": "STRUCTURE",
+    "license": "GENERATED_CAD",
+    "source": "scripts/generate-studio-cad.py",
+    "bytes": 35304,
+    "sha256": "4ce5535f59966c7efa8b50f14db3673df3e4498ab9d61bfeef2188d91eb7f4a4",
+    "critical": true
+  },
+  {
+    "key": "studio-cad-p3-m8",
+    "url": "/assets/models/studio/mobup-studio-p3-m8.glb",
+    "kind": "MODEL",
+    "role": "STRUCTURE",
+    "license": "GENERATED_CAD",
+    "source": "scripts/generate-studio-cad.py",
+    "bytes": 39168,
+    "sha256": "f27d84757cd66ad8b3cfa5813789a14c8363f41c1fff87431ffc1e8d5ddd5880",
+    "critical": true
+  },
+  {
+    "key": "studio-cad-p4-m1-m8",
+    "url": "/assets/models/studio/mobup-studio-p4-m1-m8.glb",
+    "kind": "MODEL",
+    "role": "STRUCTURE",
+    "license": "GENERATED_CAD",
+    "source": "scripts/generate-studio-cad.py",
+    "bytes": 47616,
+    "sha256": "5c7edf364e6fb0f84f21765408100588eea1868beb456bf6e8d265de961fe8f4",
+    "critical": true
+  },
+  {
     "key": "mobup-concept-v1",
     "url": "/assets/studio/references/mobup-studio-concept-v1.png",
     "kind": "REFERENCE",

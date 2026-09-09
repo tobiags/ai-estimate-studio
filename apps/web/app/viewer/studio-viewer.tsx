@@ -27,6 +27,10 @@ import {
   loadThreeEnvironmentAssets,
 } from "./studio-environment";
 import { ClayStudioViewer } from "./clay-studio-viewer";
+import {
+  hideThreeProceduralStudioStructure,
+  loadThreeStudioCadAsset,
+} from "./studio-cad-assets";
 
 const environmentPath = "/assets/environments/polyhaven-lapa-1k.hdr";
 const cedarMapPath = "/assets/studio/materials/cedar/cedar_diff_1k.jpg";
@@ -355,6 +359,12 @@ function ThreeStudioViewer({
           undefined,
           materialSet,
         );
+        const cadAsset = await loadThreeStudioCadAsset(
+          model,
+          configurationRef.current,
+        );
+        if (!active) return;
+        if (cadAsset) hideThreeProceduralStudioStructure(model);
         modelRef.current = model;
         environmentScene = createMobupEnvironmentScene(
           environmentRef.current,
@@ -510,6 +520,12 @@ function ThreeStudioViewer({
     modelRef.current = model;
     scene.add(model);
     setAnalysisVisibility(model, showAnalysisRef.current);
+    void loadThreeStudioCadAsset(model, configuration).then((cadAsset) => {
+      if (!cadAsset || modelRef.current !== model) return;
+      hideThreeProceduralStudioStructure(model);
+      if (cameraRef.current && controlsRef.current)
+        cameraForModel(cameraRef.current, controlsRef.current, model);
+    });
   }, [configuration, environment]);
 
   useEffect(() => {

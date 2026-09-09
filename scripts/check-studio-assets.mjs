@@ -23,8 +23,10 @@ let criticalBytes = 0;
 for (const asset of manifest) {
   if (keys.has(asset.key)) errors.push(`duplicate key: ${asset.key}`);
   keys.add(asset.key);
-  if (!asset.url.startsWith("/assets/studio/"))
-    errors.push(`non-local URL: ${asset.key}`);
+  const localAsset =
+    asset.url.startsWith("/assets/studio/") ||
+    asset.url.startsWith("/assets/models/studio/");
+  if (!localAsset) errors.push(`non-local URL: ${asset.key}`);
   if (!asset.license) errors.push(`missing license: ${asset.key}`);
   if (!Number.isSafeInteger(asset.bytes) || asset.bytes <= 0)
     errors.push(`invalid byte declaration: ${asset.key}`);

@@ -31,6 +31,8 @@
     "test": "turbo run test",
     "test:e2e:studio": "pnpm --filter @ai-estimate-studio/web test:e2e",
     "check:studio-assets": "node scripts/check-studio-assets.mjs",
+    "cad:generate": "python scripts/generate-studio-cad.py",
+    "cad:check": "python scripts/check-studio-cad.py",
     "check:ultrashape-assets": "node scripts/check-ultrashape-assets.mjs",
     "typecheck": "turbo run typecheck"
   },
