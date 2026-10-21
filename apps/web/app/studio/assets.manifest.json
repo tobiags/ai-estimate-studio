@@ -49,9 +49,9 @@
     "kind": "MODEL",
     "role": "STRUCTURE",
     "license": "GENERATED_CAD",
-    "source": "scripts/generate-studio-cad.py",
-    "bytes": 32836,
-    "sha256": "5afdec34b4c12412ffc296fa60d9e12cd17b13e7310be23136d78f651757b387",
+    "source": "scripts/blender-studio-scenes.py",
+    "bytes": 813332,
+    "sha256": "3510ae942c4ec9a96348c0b1b9c315d0ff8b48cc1c8660f6c4f5da0a1fee3b1e",
     "critical": true
   },
   {
@@ -60,9 +60,9 @@
     "kind": "MODEL",
     "role": "STRUCTURE",
     "license": "GENERATED_CAD",
-    "source": "scripts/generate-studio-cad.py",
-    "bytes": 35304,
-    "sha256": "4ce5535f59966c7efa8b50f14db3673df3e4498ab9d61bfeef2188d91eb7f4a4",
+    "source": "scripts/blender-studio-scenes.py",
+    "bytes": 867572,
+    "sha256": "9e0ab719273f5c1f31a568e372a4b8a594bd1936b61c7018ad99b3dd815204cc",
     "critical": true
   },
   {
@@ -71,9 +71,9 @@
     "kind": "MODEL",
     "role": "STRUCTURE",
     "license": "GENERATED_CAD",
-    "source": "scripts/generate-studio-cad.py",
-    "bytes": 39168,
-    "sha256": "f27d84757cd66ad8b3cfa5813789a14c8363f41c1fff87431ffc1e8d5ddd5880",
+    "source": "scripts/blender-studio-scenes.py",
+    "bytes": 996096,
+    "sha256": "db728cdc17191e0b892735a676766b1c4f9eba319846fd55abc6add145a44651",
     "critical": true
   },
   {
@@ -82,9 +82,9 @@
     "kind": "MODEL",
     "role": "STRUCTURE",
     "license": "GENERATED_CAD",
-    "source": "scripts/generate-studio-cad.py",
-    "bytes": 47616,
-    "sha256": "5c7edf364e6fb0f84f21765408100588eea1868beb456bf6e8d265de961fe8f4",
+    "source": "scripts/blender-studio-scenes.py",
+    "bytes": 1214600,
+    "sha256": "901d890206fa0ba2f1fbc17df2e1489eaf6aa8000aa09946f9383ad36ebc0076",
     "critical": true
   },
   {

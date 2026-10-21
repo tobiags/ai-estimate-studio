@@ -29,7 +29,11 @@ def validate_variant(path: Path, width_mm: int) -> tuple[float, float, float]:
     for name, geometry in loaded.geometry.items():
         if not isinstance(geometry, trimesh.Trimesh):
             raise ValueError(f"{path.name}/{name}: expected triangle mesh")
-        components = geometry.split(only_watertight=False)
+        # glTF duplicates vertices at UV and normal seams. Check physical
+        # topology after welding those render-only splits on a copy.
+        welded = geometry.copy()
+        welded.merge_vertices(merge_tex=True, merge_norm=True)
+        components = welded.split(only_watertight=False)
         if not components or any(not component.is_watertight for component in components):
             raise ValueError(f"{path.name}/{name}: non-watertight component")
 
