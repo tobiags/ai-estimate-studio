@@ -14,7 +14,7 @@ import {
 export type StudioEnvironmentAssetPlacement = Readonly<{
   id: string;
   path: string;
-  license: "CC0";
+  license: "CC0" | "CC-BY-4.0";
   source: string;
   position: readonly [number, number, number];
   scale: number;
@@ -141,6 +141,40 @@ export const studioEnvironmentAssetPlans: Readonly<
 const publicAssetPath = (path: string) =>
   `${process.env.NEXT_PUBLIC_BASE_PATH ?? ""}${path}`;
 
+/** Local NVIDIA furniture, sized in metres; never scale furniture with the building. */
+export function studioInteriorAssetPlan(
+  studioWidth: number,
+): readonly StudioEnvironmentAssetPlacement[] {
+  const source = "https://huggingface.co/datasets/nvidia/simready-assets";
+  const common = { license: "CC-BY-4.0" as const, source, scale: 1 };
+  if (studioWidth < 2.5) {
+    return [
+      {
+        ...common,
+        id: "nvidia-chair",
+        path: "/assets/models/nvidia/chair_office_amf_black_a01.glb",
+        position: [0, 0.235, 0],
+      },
+    ];
+  }
+  return [
+    {
+      ...common,
+      id: "nvidia-sofa",
+      path: "/assets/models/nvidia/sofa_soft_b02.glb",
+      position: [0, 0.235, -0.72],
+      rotationY: -Math.PI / 2,
+    },
+    {
+      ...common,
+      id: "nvidia-coffee-table",
+      path: "/assets/models/nvidia/furniture_table_coffee_low_a01.glb",
+      position: [0, 0.235, 0.25],
+      rotationY: -Math.PI / 2,
+    },
+  ];
+}
+
 function resolvedAssetPath(placement: StudioEnvironmentAssetPlacement): string {
   const refinement = getUltraShapeAssetRefinement(placement.id);
   return resolveUltraShapeAssetPath(placement.path, refinement).path;
@@ -173,7 +207,10 @@ export async function loadClayEnvironmentAssets(
   studioWidth = defaultStudioWidth,
 ): Promise<readonly string[]> {
   const loaded = await Promise.allSettled(
-    studioEnvironmentAssetPlans[environment].map(async (placement) => {
+    [
+      ...studioEnvironmentAssetPlans[environment],
+      ...studioInteriorAssetPlan(studioWidth),
+    ].map(async (placement) => {
       const result = await app.loadModel(
         publicAssetPath(resolvedAssetPath(placement)),
         {
@@ -218,7 +255,10 @@ export async function loadThreeEnvironmentAssets(
 ): Promise<readonly string[]> {
   const loader = new GLTFLoader();
   const loaded = await Promise.allSettled(
-    studioEnvironmentAssetPlans[environment].map(async (placement) => {
+    [
+      ...studioEnvironmentAssetPlans[environment],
+      ...studioInteriorAssetPlan(studioWidth),
+    ].map(async (placement) => {
       const result = await loader.loadAsync(
         publicAssetPath(resolvedAssetPath(placement)),
       );

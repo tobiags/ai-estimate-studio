@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
   studioEnvironmentAssetPlans,
+  studioInteriorAssetPlan,
   type StudioEnvironmentAssetPlacement,
 } from "./studio-environment-assets";
 import {
@@ -9,6 +10,24 @@ import {
 } from "./ultrashape-assets";
 
 describe("studio environment asset plans", () => {
+  it("fits licensed NVIDIA interior furniture to the available width", () => {
+    for (const width of [1.25, 2.5, 3.75, 5]) {
+      const plan = studioInteriorAssetPlan(width);
+      expect(plan.map((item) => item.id)).toEqual(
+        width < 2.5 ? ["nvidia-chair"] : ["nvidia-sofa", "nvidia-coffee-table"],
+      );
+      expect(
+        plan.every((item) => item.license === "CC-BY-4.0" && item.scale === 1),
+      ).toBe(true);
+      expect(
+        plan.every((item) => item.position[1] === 0.235 && !item.side),
+      ).toBe(true);
+      // Rotated sofa is 1.526 m wide; wall faces are 0.12 m thick.
+      if (width >= 2.5) expect(1.526 + 0.24).toBeLessThan(width);
+      // Sofa front and table rear retain at least 0.31 m clearance.
+      expect(0.72 + 0.25 - (0.703 + 0.6) / 2).toBeGreaterThan(0.31);
+    }
+  });
   it("uses local Poly Haven assets for every exterior", () => {
     for (const environment of ["garden", "pool", "terrace"] as const) {
       const plan = studioEnvironmentAssetPlans[environment];

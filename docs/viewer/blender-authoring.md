@@ -1,5 +1,8 @@
 # Blender scene authoring
 
+NVIDIA interior furniture and its conversion/QA contract are documented in
+[NVIDIA SimReady furniture](./nvidia-simready.md).
+
 ## Scope
 
 The Blender authoring pipeline refines the existing dimensioned Mobup CAD models.

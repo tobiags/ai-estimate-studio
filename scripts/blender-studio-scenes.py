@@ -330,6 +330,25 @@ def optimize_environment():
                     images[key] = node.image
 
 
+def interior(width):
+    """Real NVIDIA furniture, separate from the parametric studio shell."""
+    placements = [('chair_office_amf_black_a01', (0, 0, .235), 0)] if width < 2.5 else [
+        ('sofa_soft_b02', (0, .72, .235), math.pi / 2),
+        ('furniture_table_coffee_low_a01', (0, -.25, .235), math.pi / 2),
+    ]
+    for asset, position, angle in placements:
+        before = set(bpy.data.objects)
+        bpy.ops.import_scene.gltf(filepath=str(ASSETS / 'models/nvidia' / (asset + '.glb')))
+        imported = set(bpy.data.objects) - before
+        pivot = bpy.data.objects.new('NVIDIA_' + asset, None)
+        bpy.context.scene.collection.objects.link(pivot)
+        for ob in imported:
+            if ob.parent not in imported:
+                ob.parent = pivot
+        pivot.location = position
+        pivot.rotation_euler.z = angle
+
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--out', required=True, type=Path)
@@ -351,6 +370,7 @@ def main():
                 bpy.ops.export_scene.gltf(filepath=str(studio_path), export_format='GLB', export_animations=False, export_apply=True)
             width = VARIANTS[variant]
             environment(kind, width)
+            interior(width)
             optimize_environment()
             bpy.ops.export_scene.gltf(filepath=str(args.out / ('mobup-' + variant + '-' + kind + '.glb')), export_format='GLB', export_animations=False, export_apply=True)
             lighting(width)

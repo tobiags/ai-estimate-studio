@@ -466,6 +466,13 @@ export function StudioScreen() {
           <div className="mobup-stage-foot">
             <span>DROP MODULES ON THE STUDIO</span>
             <span>360° ORBIT / PBR MATERIALS</span>
+            <a
+              href={`${process.env.NEXT_PUBLIC_BASE_PATH ?? ""}/assets/models/nvidia/ATTRIBUTION.txt`}
+              target="_blank"
+              rel="noreferrer"
+            >
+              NVIDIA · CC BY 4.0
+            </a>
           </div>
         </div>
 

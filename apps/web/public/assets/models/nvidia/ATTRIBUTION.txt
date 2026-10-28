@@ -1,0 +1,18 @@
+NVIDIA SimReady furniture
+Copyright NVIDIA. Licensed under Creative Commons Attribution 4.0 International.
+https://creativecommons.org/licenses/by/4.0/
+Source: https://huggingface.co/datasets/nvidia/simready-assets
+Source revision: 653d91e182011f357cf1644013cc94ddf194d349
+
+Assets:
+- chair_office_amf_black_a01 / sm_chair_office_amf_black_a01_01.usd
+- sofa_soft_b02 / sm_sofa_soft_b02_01.usd
+- furniture_table_coffee_low_a01 / sm_furniture_table_coffee_low_a01_01.usd
+
+Modifications by AI Estimate Studio:
+Converted visual USD layers to glTF 2.0 GLB with Blender 5.2.2 LTS.
+Bottom-centred pivots, preserved metre scale, simplified high-poly meshes,
+textures resized to at most 1024 pixels and JPEG quality 85.
+Physics engine variants and MDL source code are not included.
+USD Preview Surface materials converted to glTF PBR materials.
+No NVIDIA endorsement is implied.
