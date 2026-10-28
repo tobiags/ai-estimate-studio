@@ -42,9 +42,10 @@ import { loadStudioState, saveStudioState } from "../studio/persistence";
 import { createStudioEstimatePdf } from "../studio/estimate-pdf";
 import { StudioViewer } from "./studio-viewer";
 
-const receiptPrintDurationMs = 620;
+const receiptPrintDurationMs = 1750;
 
 async function waitForReceiptPrint(startedAt: number) {
+  if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
   const remainingMs = receiptPrintDurationMs - (performance.now() - startedAt);
   if (remainingMs > 0) {
     await new Promise<void>((resolve) =>
@@ -261,7 +262,7 @@ export function StudioScreen() {
   const [customerEmail, setCustomerEmail] = useState("");
   const [isDownloadPressed, setIsDownloadPressed] = useState(false);
   const [pdfStatus, setPdfStatus] = useState<
-    "idle" | "busy" | "ready" | "error"
+    "idle" | "busy" | "printing" | "ready" | "error"
   >("idle");
   const copy = getStudioCopy(state.language);
   const handleViewerReady = useCallback(
@@ -341,7 +342,7 @@ export function StudioScreen() {
         : copy.loading;
 
   const downloadEstimate = async () => {
-    const printStartedAt = performance.now();
+    if (pdfStatus === "busy" || pdfStatus === "printing") return;
     setPdfStatus("busy");
     try {
       const pdfInput = {
@@ -365,18 +366,20 @@ export function StudioScreen() {
       }
       const pdfBuffer = new ArrayBuffer(bytes.byteLength);
       new Uint8Array(pdfBuffer).set(bytes);
+      setPdfStatus("printing");
+      await waitForReceiptPrint(performance.now());
       const url = URL.createObjectURL(
         new Blob([pdfBuffer], { type: "application/pdf" }),
       );
       const anchor = document.createElement("a");
       anchor.href = url;
       anchor.download = `mobup-estimate-${state.configuration.baseCode.toLowerCase()}.pdf`;
+      document.body.append(anchor);
       anchor.click();
-      URL.revokeObjectURL(url);
-      await waitForReceiptPrint(printStartedAt);
+      anchor.remove();
+      window.setTimeout(() => URL.revokeObjectURL(url), 1000);
       setPdfStatus("ready");
     } catch {
-      await waitForReceiptPrint(printStartedAt);
       setPdfStatus("error");
     }
   };
@@ -836,21 +839,54 @@ export function StudioScreen() {
                   <span className="mobup-download-printer__signal" />
                 </div>
                 <div className="mobup-download-printer__slot" />
-                <div className="mobup-download-printer__receipt">
-                  <span className="mobup-download-printer__receipt-mark" />
-                  <span className="mobup-download-printer__receipt-line mobup-download-printer__receipt-line--wide" />
-                  <span className="mobup-download-printer__receipt-line" />
-                  <span className="mobup-download-printer__receipt-line mobup-download-printer__receipt-line--short" />
-                  <span className="mobup-download-printer__receipt-total" />
-                </div>
               </div>
+              <div
+                className="mobup-download-printer__output"
+                aria-hidden={pdfStatus !== "ready"}
+              >
+                <article className="mobup-download-printer__receipt">
+                  <strong>MOBUP</strong>
+                  <span>GARDEN STUDIO · {state.configuration.baseCode}</span>
+                  <hr />
+                  <span>{dimensions}</span>
+                  <span>
+                    {copy.subtotal}{" "}
+                    <b>{formatMoney(estimate.subtotalMinor, state.language)}</b>
+                  </span>
+                  <span>
+                    {copy.vat}{" "}
+                    <b>{formatMoney(estimate.taxMinor, state.language)}</b>
+                  </span>
+                  <hr />
+                  <span>
+                    {copy.total}{" "}
+                    <b>{formatMoney(estimate.totalMinor, state.language)}</b>
+                  </span>
+                  <small>{copy.nonContractual}</small>
+                </article>
+              </div>
+              <span className="mobup-download-printer__status" role="status">
+                {pdfStatus === "busy"
+                  ? state.language === "fr"
+                    ? "Préparation du PDF…"
+                    : "Preparing PDF…"
+                  : pdfStatus === "printing"
+                    ? state.language === "fr"
+                      ? "Impression de votre estimation…"
+                      : "Printing your estimate…"
+                    : pdfStatus === "ready"
+                      ? copy.downloadReady
+                      : pdfStatus === "error"
+                        ? copy.downloadError
+                        : ""}
+              </span>
               <button
                 className="mobup-download-button"
                 type="button"
                 data-state={pdfStatus}
                 data-pressed={isDownloadPressed}
-                aria-busy={pdfStatus === "busy"}
-                disabled={pdfStatus === "busy"}
+                aria-busy={pdfStatus === "busy" || pdfStatus === "printing"}
+                disabled={pdfStatus === "busy" || pdfStatus === "printing"}
                 onBlur={() => setIsDownloadPressed(false)}
                 onClick={() => void downloadEstimate()}
                 onPointerCancel={() => setIsDownloadPressed(false)}
@@ -866,7 +902,7 @@ export function StudioScreen() {
                     <path d="M8 1.75v7.5m0 0 2.5-2.5M8 9.25l-2.5-2.5M3 11.75v1.5h10v-1.5" />
                   </svg>
                   <span aria-live="polite">
-                    {pdfStatus === "busy"
+                    {pdfStatus === "busy" || pdfStatus === "printing"
                       ? "..."
                       : pdfStatus === "ready"
                         ? copy.downloadReady

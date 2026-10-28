@@ -893,6 +893,27 @@ a {
   gap: 9px;
 }
 
+.mobup-download-printer__output {
+  position: relative;
+  z-index: 2;
+  height: 0;
+  margin: -24px 20px 0;
+  overflow: hidden;
+  transition: height 200ms ease;
+}
+
+.mobup-download-printer:is([data-state="printing"], [data-state="ready"])
+  .mobup-download-printer__output {
+  height: 230px;
+}
+
+.mobup-download-printer__status {
+  min-height: 16px;
+  color: #edc5ae;
+  font-size: 10px;
+  text-align: center;
+}
+
 .mobup-download-printer__device {
   position: relative;
   height: 76px;
@@ -956,7 +977,8 @@ a {
     box-shadow 150ms ease;
 }
 
-.mobup-download-printer[data-state="busy"] .mobup-download-printer__signal {
+.mobup-download-printer:is([data-state="busy"], [data-state="printing"])
+  .mobup-download-printer__signal {
   background: #f0c1a8;
   box-shadow: 0 0 0 3px rgba(240, 193, 168, 0.14);
 }
@@ -985,15 +1007,15 @@ a {
 }
 
 .mobup-download-printer__receipt {
-  position: absolute;
+  position: relative;
   z-index: 2;
-  right: 17px;
-  bottom: 5px;
-  left: 17px;
   display: grid;
-  gap: 4px;
-  height: 60px;
-  padding: 9px 10px 8px;
+  gap: 8px;
+  min-height: 220px;
+  padding: 18px 14px 22px;
+  font:
+    10px/1.4 Montserrat,
+    sans-serif;
   overflow: hidden;
   background: #f5eee4;
   color: #322a24;
@@ -1027,56 +1049,36 @@ a {
     4% calc(100% - 4px),
     0 100%
   );
-  opacity: 0.94;
-  transform: translateY(42px);
-  transition:
-    transform 180ms cubic-bezier(0.23, 1, 0.32, 1),
-    opacity 180ms ease;
+  opacity: 0;
+  transform: translateY(-100%);
 }
 
-.mobup-download-printer[data-state="busy"] .mobup-download-printer__receipt {
-  animation: mobup-receipt-print 620ms cubic-bezier(0.23, 1, 0.32, 1) forwards;
+.mobup-download-printer__receipt > span {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.mobup-download-printer__receipt hr {
+  width: 100%;
+  margin: 0;
+  border: 0;
+  border-top: 1px dashed #b4a799;
+}
+
+.mobup-download-printer[data-state="printing"]
+  .mobup-download-printer__receipt {
+  animation: mobup-receipt-print 1750ms steps(18, end) forwards;
 }
 
 .mobup-download-printer[data-state="ready"] .mobup-download-printer__receipt {
   opacity: 1;
-  transform: translateY(10px);
+  transform: translateY(0);
 }
 
 .mobup-download-printer[data-state="error"] .mobup-download-printer__receipt {
-  opacity: 0.48;
-  transform: translateY(42px);
-}
-
-.mobup-download-printer__receipt-mark,
-.mobup-download-printer__receipt-line,
-.mobup-download-printer__receipt-total {
-  display: block;
-  height: 3px;
-  background: currentColor;
-  opacity: 0.26;
-}
-
-.mobup-download-printer__receipt-mark {
-  width: 23%;
-  height: 5px;
-  margin-bottom: 1px;
-  opacity: 0.58;
-}
-
-.mobup-download-printer__receipt-line--wide {
-  width: 76%;
-}
-
-.mobup-download-printer__receipt-line--short {
-  width: 42%;
-}
-
-.mobup-download-printer__receipt-total {
-  width: 32%;
-  margin-top: 2px;
-  margin-left: auto;
-  opacity: 0.6;
+  opacity: 0;
+  transform: translateY(-100%);
 }
 
 .mobup-download-button {
@@ -1163,8 +1165,8 @@ a {
 
 @keyframes mobup-receipt-print {
   0% {
-    opacity: 0.65;
-    transform: translateY(42px);
+    opacity: 1;
+    transform: translateY(-100%);
   }
 
   18% {
@@ -1173,7 +1175,7 @@ a {
 
   100% {
     opacity: 1;
-    transform: translateY(10px);
+    transform: translateY(0);
   }
 }
 
@@ -1314,8 +1316,9 @@ a {
     transition: none !important;
   }
 
-  .mobup-download-printer[data-state="busy"] .mobup-download-printer__receipt {
+  .mobup-download-printer[data-state="printing"]
+    .mobup-download-printer__receipt {
     opacity: 1;
-    transform: translateY(10px);
+    transform: translateY(0);
   }
 }
