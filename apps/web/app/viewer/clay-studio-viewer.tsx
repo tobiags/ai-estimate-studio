@@ -79,8 +79,25 @@ export function ClayStudioViewer({
             camera.far = 100;
             camera.updateProjectionMatrix();
             instance.createAmbientLight("#fff8ed", 0.42);
-            instance.createDirectionalLight([-1, -1.4, -1], "#fff5e8", 2.1);
-            instance.createDirectionalLight([0.7, -0.3, 0.4], "#d6e7ff", 0.45);
+            const sun = instance.createDirectionalLight(
+              [-1, -1.4, -1],
+              "#fff5e8",
+              2.1,
+            );
+            sun.shadowResolution = 2048;
+            const fill = instance.createDirectionalLight(
+              [0.7, -0.3, 0.4],
+              "#d6e7ff",
+              0.45,
+            );
+            fill.castShadow = false;
+            const interior = instance.createPointLight(
+              [0, 2.25, 0.3],
+              2.6,
+              "#fff1df",
+              0.85,
+            );
+            interior.castShadow = false;
 
             const model = createClayStudioModel(
               instance,

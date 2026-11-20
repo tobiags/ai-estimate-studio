@@ -64,7 +64,13 @@ export function resolveStudioCadAsset(
 function prepareThreeCadAsset(root: THREE.Object3D, plan: StudioCadAssetPlan) {
   root.name = `cad-studio-${plan.id}`;
   root.traverse((object) => {
-    object.castShadow = true;
+    const mesh = object as THREE.Mesh;
+    const materials = mesh.isMesh ? [mesh.material].flat() : [];
+    const glazing = materials.filter(
+      (material) => material.name === "mobup-glass",
+    );
+    for (const material of glazing) material.opacity = 0.22;
+    object.castShadow = glazing.length === 0;
     object.receiveShadow = true;
   });
 }
@@ -94,8 +100,11 @@ function prepareClayCadAsset(root: Node, plan: StudioCadAssetPlan): void {
     const renderable = child as Node & {
       castShadow?: boolean;
       receiveShadow?: boolean;
+      material?: import("claygl").Material;
     };
-    renderable.castShadow = true;
+    const glazing = renderable.material?.name === "mobup-glass";
+    if (glazing) renderable.material?.set("alpha", 0.22);
+    renderable.castShadow = !glazing;
     renderable.receiveShadow = true;
   });
 }

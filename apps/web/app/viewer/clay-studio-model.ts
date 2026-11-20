@@ -81,7 +81,7 @@ function materialSet(app: ClayApp): ClayMaterialSet {
     color: "#c6d8da",
     roughness: 0.12,
     metalness: 0.08,
-    alpha: 0.5,
+    alpha: 0.24,
     transparent: true,
   });
   const foliage = app.createMaterial({
